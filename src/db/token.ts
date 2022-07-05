@@ -1,4 +1,5 @@
 import { Pool, PoolClient } from "pg";
+import { UUID } from "types/index.js";
 import { SessionTokenType } from "../types/auth.js";
 import { Token } from "../types/token.js";
 
@@ -9,7 +10,7 @@ class TokenObject {
     this.db = db;
   }
 
-  create(userId: number, token: string, type: SessionTokenType, client: PoolClient | Pool = this.db) {
+  create(userId: UUID, token: string, type: SessionTokenType, client: PoolClient | Pool = this.db) {
     const query = `
       INSERT INTO identity.token (user_id, token, type) VALUES
       ($1, $2, $3) RETURNING *;

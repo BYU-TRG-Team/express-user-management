@@ -16,7 +16,9 @@ exports.up = (pgm) => {
     userTable,
     {
       user_id: { 
-        type: "serial",
+        type: "uuid",
+        default: new PgLiteral("uuid_generate_v4()"),
+        notNull: true,
         primaryKey: true,
       },
       username: { 
@@ -62,7 +64,7 @@ exports.up = (pgm) => {
         notNull: true,
       },
       user_id: {
-        type: "integer",
+        type: "uuid",
         notNull: true,
         references: userTable,
         onDelete: "CASCADE"
