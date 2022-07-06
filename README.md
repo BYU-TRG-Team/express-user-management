@@ -373,7 +373,7 @@ User Schema:
 
 ```
 {
-  user_id: number;
+  user_id: UUID;
   username: string;
   verified: boolean;
   password: string;
