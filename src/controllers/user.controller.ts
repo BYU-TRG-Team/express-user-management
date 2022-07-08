@@ -28,7 +28,7 @@ class UserController {
   */
   async updateUser(req: Request, res: Response) {
     try {
-      const isClientUser = Number(req.userId) === Number(req.params.id);
+      const isClientUser = req.userId === req.params.id;
       const newAttributes: {[key: string]: string} = {};
       const superadminNewAttributes: {[key: string]: string} = {};
 
@@ -88,7 +88,7 @@ class UserController {
   */
   async getUser(req: Request, res: Response) {
     try {
-      if (Number(req.params.id) !== req.userId) {
+      if (req.params.id !== req.userId) {
         return res.status(400).send({ message: errorMessages.generic });
       }
 
