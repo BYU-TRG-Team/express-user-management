@@ -133,7 +133,7 @@ class UserController {
   */
   async deleteUser(req: Request, res: Response) {
     try {
-      await this.db.objects.User.deleteUser(Number(req.params.id));
+      await this.db.objects.User.deleteUser(req.params.id);
       res.status(204).send();
     } catch (err: any) {
       this.logger.log({
