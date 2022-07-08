@@ -8,6 +8,8 @@ const tokenTable = { schema, name: "token"};
 
 
 exports.up = (pgm) => {
+  pgm.createExtension("uuid-ossp", { ifNotExists: true });
+  
   pgm.createSchema(schema, {
     ifNotExists: true
   });
