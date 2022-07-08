@@ -1,3 +1,5 @@
+import { UUID } from "types";
+
 export enum Role {
   Admin = 3,
   Staff = 2,
@@ -11,7 +13,7 @@ export enum SessionTokenType {
 }
 
 export type AuthToken = {
-  id: number;
+  id: UUID;
   role: Role;
   verified: boolean;
   username: string;
