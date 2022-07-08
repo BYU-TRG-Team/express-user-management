@@ -10,7 +10,12 @@ class TokenObject {
     this.db = db;
   }
 
-  create(userId: UUID, token: string, type: SessionTokenType, client: PoolClient | Pool = this.db) {
+  create(
+    userId: UUID, 
+    token: string, 
+    type: SessionTokenType, 
+    client: PoolClient | Pool = this.db
+  ) {
     const query = `
       INSERT INTO identity.token (user_id, token, type) VALUES
       ($1, $2, $3) RETURNING *;
@@ -27,7 +32,10 @@ class TokenObject {
     return this.db.query<Token>(query, [token]);
   }
 
-  findTokens(attributes: any[], values: any[]) {
+  findTokens(
+    attributes: any[], 
+    values: any[]
+  ) {
     let filters = '';
 
     for (let i = 0; i < attributes.length; ++i) {
