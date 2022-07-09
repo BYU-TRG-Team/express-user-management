@@ -1,5 +1,5 @@
 import { Pool, PoolClient } from "pg";
-import { UUID } from "types/index.js";
+import { UUID } from "../types/index.js";
 import { Role } from "../types/auth.js";
 import { User } from "../types/user.js";
 
