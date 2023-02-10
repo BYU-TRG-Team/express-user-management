@@ -6,7 +6,7 @@ import errorMessages from "../messages/errors.messages.js";
 import CookieConfig from "../config/cookie.js";
 
 export const verifyToken = (authSecret: string) => (req: Request, res: Response, next: NextFunction) => {
-  const token = req.cookies[CookieConfig.cookieName]
+  const token = req.cookies[CookieConfig.cookieName];
 
   if (!token) {
     res.status(401).send({

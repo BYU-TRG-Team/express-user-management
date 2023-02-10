@@ -31,7 +31,7 @@ class TokenHandler {
   }
 
   generateShortToken() {
-    return crypto.randomBytes(20).toString('hex');
+    return crypto.randomBytes(20).toString("hex");
   }
 
   generateUserAuthToken(user: User, req: Request): AuthToken {

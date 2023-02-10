@@ -19,10 +19,10 @@ const init = (app: Express, initOptions: InitOptions) => {
 
   return {
     userService: di.DB.objects.User,
-  }
-}
+  };
+};
 
-export default init
+export default init;
 export * from "./middleware/auth.middleware.js";
 export * from "./types/auth.js";
 export * from "./types/user.js";

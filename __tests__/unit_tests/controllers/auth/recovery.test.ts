@@ -13,8 +13,8 @@ import SmtpService from "../../../../src/services/smtp.service";
 import "../../../../custom-matchers";
 import { Request, Response } from "express";
 
-describe('tests recovery method', () => {
-  it('should throw a 400 error for invalid body', async () => {
+describe("tests recovery method", () => {
+  it("should throw a 400 error for invalid body", async () => {
     const mockedSmtpService = smtpService();
     const mockedDb = mockDB(mockUser(), mockToken());
     const mockedLogger = logger();
@@ -33,18 +33,18 @@ describe('tests recovery method', () => {
     }) as unknown as Request;
 
     const res = response() as unknown as Response;
-    jest.spyOn(res, 'status');
-    jest.spyOn(res, 'send');
+    jest.spyOn(res, "status");
+    jest.spyOn(res, "send");
     await authController.recovery(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.status).toHaveBeenCalledTimes(1);
 
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({ message: 'Body must include email' });
+    expect(res.send).toHaveBeenCalledWith({ message: "Body must include email" });
   });
 
-  it('should redirect to /recover/sent but not send a password reset email', async () => {
+  it("should redirect to /recover/sent but not send a password reset email", async () => {
     const mockedSmtpService = smtpService();
     const mockedUser = mockUser({
       findUsers: jest.fn(() => ({
@@ -64,31 +64,31 @@ describe('tests recovery method', () => {
 
     const req = request({
       body: {
-        email: 'test',
+        email: "test",
       },
     }) as unknown as Request;
 
     const res = response() as unknown as Response;
-    jest.spyOn(res, 'redirect');
-    jest.spyOn(authController, 'sendPasswordResetEmail');
+    jest.spyOn(res, "redirect");
+    jest.spyOn(authController, "sendPasswordResetEmail");
     await authController.recovery(req, res);
 
     expect(mockedDb.objects.User.findUsers).toHaveBeenCalledTimes(1);
-    expect(mockedDb.objects.User.findUsers.mock.calls[0][0]).toBeArrayWithElements(['email']);  
+    expect(mockedDb.objects.User.findUsers.mock.calls[0][0]).toBeArrayWithElements(["email"]);  
     expect(mockedDb.objects.User.findUsers.mock.calls[0][1]).toBeArrayWithElements([req.body.email]);
 
     expect(res.redirect).toHaveBeenCalledTimes(1);
-    expect(res.redirect).toHaveBeenCalledWith('/recover/sent');
+    expect(res.redirect).toHaveBeenCalledWith("/recover/sent");
 
     expect(authController.sendPasswordResetEmail).toHaveBeenCalledTimes(0);
   });
 
-  it('should redirect to /recover/sent and send a password reset email', async () => {
+  it("should redirect to /recover/sent and send a password reset email", async () => {
     const mockedSmtpService = smtpService();
     const mockedUser = mockUser({
       findUsers: jest.fn(() => ({
         rows: [{
-          test: 'test'
+          test: "test"
         }]
       }))
     });
@@ -105,28 +105,28 @@ describe('tests recovery method', () => {
 
     const req = request({
       body: {
-        email: 'test',
+        email: "test",
       },
       headers: {
-        host: 'test',
+        host: "test",
       },
     }) as unknown as Request;
 
     const res = response() as unknown as Response;
-    jest.spyOn(res, 'redirect');
-    jest.spyOn(authController, 'sendPasswordResetEmail');
+    jest.spyOn(res, "redirect");
+    jest.spyOn(authController, "sendPasswordResetEmail");
     await authController.recovery(req, res);
 
     expect(mockedDb.objects.User.findUsers).toHaveBeenCalledTimes(1);
-    expect(mockedDb.objects.User.findUsers.mock.calls[0][0]).toBeArrayWithElements(['email']);  
+    expect(mockedDb.objects.User.findUsers.mock.calls[0][0]).toBeArrayWithElements(["email"]);  
     expect(mockedDb.objects.User.findUsers.mock.calls[0][1]).toBeArrayWithElements([req.body.email]);
 
     expect(res.redirect).toHaveBeenCalledTimes(1);
-    expect(res.redirect).toHaveBeenCalledWith('/recover/sent');
+    expect(res.redirect).toHaveBeenCalledWith("/recover/sent");
 
     expect(authController.sendPasswordResetEmail).toHaveBeenCalledTimes(1);
     const mockSendPasswordRestEmail = (authController as any).sendPasswordResetEmail.mock.calls[0];
     expect(mockSendPasswordRestEmail[0]).toStrictEqual(req);
-    expect(mockSendPasswordRestEmail[1]).toStrictEqual({ test: 'test' });
+    expect(mockSendPasswordRestEmail[1]).toStrictEqual({ test: "test" });
   });
 });

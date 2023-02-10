@@ -17,7 +17,7 @@ export interface DIContainer {
     secret: string;
   }
   DB: Database
-};
+}
 
 export default function dependencyInjection({ smtpConfig, logger, dbConfig, authConfig }: InitOptions): DIContainer {
 
@@ -50,5 +50,5 @@ export default function dependencyInjection({ smtpConfig, logger, dbConfig, auth
       secret: authConfig.secret
     },
     DB: db,
-  }
+  };
 }

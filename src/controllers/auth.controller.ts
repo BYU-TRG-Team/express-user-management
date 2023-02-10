@@ -39,13 +39,13 @@ class AuthController {
       } = req.body ;
 
       if (username === undefined || email === undefined || password === undefined || name === undefined) {
-        res.status(400).send({ message: 'Body must include username, email, password, and name' });
+        res.status(400).send({ message: "Body must include username, email, password, and name" });
         return;
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      await client.query('BEGIN');
+      await client.query("BEGIN");
       transactionInProgress = true;
 
       const userResponse = await this.db.objects.User.create(username, email, hashedPassword, 1, name, client);
@@ -53,13 +53,13 @@ class AuthController {
       let emailVerificationToken;
 
       while(emailVerificationToken === undefined) {
-        let shortToken = this.tokenHandler.generateShortToken();
+        const shortToken = this.tokenHandler.generateShortToken();
 
         try {
           await this.db.objects.Token.create(newUser.user_id, shortToken, SessionTokenType.Verification, client);
-          emailVerificationToken = shortToken
+          emailVerificationToken = shortToken;
         } catch(e: any) {
-          if (e.code === '23505') {
+          if (e.code === "23505") {
             continue;
           }
 
@@ -69,20 +69,20 @@ class AuthController {
 
       await this.sendVerificationEmail(req, newUser, emailVerificationToken);
 
-      await client.query('COMMIT');
+      await client.query("COMMIT");
       transactionInProgress = false;
 
       res.status(204).send();
       return;
     } catch (err: any) {
       this.logger.log({
-        level: 'error',
+        level: "error",
         message: err,
       });
       res.status(500).send({ message: errorMessages.generic });
     } finally {
       if (transactionInProgress) {
-        await client.query('ROLLBACK');
+        await client.query("ROLLBACK");
       }
       client.release();
     }
@@ -98,11 +98,11 @@ class AuthController {
       const { username, password } = req.body;
 
       if (username === undefined || password === undefined) {
-        res.status(400).send({ message: 'Body must include a username and password' });
+        res.status(400).send({ message: "Body must include a username and password" });
         return;
       }
 
-      const userResponse = await this.db.objects.User.findUsers(['username'], [username]);
+      const userResponse = await this.db.objects.User.findUsers(["username"], [username]);
 
       if (userResponse.rows.length === 0) {
         res.status(400).send({ message: errorMessages.loginError });
@@ -132,7 +132,7 @@ class AuthController {
       res.json({ token });
     } catch (err: any) {
       this.logger.log({
-        level: 'error',
+        level: "error",
         message: err,
       });
       res.status(500).send({ message: errorMessages.generic });
@@ -143,14 +143,13 @@ class AuthController {
   * GET /api/auth/logout
   */
 
-  // eslint-disable-next-line class-methods-use-this
   logout(_req: Request, res: Response) {
     try {
-      res.clearCookie(CookieConfig.cookieName, { path: '/' }).send();
+      res.clearCookie(CookieConfig.cookieName, { path: "/" }).send();
       return;
     } catch (err: any) {
       this.logger.log({
-        level: 'error',
+        level: "error",
         message: err,
       });
       res.status(500).send({ message: errorMessages.generic });
@@ -163,17 +162,17 @@ class AuthController {
   async verify(req: Request, res: Response) {
     try {
       // Find a matching token
-      const verifyTokenResponse = await this.db.objects.Token.findTokens(['token', 'type'], [req.params.token, SessionTokenType.Verification]);
+      const verifyTokenResponse = await this.db.objects.Token.findTokens(["token", "type"], [req.params.token, SessionTokenType.Verification]);
 
       if (verifyTokenResponse.rows.length === 0) {
-        res.redirect('/login');
+        res.redirect("/login");
         return;
       }
 
       const verifyToken = verifyTokenResponse.rows[0];
 
       // Find associated user
-      const userResponse = await this.db.objects.User.findUsers(['user_id'], [verifyToken.user_id]);
+      const userResponse = await this.db.objects.User.findUsers(["user_id"], [verifyToken.user_id]);
 
       if (userResponse.rows.length === 0) {
         res.status(500).send({ message: errorMessages.generic });
@@ -182,13 +181,13 @@ class AuthController {
       const user = userResponse.rows[0];
 
       // Set user as verified
-      await this.db.objects.User.setAttributes(['verified'], [true], user.user_id);
+      await this.db.objects.User.setAttributes(["verified"], [true], user.user_id);
       await this.db.objects.Token.deleteToken(verifyToken.token);
 
-      res.redirect('/login');
+      res.redirect("/login");
     } catch (err: any) {
       this.logger.log({
-        level: 'error',
+        level: "error",
         message: err,
       });
       res.status(500).send({ message: errorMessages.generic });
@@ -204,22 +203,22 @@ class AuthController {
       const { email } = req.body;
 
       if (email === undefined) {
-        res.status(400).send({ message: 'Body must include email' });
+        res.status(400).send({ message: "Body must include email" });
         return;
       }
 
-      const userResponse = await this.db.objects.User.findUsers(['email'], [email]);
+      const userResponse = await this.db.objects.User.findUsers(["email"], [email]);
       if (userResponse.rows.length === 0) {
-        res.redirect('/recover/sent');
+        res.redirect("/recover/sent");
         return;
       }
 
       const user = userResponse.rows[0];
       await this.sendPasswordResetEmail(req, user);
-      res.redirect('/recover/sent');
+      res.redirect("/recover/sent");
     } catch (err: any) {
       this.logger.log({
-        level: 'error',
+        level: "error",
         message: err,
       });
       res.status(500).send({ message: errorMessages.generic });
@@ -231,7 +230,7 @@ class AuthController {
   */
   async verifyRecovery(req: Request, res: Response) {
     try {
-      const tokenResponse = await this.db.objects.Token.findTokens(['token', 'type'], [req.params.token, SessionTokenType.Password]);
+      const tokenResponse = await this.db.objects.Token.findTokens(["token", "type"], [req.params.token, SessionTokenType.Password]);
 
       if (tokenResponse.rows.length === 0) {
         res.status(400).send({ message: errorMessages.generic });
@@ -248,7 +247,7 @@ class AuthController {
       res.redirect(`/recover/${req.params.token}`);
     } catch (err: any) {
       this.logger.log({
-        level: 'error',
+        level: "error",
         message: err,
       });
       res.status(500).send({ message: errorMessages.generic });
@@ -262,12 +261,12 @@ class AuthController {
     const { password } = req.body;
 
     if (password === undefined) {
-      res.status(400).json({ message: 'Body must include password' });
+      res.status(400).json({ message: "Body must include password" });
       return;
     }
 
     try {
-      const tokenResponse = await this.db.objects.Token.findTokens(['token', 'type'], [req.params.token, SessionTokenType.Password]);
+      const tokenResponse = await this.db.objects.Token.findTokens(["token", "type"], [req.params.token, SessionTokenType.Password]);
       if (tokenResponse.rows.length === 0) {
         res.status(400).send({ message: errorMessages.generic });
         return;
@@ -279,7 +278,7 @@ class AuthController {
         return;
       }
 
-      const userResponse = await this.db.objects.User.findUsers(['user_id'], [token.user_id])
+      const userResponse = await this.db.objects.User.findUsers(["user_id"], [token.user_id]);
       if (userResponse.rows.length === 0) {
         res.status(500).send({ message: errorMessages.generic });
         return;
@@ -288,7 +287,7 @@ class AuthController {
       const user = userResponse.rows[0];
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      await this.db.objects.User.setAttributes(['password'], [hashedPassword], token.user_id);
+      await this.db.objects.User.setAttributes(["password"], [hashedPassword], token.user_id);
       await this.db.objects.Token.deleteToken(req.params.token);
       
       const authToken = this.tokenHandler.generateUserAuthToken(user, req);
@@ -300,7 +299,7 @@ class AuthController {
       res.send({ token: authToken });
     } catch (err: any) {
       this.logger.log({
-        level: 'error',
+        level: "error",
         message: err,
       });
       res.status(500).send({ message: errorMessages.generic });
@@ -310,7 +309,7 @@ class AuthController {
   sendVerificationEmail(req: Request, user: User, token: string) {
     const link = `http://${req.headers.host}/api/auth/verify/${token}`;
     const emailOptions = {
-      subject: 'Account Verification Request',
+      subject: "Account Verification Request",
       to: user.email,
       from: this.smtpService.hostAddress,
       html: `<p>Hi ${user.username}<p><br><p>Please click on the following <a href="${link}">link</a> to verify your account.</p> 
@@ -324,11 +323,11 @@ class AuthController {
     let resetPasswordToken: string | undefined;
 
     while(resetPasswordToken === undefined) {
-      let shortToken = this.tokenHandler.generateShortToken();
+      const shortToken = this.tokenHandler.generateShortToken();
 
       try {
         await this.db.objects.Token.create(user.user_id, shortToken, SessionTokenType.Password);
-        resetPasswordToken = shortToken
+        resetPasswordToken = shortToken;
       } catch(e: any) {
         if (e.code === 23505) {
           continue;
@@ -340,7 +339,7 @@ class AuthController {
 
     const link = `http://${req.headers.host}/api/auth/recovery/verify/${resetPasswordToken}`;
     const emailOptions = {
-      subject: 'Password Recovery Request',
+      subject: "Password Recovery Request",
       to: user.email,
       from: this.smtpService.hostAddress,
       html: `<p>Hi ${user.username}</p>
@@ -348,7 +347,7 @@ class AuthController {
                             <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
     };
 
-    return this.smtpService.sendEmail(emailOptions)
+    return this.smtpService.sendEmail(emailOptions);
   }
 }
 
