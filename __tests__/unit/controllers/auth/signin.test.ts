@@ -12,7 +12,7 @@ import { Logger } from "winston";
 import SmtpService from "../../../../src/services/smtp.service";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
-import authConfig from "../../../../src/config/auth";
+import CookieConfig from "../../../../src/config/cookie";
 import jwtDecode from "jwt-decode";
 import { Role } from "../../../../src/types/auth";
 import jwt from "jsonwebtoken";
@@ -140,6 +140,7 @@ describe('tests signin method', () => {
   });
 
   it('should successfully create a jwt token', async () => {
+    const currentDate = new Date()
     const hashedPassword = await bcrypt.hash('test', 10);
     const mockedSmtpService = smtpService();
     const mockedUser = mockUser({
@@ -183,18 +184,19 @@ describe('tests signin method', () => {
     const res = response() as any;
     jest.spyOn(res, 'cookie');
     jest.spyOn(res, 'json');
+    jest.spyOn(Date, "now").mockImplementation(() => currentDate.valueOf())
     await authController.signin(req, res as unknown as Response);
 
     expect(res.cookie).toHaveBeenCalledTimes(1);
     const mockResCookieCall = res.cookie.mock.calls[0];
-    expect(mockResCookieCall[0]).toBe(authConfig.cookieName);
+    expect(mockResCookieCall[0]).toBe(CookieConfig.cookieName);
     expect(jwtDecode(mockResCookieCall[1])).toMatchObject({
       id: 1,
       role: Role.Admin,
       verified: true,
       username: 'username',
     });
-    expect(mockResCookieCall[2]).toMatchObject(authConfig.cookieConfig);
+    expect(mockResCookieCall[2]).toMatchObject(CookieConfig.generateCookieOptions(currentDate.valueOf()));
 
     expect(res.json).toHaveBeenCalledTimes(1);
     const mockJsonCall = res.json.mock.calls[0];

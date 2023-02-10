@@ -15,7 +15,7 @@ import { Role, SessionTokenType } from "../../../../src/types/auth";
 import bcrypt from "bcrypt";
 import jwtDecode from "jwt-decode";
 import { isEqual, cloneDeep } from "lodash";
-import authConfig from "../../../../src/config/auth";
+import CookieConfig from "../../../../src/config/cookie";
 
 expect.extend({
   toBeArrayWithElements(received, comparedArray) {
@@ -220,6 +220,7 @@ describe('tests processRecovery method', () => {
     jest.spyOn(res, 'cookie');
     jest.spyOn(res, 'send');
     jest.spyOn(tokenHandler, 'isPasswordTokenExpired');
+    jest.spyOn(Date, 'now').mockImplementation(() => currentDate.valueOf());
     await authController.processRecovery(req, res);
 
     expect(mockedDb.objects.Token.findTokens).toHaveBeenCalledTimes(1);
@@ -255,14 +256,14 @@ describe('tests processRecovery method', () => {
 
     expect(res.cookie).toBeCalledTimes(1);
     const mockCookieCall = res.cookie.mock.calls[0];
-    expect(mockCookieCall[0]).toBe(authConfig.cookieName);
+    expect(mockCookieCall[0]).toBe(CookieConfig.cookieName);
     expect(jwtDecode(mockCookieCall[1])).toMatchObject({
       id: 1,
       role: Role.Admin,
       verified: true,
       username: 'test',
     });
-    expect(mockCookieCall[2]).toStrictEqual(authConfig.cookieConfig);
+    expect(mockCookieCall[2]).toStrictEqual(CookieConfig.generateCookieOptions(currentDate.valueOf()));
 
     expect(res.send).toBeCalledTimes(1);
     const mockSendCall = res.send.mock.calls[0];
