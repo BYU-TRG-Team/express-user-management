@@ -3,7 +3,7 @@ import request from "../../../../__mocks__/request";
 import response from "../../../../__mocks__/response";
 import * as authMiddleware from "../../../../src/middleware/auth.middleware";
 import { Role } from "../../../../src/types/auth";
-import authConfig from "../../../../src/config/auth";
+import CookieConfig from "../../../../src/config/cookie";
 import { Request, Response } from "express";
 
 describe('tests verifyToken method', () => {
@@ -16,7 +16,7 @@ describe('tests verifyToken method', () => {
 
     const req = request({
       cookies: {
-        [authConfig.cookieName]: authToken,
+        [CookieConfig.cookieName]: authToken,
       },
     }) as unknown as Request;
 
@@ -34,7 +34,7 @@ describe('tests verifyToken method', () => {
   it('should fail with 401 due to absent jwt token', async () => {
     const req = request({
       cookies: {
-        [authConfig.cookieName]: undefined,
+        [CookieConfig.cookieName]: undefined,
       },
     }) as unknown as Request;
 
@@ -63,7 +63,7 @@ describe('tests verifyToken method', () => {
 
     const req = request({
       cookies: {
-        [authConfig.cookieName]: authToken,
+        [CookieConfig.cookieName]: authToken,
       },
     }) as unknown as Request;
 

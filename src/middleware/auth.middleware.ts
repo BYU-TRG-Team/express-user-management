@@ -3,10 +3,10 @@ import { Role, AuthToken } from "../types/auth.js";
 import jwt from "jsonwebtoken";
 import jwtDecode from "jwt-decode";
 import errorMessages from "../messages/errors.messages.js";
-import authConfig from "../config/auth.js";
+import CookieConfig from "../config/cookie.js";
 
 export const verifyToken = (authSecret: string) => (req: Request, res: Response, next: NextFunction) => {
-  const token = req.cookies[authConfig.cookieName]
+  const token = req.cookies[CookieConfig.cookieName]
 
   if (!token) {
     res.status(401).send({
@@ -35,7 +35,7 @@ export const verifyToken = (authSecret: string) => (req: Request, res: Response,
 };
 
 export const checkVerification = (req: Request, res: Response, next: NextFunction) => {
-  const token = jwtDecode(req.cookies[authConfig.cookieName]) as undefined | AuthToken;
+  const token = jwtDecode(req.cookies[CookieConfig.cookieName]) as undefined | AuthToken;
 
   if (token && token.verified) {
     next();
@@ -48,7 +48,7 @@ export const checkVerification = (req: Request, res: Response, next: NextFunctio
 };
 
 export const checkRole = (roles: Role[]) => (req: Request, res: Response, next: NextFunction) => {
-  const token = jwtDecode(req.cookies[authConfig.cookieName]) as AuthToken | undefined;
+  const token = jwtDecode(req.cookies[CookieConfig.cookieName]) as AuthToken | undefined;
 
   if (token && roles.includes(token.role)) {
     next();

@@ -4,7 +4,7 @@ import errorMessages from "../messages/errors.messages.js";
 import { Logger } from "winston";
 import DB from "db";
 import { Request, Response } from "express";
-import authConfig from "../config/auth.js";
+import CookieConfig from "../config/cookie.js";
 import { Role } from "../types/auth.js";
 
 class UserController {
@@ -68,7 +68,11 @@ class UserController {
 
       if (newAttributes.username) {
         const newToken = await this.tokenHandler.generateUpdatedUserAuthToken(req, newAttributes);
-        res.cookie(authConfig.cookieName, newToken, authConfig.cookieConfig);
+        res.cookie(
+          CookieConfig.cookieName, 
+          newToken, 
+          CookieConfig.generateCookieOptions(Date.now())
+        );
         res.send({ newToken });
         return;
       }

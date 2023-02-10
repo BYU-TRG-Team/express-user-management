@@ -3,7 +3,7 @@ import request from "../../../../__mocks__/request";
 import response from "../../../../__mocks__/response";
 import * as authMiddleware from "../../../../src/middleware/auth.middleware";
 import { Role } from "../../../../src/types/auth";
-import authConfig from "../../../../src/config/auth";
+import CookieConfig from "../../../../src/config/cookie";
 import { Request, Response } from "express";
 
 describe('tests checkRole method', () => {
@@ -16,7 +16,7 @@ describe('tests checkRole method', () => {
 
     const req = request({
         cookies: {
-          [authConfig.cookieName]: authToken
+          [CookieConfig.cookieName]: authToken
         },
       }
     ) as unknown as Request;
@@ -41,7 +41,7 @@ describe('tests checkRole method', () => {
 
     const req = request({
       cookies: {
-        [authConfig.cookieName]: authToken,
+        [CookieConfig.cookieName]: authToken,
       },
     }) as unknown as Request;
 

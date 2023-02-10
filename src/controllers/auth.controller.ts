@@ -7,7 +7,7 @@ import DB from "db";
 import { SessionTokenType } from "../types/auth.js";
 import { Response, Request } from "express";
 import { User } from "../types/user.js";
-import authConfig from "../config/auth.js";
+import CookieConfig from "../config/cookie.js";
 
 class AuthController {
   private smtpService: SmtpService;
@@ -124,7 +124,11 @@ class AuthController {
       }
 
       const token = this.tokenHandler.generateUserAuthToken(user, req);
-      res.cookie(authConfig.cookieName, token, authConfig.cookieConfig);
+      res.cookie(
+        CookieConfig.cookieName, 
+        token, 
+        CookieConfig.generateCookieOptions(Date.now())
+      );
       res.json({ token });
     } catch (err: any) {
       this.logger.log({
@@ -142,7 +146,7 @@ class AuthController {
   // eslint-disable-next-line class-methods-use-this
   logout(_req: Request, res: Response) {
     try {
-      res.clearCookie(authConfig.cookieName, { path: '/' }).send();
+      res.clearCookie(CookieConfig.cookieName, { path: '/' }).send();
       return;
     } catch (err: any) {
       this.logger.log({
@@ -288,7 +292,11 @@ class AuthController {
       await this.db.objects.Token.deleteToken(req.params.token);
       
       const authToken = this.tokenHandler.generateUserAuthToken(user, req);
-      res.cookie(authConfig.cookieName, authToken, authConfig.cookieConfig);
+      res.cookie(
+        CookieConfig.cookieName, 
+        authToken, 
+        CookieConfig.generateCookieOptions(Date.now())
+      );
       res.send({ token: authToken });
     } catch (err: any) {
       this.logger.log({
