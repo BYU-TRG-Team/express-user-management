@@ -36,7 +36,7 @@ class TokenObject {
     attributes: any[], 
     values: any[]
   ) {
-    let filters = '';
+    let filters = "";
 
     for (let i = 0; i < attributes.length; ++i) {
       if (i > 0) {

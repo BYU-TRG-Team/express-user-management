@@ -1,5 +1,5 @@
 const mock = (attributes: {[key: string]: any}) => ({
-  role: 'superadmin',
+  role: "superadmin",
   userId: 10,
   ...attributes,
 });

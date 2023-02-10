@@ -5,14 +5,14 @@ import { DIContainer } from "di/index.js";
 
 const constructUserRoutes = (app: Express, di: DIContainer) => {
   app.get(
-    '/api/user/:id',
+    "/api/user/:id",
     authMiddleware.verifyToken(di.config.secret),
     authMiddleware.checkVerification,
     di.UserController.getUser.bind(di.UserController),
   );
 
   app.get(
-    '/api/users',
+    "/api/users",
     authMiddleware.verifyToken(di.config.secret),
     authMiddleware.checkVerification,
     authMiddleware.checkRole([Role.Admin]),
@@ -20,14 +20,14 @@ const constructUserRoutes = (app: Express, di: DIContainer) => {
   );
 
   app.patch(
-    '/api/user/:id',
+    "/api/user/:id",
     authMiddleware.verifyToken(di.config.secret),
     authMiddleware.checkVerification,
     di.UserController.updateUser.bind(di.UserController),
   );
 
   app.delete(
-    '/api/user/:id',
+    "/api/user/:id",
     authMiddleware.verifyToken(di.config.secret),
     authMiddleware.checkVerification,
     authMiddleware.checkRole([Role.Admin]),

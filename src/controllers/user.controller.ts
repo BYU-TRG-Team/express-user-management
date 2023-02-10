@@ -33,11 +33,11 @@ class UserController {
       const superadminNewAttributes: {[key: string]: string} = {};
 
       Object.keys(req.body).forEach((attr) => {
-        if (['username', 'email', 'name', 'password'].includes(attr)) {
+        if (["username", "email", "name", "password"].includes(attr)) {
           newAttributes[attr] = req.body[attr];
         }
 
-        if (['roleId'].includes(attr)) {
+        if (["roleId"].includes(attr)) {
           superadminNewAttributes[attr] = req.body[attr];
         }
       });
@@ -61,7 +61,7 @@ class UserController {
         req.role === Role.Admin
         && Object.keys(superadminNewAttributes).length > 0
       ) {
-        const attributes = ['role_id'];
+        const attributes = ["role_id"];
         const values = [superadminNewAttributes.roleId];
         await this.db.objects.User.setAttributes(attributes, values, req.params.id);
       }
@@ -80,7 +80,7 @@ class UserController {
       res.status(204).send();
     } catch (err: any) {
       this.logger.log({
-        level: 'error',
+        level: "error",
         message: err,
       });
       res.status(500).send({ message: errorMessages.generic });
@@ -96,7 +96,7 @@ class UserController {
         return res.status(400).send({ message: errorMessages.generic });
       }
 
-      const usersQuery = await this.db.objects.User.findUsers(['user_id'], [req.params.id]);
+      const usersQuery = await this.db.objects.User.findUsers(["user_id"], [req.params.id]);
 
       if (usersQuery.rows.length === 0) {
         return res.status(404).send({ message: errorMessages.notFound });
@@ -109,7 +109,7 @@ class UserController {
       });
     } catch (err: any) {
       this.logger.log({
-        level: 'error',
+        level: "error",
         message: err,
       });
       return res.status(500).send({ message: errorMessages.generic });
@@ -125,7 +125,7 @@ class UserController {
       return res.json({ users: usersQuery.rows });
     } catch (err: any) {
       this.logger.log({
-        level: 'error',
+        level: "error",
         message: err,
       });
       return res.status(500).send({ message: errorMessages.generic });
@@ -141,7 +141,7 @@ class UserController {
       res.status(204).send();
     } catch (err: any) {
       this.logger.log({
-        level: 'error',
+        level: "error",
         message: err,
       });
       res.status(500).send({ message: errorMessages.generic });

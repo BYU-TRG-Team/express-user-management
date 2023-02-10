@@ -14,8 +14,8 @@ import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import { SessionTokenType } from "../../../../src/types/auth";
 
-describe('tests signup method', () => {
-  it('should throw a 400 error', async () => {
+describe("tests signup method", () => {
+  it("should throw a 400 error", async () => {
     const mockedSmtpService = smtpService();
     const mockedDb = mockDB(mockUser(), mockToken());
     const mockedLogger = logger();
@@ -30,32 +30,32 @@ describe('tests signup method', () => {
 
     const req = request({
       body: {
-        username: 'test',
-        email: 'test',
-        password: 'test',
+        username: "test",
+        email: "test",
+        password: "test",
       },
-      role: 'user',
+      role: "user",
     }) as unknown as Request;
 
     const res = response() as unknown as Response;
-    jest.spyOn(res, 'status');
+    jest.spyOn(res, "status");
     await authController.signup(req, res);
 
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(400);
   });
 
-  it('should create a new user and send a verification email', async () => {
+  it("should create a new user and send a verification email", async () => {
     const mockedSmtpService = smtpService();
     const mockedUser = mockUser({
       create: jest.fn(() => ({
         rows: [{
           user_id: 1,
-          username: 'test',
+          username: "test",
           verified: true,
-          password: 'test',
-          email: 'test',
-          name: 'test',
+          password: "test",
+          email: "test",
+          name: "test",
           role_id: 1
         }],
       }))
@@ -73,20 +73,20 @@ describe('tests signup method', () => {
 
     const req = request({
       body: {
-        username: 'test',
-        email: 'test',
-        password: 'test',
-        name: 'test',
+        username: "test",
+        email: "test",
+        password: "test",
+        name: "test",
       },
       headers: {
-        host: 'test',
+        host: "test",
       },
     }) as unknown as Request;
 
     const res = response() as unknown as Response;
-    jest.spyOn(res, 'status');
-    jest.spyOn(res, 'send');
-    jest.spyOn(authController, 'sendVerificationEmail');
+    jest.spyOn(res, "status");
+    jest.spyOn(res, "send");
+    jest.spyOn(authController, "sendVerificationEmail");
     await authController.signup(req, res);
 
     expect(res.status).toHaveBeenCalledTimes(1);
@@ -116,7 +116,7 @@ describe('tests signup method', () => {
     expect(createUserCall[4]).toBe(req.body.name);
     expect(createUserCall[5]).not.toBeUndefined();
     const passwordIsValid = bcrypt.compareSync(
-      'test',
+      "test",
       createUserCall[2],
     );
     expect(passwordIsValid).toBeTruthy();
@@ -124,13 +124,13 @@ describe('tests signup method', () => {
     expect(mockedDb.pool.query).toHaveBeenCalledTimes(2);
     const mockFirstQueryCall = mockedDb.pool.query.mock.calls[0];
     const mockSecondQueryCall = mockedDb.pool.query.mock.calls[1];
-    expect(mockFirstQueryCall[0]).toBe('BEGIN');
-    expect(mockSecondQueryCall[0]).toBe('COMMIT');
+    expect(mockFirstQueryCall[0]).toBe("BEGIN");
+    expect(mockSecondQueryCall[0]).toBe("COMMIT");
 
     expect(mockedDb.objects.Token.create).toHaveBeenCalledTimes(1);
     const createTokenCall = mockedDb.objects.Token.create.mock.calls[0];
     expect(createTokenCall[0]).toBe(1);
-    expect(createTokenCall[1]).toBe(verificationToken)
-    expect(createTokenCall[2]).toBe(SessionTokenType.Verification)
+    expect(createTokenCall[1]).toBe(verificationToken);
+    expect(createTokenCall[2]).toBe(SessionTokenType.Verification);
   });
 });

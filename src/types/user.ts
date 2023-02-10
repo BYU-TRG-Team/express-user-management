@@ -1,4 +1,4 @@
-import { Role } from "./auth.js"
+import { Role } from "./auth.js";
 import { UUID } from "./index.js";
 
 /*

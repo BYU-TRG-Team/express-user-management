@@ -17,8 +17,8 @@ import jwtDecode from "jwt-decode";
 import { Role } from "../../../../src/types/auth";
 import jwt from "jsonwebtoken";
 
-describe('tests signin method', () => {
-  it('should throw a 400 error for invalid body', async () => {
+describe("tests signin method", () => {
+  it("should throw a 400 error for invalid body", async () => {
     const mockedSmtpService = smtpService();
     const mockedDb = mockDB(mockUser(), mockToken());
     const mockedLogger = logger();
@@ -33,24 +33,24 @@ describe('tests signin method', () => {
 
     const req = request({
       body: {
-        username: 'test',
+        username: "test",
       },
-      role: 'user',
+      role: "user",
     }) as unknown as Request;
 
     const res = response() as unknown as Response;
-    jest.spyOn(res, 'status');
-    jest.spyOn(res, 'send');
+    jest.spyOn(res, "status");
+    jest.spyOn(res, "send");
     await authController.signin(req, res);
 
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(400);
 
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({ message: 'Body must include a username and password' });
+    expect(res.send).toHaveBeenCalledWith({ message: "Body must include a username and password" });
   });
 
-  it('should throw a 400 error for no found user', async () => {
+  it("should throw a 400 error for no found user", async () => {
     const mockedSmtpService = smtpService();
     const mockedUser = mockUser({
       findUsers: jest.fn(() => ({
@@ -70,15 +70,15 @@ describe('tests signin method', () => {
 
     const req = request({
       body: {
-        username: 'test',
-        password: 'test',
+        username: "test",
+        password: "test",
       },
-      role: 'user',
+      role: "user",
     }) as unknown as Request;
 
     const res = response() as unknown as Response;
-    jest.spyOn(res, 'status');
-    jest.spyOn(res, 'send');
+    jest.spyOn(res, "status");
+    jest.spyOn(res, "send");
     await authController.signin(req, res);
 
     expect(res.status).toHaveBeenCalledTimes(1);
@@ -86,15 +86,15 @@ describe('tests signin method', () => {
 
     expect(mockedDb.objects.User.findUsers).toHaveBeenCalledTimes(1);
     const findUsersCall = mockedDb.objects.User.findUsers.mock.calls[0];
-    expect(findUsersCall[0]).toStrictEqual(['username']);
+    expect(findUsersCall[0]).toStrictEqual(["username"]);
     expect(findUsersCall[1]).toStrictEqual([req.body.username]);
 
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({ message: 'Username or password is incorrect. Please try again.' });
+    expect(res.send).toHaveBeenCalledWith({ message: "Username or password is incorrect. Please try again." });
   });
 
-  it('should throw a 400 error for invalid password', async () => {
-    const hashedPassword = await bcrypt.hash('tes', 10);
+  it("should throw a 400 error for invalid password", async () => {
+    const hashedPassword = await bcrypt.hash("tes", 10);
     const mockedSmtpService = smtpService();
     const mockedUser = mockUser({
       findUsers: jest.fn(() => ({
@@ -116,15 +116,15 @@ describe('tests signin method', () => {
 
     const req = request({
       body: {
-        username: 'test',
-        password: 'test',
+        username: "test",
+        password: "test",
       },
-      role: 'user',
+      role: "user",
     }) as unknown as Request;
 
     const res = response() as unknown as Response;
-    jest.spyOn(res, 'status');
-    jest.spyOn(res, 'send');
+    jest.spyOn(res, "status");
+    jest.spyOn(res, "send");
     await authController.signin(req, res);
 
     expect(res.status).toHaveBeenCalledTimes(1);
@@ -132,27 +132,27 @@ describe('tests signin method', () => {
 
     expect(mockedDb.objects.User.findUsers).toHaveBeenCalledTimes(1);
     const findUsersCall = mockedDb.objects.User.findUsers.mock.calls[0];
-    expect(findUsersCall[0]).toStrictEqual(['username']);
+    expect(findUsersCall[0]).toStrictEqual(["username"]);
     expect(findUsersCall[1]).toStrictEqual([req.body.username]);
 
     expect(res.send).toHaveBeenCalledTimes(1);
-    expect(res.send).toHaveBeenCalledWith({ message: 'Username or password is incorrect. Please try again.' });
+    expect(res.send).toHaveBeenCalledWith({ message: "Username or password is incorrect. Please try again." });
   });
 
-  it('should successfully create a jwt token', async () => {
-    const currentDate = new Date()
-    const hashedPassword = await bcrypt.hash('test', 10);
+  it("should successfully create a jwt token", async () => {
+    const currentDate = new Date();
+    const hashedPassword = await bcrypt.hash("test", 10);
     const mockedSmtpService = smtpService();
     const mockedUser = mockUser({
       findUsers: jest.fn(() => ({
         rows: [{
           password: hashedPassword,
-          email: 'test',
+          email: "test",
           user_id: 1,
           role_id: Role.Admin,
-          name: 'test',
+          name: "test",
           verified: true,
-          username: 'username'
+          username: "username"
         }]
       }))
     });
@@ -163,7 +163,7 @@ describe('tests signin method', () => {
       id: 1,
       role: Role.Admin,
       verified: true,
-      username: 'username',
+      username: "username",
     }, "test");
 
     const authController = new AuthController(
@@ -175,16 +175,16 @@ describe('tests signin method', () => {
 
     const req = request({
       body: {
-        username: 'test',
-        password: 'test',
+        username: "test",
+        password: "test",
       },
-      role: 'user',
+      role: "user",
     }) as unknown as Request;
 
     const res = response() as any;
-    jest.spyOn(res, 'cookie');
-    jest.spyOn(res, 'json');
-    jest.spyOn(Date, "now").mockImplementation(() => currentDate.valueOf())
+    jest.spyOn(res, "cookie");
+    jest.spyOn(res, "json");
+    jest.spyOn(Date, "now").mockImplementation(() => currentDate.valueOf());
     await authController.signin(req, res as unknown as Response);
 
     expect(res.cookie).toHaveBeenCalledTimes(1);
@@ -194,7 +194,7 @@ describe('tests signin method', () => {
       id: 1,
       role: Role.Admin,
       verified: true,
-      username: 'username',
+      username: "username",
     });
     expect(mockResCookieCall[2]).toMatchObject(CookieConfig.generateCookieOptions(currentDate.valueOf()));
 
