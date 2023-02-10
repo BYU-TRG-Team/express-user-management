@@ -4,24 +4,13 @@ import mockDB from "../../../../__mocks__/db";
 import DB from "../../../../src/db";
 import logger from "../../../../__mocks__/logger";
 import UserController from "../../../../src/controllers/user.controller";
-import { cloneDeep, isEqual} from "lodash";
+import "../../../../custom-matchers"
 import TokenHandler from "../../../../src/support/tokenhandler.support";
 import mockUser from "../../../../__mocks__/user";
 import mockToken from "../../../../__mocks__/token";
 import { Logger } from "winston";
 import { Request, Response } from "express";
 import { Role } from "../../../../src/types/auth";
-
-expect.extend({
-  toBeArrayWithElements(received, comparedArray) {
-    const pass = isEqual(cloneDeep(received).sort(), cloneDeep(comparedArray).sort());
-    const message = () => `expected ${received} to contain the same elements as ${comparedArray}`;
-    return {
-      message,
-      pass,
-    };
-  },
-});
 
 describe('tests updateUser method', () => {
   it('should update the user profile once with username, email, name, and password', async () => {

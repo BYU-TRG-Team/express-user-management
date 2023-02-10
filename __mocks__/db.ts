@@ -1,7 +1,7 @@
-/* eslint-disable no-undef */
-export default (user: {[key: string]: jest.Mock<any, any>;
-}, token: {[key: string]: jest.Mock<any, any>;
-}) => ({
+const mock = (
+  user: { [key: string]: jest.Mock<any, any>; }, 
+  token: { [key: string]: jest.Mock<any, any>; }
+) => ({
   pool: {
     connect() {
       return this;
@@ -15,3 +15,5 @@ export default (user: {[key: string]: jest.Mock<any, any>;
   },
   query: jest.fn(),
 });
+
+export default mock;

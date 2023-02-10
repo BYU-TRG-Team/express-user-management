@@ -14,19 +14,9 @@ import { Request, Response } from "express";
 import { Role, SessionTokenType } from "../../../../src/types/auth";
 import bcrypt from "bcrypt";
 import jwtDecode from "jwt-decode";
-import { isEqual, cloneDeep } from "lodash";
+import "../../../../custom-matchers"
 import CookieConfig from "../../../../src/config/cookie";
 
-expect.extend({
-  toBeArrayWithElements(received, comparedArray) {
-    const pass = isEqual(cloneDeep(received).sort(), cloneDeep(comparedArray).sort());
-    const message = () => `expected ${received} to contain the same elements as ${comparedArray}`;
-    return {
-      message,
-      pass,
-    };
-  },
-});
 
 describe('tests processRecovery method', () => {
   it('should throw a 400 error for non valid body', async () => {

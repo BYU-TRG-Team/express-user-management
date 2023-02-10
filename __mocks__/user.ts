@@ -1,5 +1,4 @@
-/* eslint-disable no-undef */
-export default (methods: {[key: string]: jest.Mock} = {}) => ({
+const mock = (methods: {[key: string]: jest.Mock} = {}) => ({
   create: jest.fn(),
   setAttributes: jest.fn(),
   findUsers: jest.fn(),
@@ -7,3 +6,5 @@ export default (methods: {[key: string]: jest.Mock} = {}) => ({
   deleteUser: jest.fn(),
   ...methods,
 });
+
+export default mock;

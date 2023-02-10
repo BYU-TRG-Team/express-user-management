@@ -10,19 +10,8 @@ import mockToken from "../../../../__mocks__/token";
 import smtpService from "../../../../__mocks__/smtpService";
 import { Logger } from "winston";
 import SmtpService from "../../../../src/services/smtp.service";
-import { isEqual, cloneDeep } from "lodash";
+import "../../../../custom-matchers";
 import { Request, Response } from "express";
-
-expect.extend({
-  toBeArrayWithElements(received, comparedArray) {
-    const pass = isEqual(cloneDeep(received).sort(), cloneDeep(comparedArray).sort());
-    const message = () => `expected ${received} to contain the same elements as ${comparedArray}`;
-    return {
-      message,
-      pass,
-    };
-  },
-});
 
 describe('tests recovery method', () => {
   it('should throw a 400 error for invalid body', async () => {

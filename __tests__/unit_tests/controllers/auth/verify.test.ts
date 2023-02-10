@@ -12,18 +12,7 @@ import { Logger } from "winston";
 import SmtpService from "../../../../src/services/smtp.service";
 import { Request, Response } from "express";
 import { Role, SessionTokenType } from "../../../../src/types/auth";
-import { cloneDeep, isEqual } from "lodash";
-
-expect.extend({
-  toBeArrayWithElements(received, comparedArray) {
-    const pass = isEqual(cloneDeep(received).sort(), cloneDeep(comparedArray).sort());
-    const message = () => `expected ${received} to contain the same elements as ${comparedArray}`;
-    return {
-      message,
-      pass,
-    };
-  },
-});
+import "../../../../custom-matchers"
 
 describe('tests verify method', () => {
   it('should redirect to /login for invalid verify token', async () => {
