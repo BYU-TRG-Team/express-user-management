@@ -1,5 +1,5 @@
-const logger = () => ({
+const mock = () => ({
   log: () => ({}),
 });
 
-export default logger;
+export default mock;

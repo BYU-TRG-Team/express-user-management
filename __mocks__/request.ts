@@ -1,7 +1,7 @@
-const request = (attributes: {[key: string]: any}) => ({
+const mock = (attributes: {[key: string]: any}) => ({
   role: 'superadmin',
   userId: 10,
   ...attributes,
 });
 
-export default request;
+export default mock;

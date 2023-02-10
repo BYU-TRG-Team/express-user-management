@@ -1,4 +1,4 @@
-const response = (methods: {[key: string]: jest.Mock} = {}) => ({
+const mock = (methods: {[key: string]: jest.Mock} = {}) => ({
   status() {
     return this;
   },
@@ -21,4 +21,4 @@ const response = (methods: {[key: string]: jest.Mock} = {}) => ({
   ...methods,
 });
 
-export default response;
+export default mock;
