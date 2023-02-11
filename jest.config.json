@@ -1,0 +1,21 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "transform": {
+    "^.+\\.ts?$": "ts-jest"
+  },
+  "testMatch": ["**/__tests__/**/*.test.ts"],
+  "collectCoverage": true,
+  "collectCoverageFrom": ["src/**/*.ts"],
+  "coverageThreshold": {
+    "global": {
+      "branches": 0,
+      "functions": 0,
+      "lines": 0,
+      "statements": 0
+    }
+  },
+
+  "coverageReporters": ["json", "html"],
+  "reporters": ["default"]
+}

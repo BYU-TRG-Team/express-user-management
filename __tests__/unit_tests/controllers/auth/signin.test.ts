@@ -3,13 +3,13 @@ import response from "../../../../__mocks__/response";
 import mockDB from "../../../../__mocks__/db";
 import DB from "../../../../src/db";
 import logger from "../../../../__mocks__/logger";
-import AuthController from "../../../../src/controllers/auth.controller";
-import TokenHandler from "../../../../src/support/tokenhandler.support";
+import AuthController from "../../../../src/controllers/auth";
+import TokenHandler from "../../../../src/support/tokenhandler";
 import mockUser from "../../../../__mocks__/user";
 import mockToken from "../../../../__mocks__/token";
 import smtpService from "../../../../__mocks__/smtpService";
 import { Logger } from "winston";
-import SmtpService from "../../../../src/services/smtp.service";
+import SmtpService from "../../../../src/services/smtp";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import CookieConfig from "../../../../src/config/cookie";
@@ -159,12 +159,6 @@ describe("tests signin method", () => {
     const mockedDb = mockDB(mockedUser, mockToken());
     const mockedLogger = logger();
     const tokenHandler = new TokenHandler("test");
-    const mockAuthToken = jwt.sign({
-      id: 1,
-      role: Role.Admin,
-      verified: true,
-      username: "username",
-    }, "test");
 
     const authController = new AuthController(
       mockedSmtpService as unknown as SmtpService, 
@@ -200,8 +194,11 @@ describe("tests signin method", () => {
 
     expect(res.json).toHaveBeenCalledTimes(1);
     const mockJsonCall = res.json.mock.calls[0];
-    expect(mockJsonCall[0]).toStrictEqual({
-      token: mockAuthToken
+    expect(jwtDecode(mockJsonCall[0].token)).toMatchObject({
+      id: 1,
+      role: Role.Admin,
+      verified: true,
+      username: "username",
     });
   });
 });
