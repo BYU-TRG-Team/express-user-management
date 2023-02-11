@@ -1,7 +1,7 @@
 import { Request } from "express";
-import { AuthToken, AuthTokenAttributes } from "types/auth";
-import { Token } from "types/token";
-import { User } from "types/user";
+import { AuthToken, AuthTokenAttributes } from "../types/auth";
+import { Token } from "../types/token";
+import { User } from "../types/user";
 import jwtDecode from "jwt-decode";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";

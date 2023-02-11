@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import TokenHandler from "../support/tokenhandler";
 import errorMessages from "../messages/errors";
 import { Logger } from "winston";
-import DB from "db";
+import DB from "../db";
 import { Request, Response } from "express";
 import CookieConfig from "../config/cookie";
 import { Role } from "../types/auth";

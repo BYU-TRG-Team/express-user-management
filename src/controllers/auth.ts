@@ -3,7 +3,7 @@ import { Logger } from "winston";
 import errorMessages from "../messages/errors";
 import TokenHandler from "../support/tokenhandler";
 import SmtpService from "../services/smtp";
-import DB from "db";
+import DB from "../db";
 import { SessionTokenType } from "../types/auth";
 import { Response, Request } from "express";
 import { User } from "../types/user";
@@ -312,8 +312,10 @@ class AuthController {
       subject: "Account Verification Request",
       to: user.email,
       from: this.smtpService.hostAddress,
-      html: `<p>Hi ${user.username}<p><br><p>Please click on the following <a href="${link}">link</a> to verify your account.</p> 
-                            <br><p>If you did not request this, please ignore this email.</p>`,
+      html: `
+      <p>Hi ${user.username},</p>
+      <p>Please visit this <a href="${link}">link</a> to verify your account.</p> 
+      <p>If you did not request this, please ignore this email.</p>`,
     };
 
     return this.smtpService.sendEmail(emailOptions);
@@ -342,9 +344,10 @@ class AuthController {
       subject: "Password Recovery Request",
       to: user.email,
       from: this.smtpService.hostAddress,
-      html: `<p>Hi ${user.username}</p>
-                            <p>Please click on the following <a href="${link}">link</a> to reset your password.</p> 
-                            <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>`,
+      html: `
+      <p>Hi ${user.username},</p>
+      <p>Please visit this <a href="${link}">link</a> to reset your password.</p> 
+      <p>If you did not request this, please ignore this email.</p>`,
     };
 
     return this.smtpService.sendEmail(emailOptions);
