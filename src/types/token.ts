@@ -1,4 +1,4 @@
-import { UUID } from "./index.js";
+import { UUID } from "./index";
 
 export type Token = {
   token: string;

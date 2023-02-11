@@ -1,17 +1,11 @@
 {
   "name": "@byu-trg/express-user-management",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "description": "Node.js library to extend an Express.js REST API with user management functionality. The library includes:",
   "main": "commonjs/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./commonjs/index.js"
-    }
-  },
   "scripts": {
     "build": "tsc --project tsconfig.json && tsc --project tsconfig.commonjs.json && echo '{\"type\": \"commonjs\"}' > commonjs/package.json",
     "test": "jest",
