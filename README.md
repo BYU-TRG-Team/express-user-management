@@ -21,12 +21,12 @@ This library is built to work with PostgreSQL. To construct the schemas and tabl
 
 ### Migrate up
 ```
-npm explore @byu-trg/user-management -- npm run migrate up
+npm explore @byu-trg/express-user-management -- npm run migrate up
 ```
 
 ### Migrate down
 ```
-npm explore @byu-trg/user-management -- npm run migrate down
+npm explore @byu-trg/express-user-management -- npm run migrate down
 ```
 
 ## Authorization Middleware
@@ -436,7 +436,7 @@ User Schema:
   Status Code: 200 (Success)
 
   Body: {
-    token: <User JWT>;
+    newToken: <User JWT>;
   }
   ```
 </details>
