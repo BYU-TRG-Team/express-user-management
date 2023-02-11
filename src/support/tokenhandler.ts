@@ -1,11 +1,11 @@
 import { Request } from "express";
-import { AuthToken, AuthTokenAttributes } from "types/auth.js";
-import { Token } from "types/token.js";
-import { User } from "types/user.js";
+import { AuthToken, AuthTokenAttributes } from "types/auth";
+import { Token } from "types/token";
+import { User } from "types/user";
 import jwtDecode from "jwt-decode";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import CookieConfig from "../config/cookie.js";
+import CookieConfig from "../config/cookie";
 
 class TokenHandler {
   private tokenSecret: string;

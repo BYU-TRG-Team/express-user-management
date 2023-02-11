@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { Role, AuthToken } from "../types/auth.js";
+import { Role, AuthToken } from "../types/auth";
 import jwt from "jsonwebtoken";
 import jwtDecode from "jwt-decode";
-import errorMessages from "../messages/errors.messages.js";
-import CookieConfig from "../config/cookie.js";
+import errorMessages from "../messages/errors";
+import CookieConfig from "../config/cookie";
 
 export const verifyToken = (authSecret: string) => (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies[CookieConfig.cookieName];

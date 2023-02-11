@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import request from "../../../../__mocks__/request";
 import response from "../../../../__mocks__/response";
-import * as authMiddleware from "../../../../src/middleware/auth.middleware";
+import * as authMiddleware from "../../../../src/middleware/auth";
 import { Role } from "../../../../src/types/auth";
 import CookieConfig from "../../../../src/config/cookie";
 import { Request, Response } from "express";

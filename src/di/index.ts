@@ -1,13 +1,13 @@
 import nodemailer from "nodemailer";
-import { InitOptions } from "../types/system.js";
+import { InitOptions } from "../types/system";
 import pg from "pg";
-import Database from "../db/index.js";
-import User from "../db/user.js";
-import SmtpService from "../services/smtp.service.js";
-import Token from "../db/token.js";
-import AuthController from "../controllers/auth.controller.js";
-import UserController from "../controllers/user.controller.js";
-import TokenHandler from "../support/tokenhandler.support.js";
+import Database from "../db/index";
+import User from "../db/user";
+import SmtpService from "../services/smtp";
+import Token from "../db/token";
+import AuthController from "../controllers/auth";
+import UserController from "../controllers/user";
+import TokenHandler from "../support/tokenhandler";
 
 
 export interface DIContainer {
