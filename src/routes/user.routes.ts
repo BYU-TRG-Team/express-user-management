@@ -1,7 +1,7 @@
 import { Express } from "express";
-import * as authMiddleware from "../middleware/auth";
-import { Role } from "../types/auth";
-import { DIContainer } from "di/index";
+import * as authMiddleware from "../middleware/auth.middleware.js";
+import { Role } from "../types/auth.js";
+import { DIContainer } from "di/index.js";
 
 const constructUserRoutes = (app: Express, di: DIContainer) => {
   app.get(

@@ -1,5 +1,5 @@
-import { Role } from "./auth";
-import { UUID } from "./index";
+import { Role } from "./auth.js";
+import { UUID } from "./index.js";
 
 /*
 * TODO: update all references to user_id to utilize UUID (tests, service functions)

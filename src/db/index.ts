@@ -1,6 +1,6 @@
 import pg from "pg";
-import Token from "./token";
-import User from "./user";
+import Token from "./token.js";
+import User from "./user.js";
 
 type DBObjects = {
   User: User;

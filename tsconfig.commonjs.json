@@ -1,19 +1,21 @@
 {
   "compilerOptions": {
-    "target": "ES6", 
-    "module": "CommonJS", 
-    "resolveJsonModule": true,
-    "sourceMap": true, 
-    "outDir": "./commonjs", 
-    "strict": true, 
-    "noUnusedLocals": false,
-    "moduleResolution": "node",
-    "baseUrl": "./src",
-    "esModuleInterop": true,
-    "declaration": true,  
+      "target": "ES2016", 
+      "module": "commonjs",
+      "resolveJsonModule": true,
+      "sourceMap": true,
+      "outDir": "./commonjs",
+      "strict": true,
+      "noUnusedLocals": true,
+      "moduleResolution": "node",
+      "baseUrl": "./src",                     
+      "esModuleInterop": true,
+      "typeRoots": [
+        "@types",
+        "./node_modules/@types",
+      ],
+      "declaration": true,  
   },
-  "include": [
-    "src/**/*",
-    "@types" 
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["__tests__/**/*", "__mocks__/**/*"]
 }
