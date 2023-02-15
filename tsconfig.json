@@ -8,48 +8,12 @@
     "strict": true, 
     "noUnusedLocals": false,
     "moduleResolution": "node",
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "esModuleInterop": true,
     "declaration": true,  
-    "paths": {
-      "tests/*": [
-        "./__tests__/*"
-      ],
-      "mocks/*": [
-        "./__mocks__/*"
-      ],
-      "middleware/*": [
-        "./src/middleware/*"
-      ],
-      "types/*": [
-        "./src/types/*"
-      ],
-      "constants/*": [
-        "./src/constants/*"
-      ],
-      "controllers/*": [
-        "./src/controllers/*"
-      ],
-      "db/*": [
-        "./src/db/*"
-      ],
-      "di/*": [
-        "./src/di/*"
-      ],
-      "services/*": [
-        "./src/services/*"
-      ],
-      "support/*": [
-        "./src/support/*"
-      ],
-      "routes/*": [
-        "./src/routes/*"
-      ]
-    }
   },
   "include": [
     "src/**/*",
-    "@types",
-    "__tests__/"
+    "@types" 
   ]
 }

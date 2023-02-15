@@ -1,6 +1,6 @@
 import pg from "pg";
-import Token from "db/token";
-import User from "db/user";
+import Token from "./token";
+import User from "./user";
 
 type DBObjects = {
   User: User;

@@ -1,7 +1,7 @@
 import { Pool, PoolClient } from "pg";
-import { UUID } from "types/index";
-import { SessionTokenType } from "types/auth";
-import { Token } from "types/token";
+import { UUID } from "../types/index";
+import { SessionTokenType } from "../types/auth";
+import { Token } from "../types/token";
 
 class TokenObject {
   private db: Pool;
@@ -33,11 +33,10 @@ class TokenObject {
   }
 
   findTokens(
-    params: { [param: string]: any }
+    attributes: any[], 
+    values: any[]
   ) {
     let filters = "";
-    const attributes = Object.keys(params);
-    const values = attributes.map(attr => params[attr]);
 
     for (let i = 0; i < attributes.length; ++i) {
       if (i > 0) {

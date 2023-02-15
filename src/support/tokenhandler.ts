@@ -1,11 +1,11 @@
 import { Request } from "express";
-import { Token } from "types/token";
-import { User } from "types/user";
+import { AuthToken, AuthTokenAttributes } from "../types/auth";
+import { Token } from "../types/token";
+import { User } from "../types/user";
 import jwtDecode from "jwt-decode";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { AuthToken, AuthTokenAttributes } from "types/auth";
-import * as cookieConfig from "constants/http/cookie";
+import CookieConfig from "../config/cookie";
 
 class TokenHandler {
   private tokenSecret: string;
@@ -15,7 +15,7 @@ class TokenHandler {
   }
 
   generateUpdatedUserAuthToken(req: Request, newAttributes: AuthTokenAttributes): AuthToken {
-    const oldToken = jwtDecode(req.cookies[cookieConfig.NAME]) as AuthToken;
+    const oldToken = jwtDecode(req.cookies[CookieConfig.cookieName]) as AuthToken;
 
     const newToken = jwt.sign({
       ...oldToken,
@@ -34,7 +34,7 @@ class TokenHandler {
     return crypto.randomBytes(20).toString("hex");
   }
 
-  generateUserAuthToken(user: User, _req: Request): AuthToken {
+  generateUserAuthToken(user: User, req: Request): AuthToken {
     const {
       verified, user_id, username, role_id,
     } = user;

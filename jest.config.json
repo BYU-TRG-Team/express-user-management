@@ -15,19 +15,7 @@
       "statements": 0
     }
   },
-  "moduleNameMapper": {
-    "^tests/(.*)$": "<rootDir>/__tests__/$1",
-    "^mocks/(.*)$": "<rootDir>/__mocks__/$1",
-    "^middleware/(.*)$": "<rootDir>/src/middleware/$1",
-    "^types/(.*)$": "<rootDir>/src/types/$1",
-    "^constants/(.*)$": "<rootDir>/src/constants/$1",
-    "^controllers/(.*)$": "<rootDir>/src/controllers/$1",
-    "^db/(.*)$": "<rootDir>/src/db/$1",
-    "^di/(.*)$": "<rootDir>/src/di/$1",
-    "^services/(.*)$": "<rootDir>/src/services/$1",
-    "^support/(.*)$":  "<rootDir>/src/support/$1",
-    "^routes/(.*)$": "<rootDir>/src/routes/$1"
-  },
+
   "coverageReporters": ["json", "html"],
   "reporters": ["default"]
 }

@@ -1,7 +1,7 @@
 import { Pool, PoolClient } from "pg";
-import { UUID } from "types/index";
-import { Role } from "types/auth";
-import { User } from "types/user";
+import { UUID } from "../types/index";
+import { Role } from "../types/auth";
+import { User } from "../types/user";
 
 class UserObject {
   private db: Pool;
@@ -27,13 +27,13 @@ class UserObject {
   }
 
   setAttributes(
-    userId: UUID,
-    params: { [param: string]: any },
+    attributes: any[], 
+    values: any[], 
+    userId: UUID
   ) {
     let filters = "";
-    const attributes = Object.keys(params);
-    const values = attributes.map(attr => params[attr]);
     const numParams = attributes.length;
+
     for (let i = 0; i < numParams; ++i) {
       if (i > 0) filters += ", ";
 
@@ -51,11 +51,10 @@ class UserObject {
   }
 
   findUsers(
-    params: { [param: string]: any }
+    attributes: any[], 
+    values: any[]
   ) {
     let filters = "";
-    const attributes = Object.keys(params);
-    const values = attributes.map(attr => params[attr]);
 
     for (let i = 0; i < attributes.length; ++i) {
       if (i > 0) {

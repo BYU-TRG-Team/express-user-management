@@ -1,13 +1,13 @@
 import bcrypt from "bcrypt";
 import { Logger } from "winston";
+import errorMessages from "../messages/errors";
+import TokenHandler from "../support/tokenhandler";
+import SmtpService from "../services/smtp";
+import DB from "../db";
+import { SessionTokenType } from "../types/auth";
 import { Response, Request } from "express";
-import * as errorMessages from "constants/errors/messages";
-import TokenHandler from "support/token_handler";
-import SmtpService from "services/smtp";
-import DB from "db/index";
-import { SessionTokenType } from "types/auth";
-import { User } from "types/user";
-import * as cookieConfig from "constants/http/cookie";
+import { User } from "../types/user";
+import CookieConfig from "../config/cookie";
 
 class AuthController {
   private smtpService: SmtpService;
@@ -79,7 +79,7 @@ class AuthController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: errorMessages.generic });
     } finally {
       if (transactionInProgress) {
         await client.query("ROLLBACK");
@@ -102,10 +102,10 @@ class AuthController {
         return;
       }
 
-      const userResponse = await this.db.objects.User.findUsers({ username });
+      const userResponse = await this.db.objects.User.findUsers(["username"], [username]);
 
       if (userResponse.rows.length === 0) {
-        res.status(400).send({ message: errorMessages.LOGIN_ERROR });
+        res.status(400).send({ message: errorMessages.loginError });
         return;
       }
 
@@ -118,16 +118,16 @@ class AuthController {
 
       if (!passwordIsValid) {
         res.status(400).send({
-          message: errorMessages.LOGIN_ERROR,
+          message: errorMessages.loginError,
         });
         return;
       }
 
       const token = this.tokenHandler.generateUserAuthToken(user, req);
       res.cookie(
-        cookieConfig.NAME, 
+        CookieConfig.cookieName, 
         token, 
-        cookieConfig.OPTIONS(Date.now())
+        CookieConfig.generateCookieOptions(Date.now())
       );
       res.json({ token });
     } catch (err: any) {
@@ -135,7 +135,7 @@ class AuthController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: errorMessages.generic });
     }
   }
 
@@ -145,14 +145,14 @@ class AuthController {
 
   logout(_req: Request, res: Response) {
     try {
-      res.clearCookie(cookieConfig.NAME, { path: "/" }).send();
+      res.clearCookie(CookieConfig.cookieName, { path: "/" }).send();
       return;
     } catch (err: any) {
       this.logger.log({
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: errorMessages.generic });
     }
   }
 
@@ -162,10 +162,7 @@ class AuthController {
   async verify(req: Request, res: Response) {
     try {
       // Find a matching token
-      const verifyTokenResponse = await this.db.objects.Token.findTokens({
-        "token": req.params.token,
-        "type": SessionTokenType.Verification
-      });
+      const verifyTokenResponse = await this.db.objects.Token.findTokens(["token", "type"], [req.params.token, SessionTokenType.Verification]);
 
       if (verifyTokenResponse.rows.length === 0) {
         res.redirect("/login");
@@ -175,22 +172,16 @@ class AuthController {
       const verifyToken = verifyTokenResponse.rows[0];
 
       // Find associated user
-      const userResponse = await this.db.objects.User.findUsers({
-        "user_id": verifyToken.user_id
-      });
+      const userResponse = await this.db.objects.User.findUsers(["user_id"], [verifyToken.user_id]);
 
       if (userResponse.rows.length === 0) {
-        res.status(500).send({ message: errorMessages.GENERIC });
+        res.status(500).send({ message: errorMessages.generic });
         return;
       }
       const user = userResponse.rows[0];
 
       // Set user as verified
-      await this.db.objects.User.setAttributes(
-        user.user_id, 
-        {
-          "verified": true,
-        });
+      await this.db.objects.User.setAttributes(["verified"], [true], user.user_id);
       await this.db.objects.Token.deleteToken(verifyToken.token);
 
       res.redirect("/login");
@@ -199,7 +190,7 @@ class AuthController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: errorMessages.generic });
     }
   }
 
@@ -216,7 +207,7 @@ class AuthController {
         return;
       }
 
-      const userResponse = await this.db.objects.User.findUsers({ email });
+      const userResponse = await this.db.objects.User.findUsers(["email"], [email]);
       if (userResponse.rows.length === 0) {
         res.redirect("/recover/sent");
         return;
@@ -230,7 +221,7 @@ class AuthController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: errorMessages.generic });
     }
   }
 
@@ -239,20 +230,17 @@ class AuthController {
   */
   async verifyRecovery(req: Request, res: Response) {
     try {
-      const tokenResponse = await this.db.objects.Token.findTokens({
-        "token": req.params.token,
-        "type": SessionTokenType.Password
-      });
+      const tokenResponse = await this.db.objects.Token.findTokens(["token", "type"], [req.params.token, SessionTokenType.Password]);
 
       if (tokenResponse.rows.length === 0) {
-        res.status(400).send({ message: errorMessages.GENERIC });
+        res.status(400).send({ message: errorMessages.generic });
         return;
       }
 
       const token = tokenResponse.rows[0];
 
       if (this.tokenHandler.isPasswordTokenExpired(token)) {
-        res.status(400).send({ message: errorMessages.GENERIC });
+        res.status(400).send({ message: errorMessages.generic });
         return;
       }
 
@@ -262,7 +250,7 @@ class AuthController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: errorMessages.generic });
     }
   }
 
@@ -278,44 +266,35 @@ class AuthController {
     }
 
     try {
-      const tokenResponse = await this.db.objects.Token.findTokens({
-        "token": req.params.token,
-        "type": SessionTokenType.Password
-      });
+      const tokenResponse = await this.db.objects.Token.findTokens(["token", "type"], [req.params.token, SessionTokenType.Password]);
       if (tokenResponse.rows.length === 0) {
-        res.status(400).send({ message: errorMessages.GENERIC });
+        res.status(400).send({ message: errorMessages.generic });
         return;
       }
 
       const token = tokenResponse.rows[0];
       if (this.tokenHandler.isPasswordTokenExpired(token)) {
-        res.status(400).send({ message: errorMessages.GENERIC });
+        res.status(400).send({ message: errorMessages.generic });
         return;
       }
 
-      const userResponse = await this.db.objects.User.findUsers({
-        "user_id": token.user_id
-      });
+      const userResponse = await this.db.objects.User.findUsers(["user_id"], [token.user_id]);
       if (userResponse.rows.length === 0) {
-        res.status(500).send({ message: errorMessages.GENERIC });
+        res.status(500).send({ message: errorMessages.generic });
         return;
       }
 
       const user = userResponse.rows[0];
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      await this.db.objects.User.setAttributes(
-        token.user_id,
-        {
-          "password": hashedPassword
-        });
+      await this.db.objects.User.setAttributes(["password"], [hashedPassword], token.user_id);
       await this.db.objects.Token.deleteToken(req.params.token);
       
       const authToken = this.tokenHandler.generateUserAuthToken(user, req);
       res.cookie(
-        cookieConfig.NAME, 
+        CookieConfig.cookieName, 
         authToken, 
-        cookieConfig.OPTIONS(Date.now())
+        CookieConfig.generateCookieOptions(Date.now())
       );
       res.send({ token: authToken });
     } catch (err: any) {
@@ -323,7 +302,7 @@ class AuthController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: errorMessages.generic });
     }
   }
 
