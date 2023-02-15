@@ -1,4 +1,4 @@
-import { UUID } from "../types";
+import { UUID } from "types/index";
 
 export enum Role {
   Admin = 3,

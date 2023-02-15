@@ -1,16 +1,16 @@
 import { Request, Response, NextFunction } from "express";
-import { Role, AuthToken } from "../types/auth";
 import jwt from "jsonwebtoken";
 import jwtDecode from "jwt-decode";
-import errorMessages from "../messages/errors";
-import CookieConfig from "../config/cookie";
+import { Role, AuthToken } from "types/auth";
+import * as errorMessages from "constants/errors/messages";
+import * as cookieConfig from "constants/http/cookie";
 
 export const verifyToken = (authSecret: string) => (req: Request, res: Response, next: NextFunction) => {
-  const token = req.cookies[CookieConfig.cookieName];
+  const token = req.cookies[cookieConfig.NAME];
 
   if (!token) {
     res.status(401).send({
-      message: errorMessages.requestUnauthorized,
+      message: errorMessages.REQUEST_UNAUTHORIZED,
     });
     return;
   }
@@ -18,7 +18,7 @@ export const verifyToken = (authSecret: string) => (req: Request, res: Response,
   jwt.verify(token, authSecret, { ignoreExpiration: true }, (err, decoded) => {
     if (err) {
       res.status(403).send({
-        message: errorMessages.accessForbidden,
+        message: errorMessages.ACCESS_FORBIDDEN,
       });
       return;
     }
@@ -35,7 +35,7 @@ export const verifyToken = (authSecret: string) => (req: Request, res: Response,
 };
 
 export const checkVerification = (req: Request, res: Response, next: NextFunction) => {
-  const token = jwtDecode(req.cookies[CookieConfig.cookieName]) as undefined | AuthToken;
+  const token = jwtDecode(req.cookies[cookieConfig.NAME]) as undefined | AuthToken;
 
   if (token && token.verified) {
     next();
@@ -43,12 +43,12 @@ export const checkVerification = (req: Request, res: Response, next: NextFunctio
   }
 
   res.status(403).send({
-    message: errorMessages.accessForbidden,
+    message: errorMessages.ACCESS_FORBIDDEN,
   });
 };
 
 export const checkRole = (roles: Role[]) => (req: Request, res: Response, next: NextFunction) => {
-  const token = jwtDecode(req.cookies[CookieConfig.cookieName]) as AuthToken | undefined;
+  const token = jwtDecode(req.cookies[cookieConfig.NAME]) as AuthToken | undefined;
 
   if (token && roles.includes(token.role)) {
     next();
@@ -56,6 +56,6 @@ export const checkRole = (roles: Role[]) => (req: Request, res: Response, next: 
   }
 
   res.status(403).send({
-    message: errorMessages.accessForbidden,
+    message: errorMessages.ACCESS_FORBIDDEN,
   });
 };
