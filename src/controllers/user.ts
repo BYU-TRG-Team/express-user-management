@@ -1,11 +1,11 @@
 import bcrypt from "bcrypt";
-import TokenHandler from "../support/tokenhandler";
-import errorMessages from "../messages/errors";
 import { Logger } from "winston";
-import DB from "../db";
 import { Request, Response } from "express";
-import CookieConfig from "../config/cookie";
-import { Role } from "../types/auth";
+import TokenHandler from "support/token_handler";
+import * as errorMessages from "constants/errors/messages";
+import DB from "db/index";
+import * as cookieConfig from "constants/http/cookie";
+import { Role } from "types/auth";
 
 class UserController {
   private logger: Logger;
@@ -30,7 +30,7 @@ class UserController {
     try {
       const isClientUser = req.userId === req.params.id;
       const newAttributes: {[key: string]: string} = {};
-      const superadminNewAttributes: {[key: string]: string} = {};
+      const newAdminAttributes: {[key: string]: string} = {};
 
       Object.keys(req.body).forEach((attr) => {
         if (["username", "email", "name", "password"].includes(attr)) {
@@ -38,7 +38,7 @@ class UserController {
         }
 
         if (["roleId"].includes(attr)) {
-          superadminNewAttributes[attr] = req.body[attr];
+          newAdminAttributes["role_id"] = req.body[attr];
         }
       });
 
@@ -50,28 +50,23 @@ class UserController {
         isClientUser
         && Object.keys(newAttributes).length > 0
       ) {
-        const attributes: any[] = [];
-        const values: any[] = [];
-        Object.keys(newAttributes).forEach((attr) => { attributes.push(attr); values.push(newAttributes[attr]); });
-        await this.db.objects.User.setAttributes(attributes, values, req.userId);
+        await this.db.objects.User.setAttributes(req.params.id, newAttributes);
       }
 
       // Update these attributes regardless of whether the param id is equal to the client's id
       if (
         req.role === Role.Admin
-        && Object.keys(superadminNewAttributes).length > 0
+        && Object.keys(newAdminAttributes).length > 0
       ) {
-        const attributes = ["role_id"];
-        const values = [superadminNewAttributes.roleId];
-        await this.db.objects.User.setAttributes(attributes, values, req.params.id);
+        await this.db.objects.User.setAttributes(req.params.id, newAdminAttributes);
       }
 
       if (newAttributes.username) {
         const newToken = await this.tokenHandler.generateUpdatedUserAuthToken(req, newAttributes);
         res.cookie(
-          CookieConfig.cookieName, 
+          cookieConfig.NAME, 
           newToken, 
-          CookieConfig.generateCookieOptions(Date.now())
+          cookieConfig.OPTIONS(Date.now())
         );
         res.send({ newToken });
         return;
@@ -83,7 +78,7 @@ class UserController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.generic });
+      res.status(500).send({ message: errorMessages.GENERIC });
     }
   }
 
@@ -93,13 +88,15 @@ class UserController {
   async getUser(req: Request, res: Response) {
     try {
       if (req.params.id !== req.userId) {
-        return res.status(400).send({ message: errorMessages.generic });
+        return res.status(400).send({ message: errorMessages.GENERIC });
       }
 
-      const usersQuery = await this.db.objects.User.findUsers(["user_id"], [req.params.id]);
+      const usersQuery = await this.db.objects.User.findUsers({
+        "user_id": req.params.id,
+      });
 
       if (usersQuery.rows.length === 0) {
-        return res.status(404).send({ message: errorMessages.notFound });
+        return res.status(404).send({ message: errorMessages.RESOURCE_NOT_FOUND });
       }
 
       const { email, username, name } = usersQuery.rows[0];
@@ -112,7 +109,7 @@ class UserController {
         level: "error",
         message: err,
       });
-      return res.status(500).send({ message: errorMessages.generic });
+      return res.status(500).send({ message: errorMessages.GENERIC });
     }
   }
 
@@ -128,7 +125,7 @@ class UserController {
         level: "error",
         message: err,
       });
-      return res.status(500).send({ message: errorMessages.generic });
+      return res.status(500).send({ message: errorMessages.GENERIC });
     }
   }
 
@@ -144,7 +141,7 @@ class UserController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.generic });
+      res.status(500).send({ message: errorMessages.GENERIC });
     }
   }
 }

@@ -1,10 +1,10 @@
 # Express User Management
 
-Node.js library to extend an Express.js REST API with user management functionality. The library includes:
+Library to extend an Express.js app with user management functionality. The library includes:
 
 - PostgreSQL migrations 
 - Authorization middleware
-- REST API routes for authentication and user management
+- Endpoints for authentication and user management
 
 ## Authorization Structure
 
@@ -17,7 +17,7 @@ There are three roles available that can be assigned to a user:
 
 ## Running PostgreSQL Migrations
 
-This library is built to work with PostgreSQL. To construct the schemas and tables, the migrations can be run as so once it is installed as an NPM module in a codebase. 
+This library is built to work with PostgreSQL. To construct the schemas and tables, the migrations can be run as so once the module is installed in your application. 
 
 ### Migrate up
 ```
