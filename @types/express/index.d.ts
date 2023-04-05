@@ -1,5 +1,5 @@
-import { UUID } from "../../src/types";
-import { Role } from "../../src/types/auth";
+import { UUID } from "@typings";
+import { Role } from "@typings/auth";
 
 declare global {
   namespace Express {

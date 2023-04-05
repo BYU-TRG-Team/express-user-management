@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
 import jwtDecode from "jwt-decode";
 import { getMockReq, getMockRes } from "@jest-mock/express";
-import { Role } from "types/auth";
-import dependencyInjection from "di/index";
-import * as mockConstants from "tests/constants";
-import * as cookieConfig from "constants/http/cookie";
+import { Role } from "@typings/auth";
+import dependencyInjection from "@di";
+import * as mockConstants from "@tests/constants";
+import * as cookieConfig from "@constants/http/cookie";
 
 jest.mock("pg");
 

@@ -1,7 +1,7 @@
 import { Pool, PoolClient } from "pg";
-import { UUID } from "types/index";
-import { Role } from "types/auth";
-import { User } from "types/user";
+import { UUID } from "@typings";
+import { Role } from "@typings/auth";
+import { User } from "@typings/user";
 
 class UserObject {
   private db: Pool;

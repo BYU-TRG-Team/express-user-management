@@ -1,4 +1,4 @@
-import { InitOptions } from "types/system";
+import { InitOptions } from "@typings/system";
 import winston from "winston";
 
 export const MOCK_AUTH_SECRET = "foobar";
