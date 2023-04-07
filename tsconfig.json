@@ -12,39 +12,48 @@
     "esModuleInterop": true,
     "declaration": true,  
     "paths": {
-      "tests/*": [
+      "@tests/*": [
         "./__tests__/*"
       ],
-      "mocks/*": [
-        "./__mocks__/*"
+      "@": [
+        "./src"
       ],
-      "middleware/*": [
-        "./src/middleware/*"
+      "@typings": [
+        "./src/types"
       ],
-      "types/*": [
+      "@typings/*": [
         "./src/types/*"
       ],
-      "constants/*": [
+      "@middleware/*": [
+        "./src/middleware/*"
+      ],
+      "@constants/*": [
         "./src/constants/*"
       ],
-      "controllers/*": [
+      "@controllers/*": [
         "./src/controllers/*"
       ],
-      "db/*": [
+      "@db": [
+        "./src/db"
+      ],
+      "@db/*": [
         "./src/db/*"
       ],
-      "di/*": [
+      "@di": [
+        "./src/di"
+      ],
+      "@di/*": [
         "./src/di/*"
       ],
-      "services/*": [
+      "@services/*": [
         "./src/services/*"
       ],
-      "support/*": [
+      "@support/*": [
         "./src/support/*"
       ],
-      "routes/*": [
+      "@routes/*": [
         "./src/routes/*"
-      ]
+      ],
     }
   },
   "include": [

@@ -1,5 +1,5 @@
-import { Role } from "types/auth";
-import { UUID } from "types/index";
+import { Role } from "@typings/auth";
+import { UUID } from "@typings";
 
 /*
 * TODO: update all references to user_id to utilize UUID (tests, service functions)

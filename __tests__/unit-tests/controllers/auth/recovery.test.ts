@@ -1,7 +1,7 @@
 import { getMockReq, getMockRes } from "@jest-mock/express";
-import dependencyInjection from "di/index";
-import * as mockConstants from "tests/constants";
-import { Role } from "types/auth";
+import dependencyInjection from "@di";
+import * as mockConstants from "@tests/constants";
+import { Role } from "@typings/auth";
 
 jest.mock("pg");
 jest.mock("nodemailer");

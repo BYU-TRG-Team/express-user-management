@@ -1,9 +1,8 @@
 import bcrypt from "bcrypt";
 import { getMockReq, getMockRes } from "@jest-mock/express";
-import { Role, SessionTokenType } from "types/auth";
-import dependencyInjection from "di/index";
-import * as mockConstants from "tests/constants";
-import { PoolClient } from "mocks/pg";
+import { Role, SessionTokenType } from "@typings/auth";
+import dependencyInjection from "@di";
+import * as mockConstants from "@tests/constants";
 
 jest.mock("pg");
 jest.mock("nodemailer");
@@ -54,7 +53,7 @@ describe("tests signup method", () => {
       email: req.body.email,
       name: req.body.name
     };
-    const mockPGPoolClient = new PoolClient();
+    const mockPGPoolClient = await dependencyContainer.DB.pool.connect()
 
     jest.spyOn(dependencyContainer.AuthController, "sendVerificationEmail");
     jest.spyOn(dependencyContainer.DB.pool, "connect").mockImplementation(() => mockPGPoolClient);

@@ -7,13 +7,18 @@
   "types": "dist/src/index.d.ts",
   "type": "module",
   "scripts": {
-    "compile-to-commonjs": "tsc --project tsconfig.commonjs.json; resolve-tspaths --project tsconfig.commonjs.json --out ./commonjs/src",
-    "compile-to-es6": "tsc --project tsconfig.json; resolve-tspaths --project tsconfig.json --out ./dist/src",
-    "build": "rm -rf commonjs/ dist/; npm run compile-to-commonjs; npm run compile-to-es6; echo '{\"type\": \"commonjs\"}' > commonjs/package.json",
-    "test": "jest",
+    "build:commonjs": "tsc --project tsconfig.commonjs.json && resolve-tspaths --project tsconfig.commonjs.json  && echo '{\"type\": \"commonjs\"}' > commonjs/package.json",
+    "build:es6": "tsc --project tsconfig.json && resolve-tspaths --project tsconfig.json",
+    "build:all": "npm run build:es6 && npm run build:commonjs",
+    "build": "npm run build:all",
+    "test": "jest --coverage",
     "migrate": "node-pg-migrate -t pgmigrations_identity",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix"
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "prepare": "husky install"
+  },
+  "engines": {
+    "node": "16.x"
   },
   "repository": {
     "type": "git",
@@ -49,6 +54,7 @@
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
+    "husky": "^8.0.3",
     "jsonwebtoken": "^8.5.1",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",

@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
 import { getMockReq, getMockRes } from "@jest-mock/express";
-import * as errorMessages from "constants/errors/messages";
-import * as authMiddleware from "middleware/auth";
-import { MOCK_AUTH_SECRET } from "tests/constants";
-import { Role } from "types/auth";
-import * as cookieConfig from "constants/http/cookie";
+import * as errorMessages from "@constants/errors/messages";
+import * as authMiddleware from "@middleware/auth";
+import { MOCK_AUTH_SECRET } from "@tests/constants";
+import { Role } from "@typings/auth";
+import * as cookieConfig from "@constants/http/cookie";
 
 describe("tests checkVerification method", () => {
   afterEach(() => {

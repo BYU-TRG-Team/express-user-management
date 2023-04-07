@@ -1,11 +1,11 @@
 import bcrypt from "bcrypt";
 import { Logger } from "winston";
 import { Request, Response } from "express";
-import TokenHandler from "support/token_handler";
-import * as errorMessages from "constants/errors/messages";
-import DB from "db/index";
-import * as cookieConfig from "constants/http/cookie";
-import { Role } from "types/auth";
+import TokenHandler from "@support/token-handler";
+import * as errorMessages from "@constants/errors/messages";
+import DB from "@db";
+import * as cookieConfig from "@constants/http/cookie";
+import { Role } from "@typings/auth";
 
 class UserController {
   private logger: Logger;

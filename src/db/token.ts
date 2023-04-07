@@ -1,7 +1,7 @@
 import { Pool, PoolClient } from "pg";
-import { UUID } from "types/index";
-import { SessionTokenType } from "types/auth";
-import { Token } from "types/token";
+import { UUID } from "@typings";
+import { SessionTokenType } from "@typings/auth";
+import { Token } from "@typings/token";
 
 class TokenObject {
   private db: Pool;

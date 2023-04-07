@@ -1,13 +1,13 @@
 import bcrypt from "bcrypt";
 import { Logger } from "winston";
 import { Response, Request } from "express";
-import * as errorMessages from "constants/errors/messages";
-import TokenHandler from "support/token_handler";
-import SmtpService from "services/smtp";
-import DB from "db/index";
-import { SessionTokenType } from "types/auth";
-import { User } from "types/user";
-import * as cookieConfig from "constants/http/cookie";
+import * as errorMessages from "@constants/errors/messages";
+import TokenHandler from "@support/token-handler";
+import SmtpService from "@services/smtp";
+import DB from "@db";
+import { SessionTokenType } from "@typings/auth";
+import { User } from "@typings/user";
+import * as cookieConfig from "@constants/http/cookie";
 
 class AuthController {
   private smtpService: SmtpService;

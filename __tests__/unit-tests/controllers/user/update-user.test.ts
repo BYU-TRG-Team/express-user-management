@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import { getMockReq, getMockRes } from "@jest-mock/express";
-import { Role } from "types/auth";
-import dependencyInjection from "di/index";
-import * as mockConstants from "tests/constants";
+import { Role } from "@typings/auth";
+import dependencyInjection from "@di";
+import * as mockConstants from "@tests/constants";
 
 jest.mock("pg");
 

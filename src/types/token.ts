@@ -1,4 +1,4 @@
-import { UUID } from "types/index";
+import { UUID } from "@typings";
 
 export type Token = {
   token: string;

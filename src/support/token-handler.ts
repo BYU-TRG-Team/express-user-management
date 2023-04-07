@@ -1,11 +1,11 @@
 import { Request } from "express";
-import { Token } from "types/token";
-import { User } from "types/user";
+import { Token } from "@typings/token";
+import { User } from "@typings/user";
 import jwtDecode from "jwt-decode";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { AuthToken, AuthTokenAttributes } from "types/auth";
-import * as cookieConfig from "constants/http/cookie";
+import { AuthToken, AuthTokenAttributes } from "@typings/auth";
+import * as cookieConfig from "@constants/http/cookie";
 
 class TokenHandler {
   private tokenSecret: string;
