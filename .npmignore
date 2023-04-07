@@ -1,3 +1,12 @@
 __mocks__/
 __tests__/
 coverage/
+.github/
+.husky/
+src/
+.eslintignore
+.eslintrc
+.gitignore
+jest.config.json
+tsconfig.commonjs.json
+tsconfig.json

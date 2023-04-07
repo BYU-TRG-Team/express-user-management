@@ -58,7 +58,6 @@
   },
   "include": [
     "src/**/*",
-    "@types",
-    "__tests__/"
+    "@types"
   ]
 }
