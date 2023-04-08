@@ -1,6 +1,6 @@
 {
   "name": "@byu-trg/express-user-management",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Library to extend an Express.js HTTP REST API with user management functionality.",
   "main": "commonjs/index.js",
   "module": "dist/index.js",
