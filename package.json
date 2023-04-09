@@ -3,8 +3,8 @@
   "version": "1.1.6",
   "description": "Library to extend an Express.js HTTP REST API with user management functionality.",
   "main": "commonjs/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "module": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "type": "module",
   "scripts": {
     "build:commonjs": "rm -rf commonjs/ && tsc --project tsconfig.commonjs.json && resolve-tspaths --project tsconfig.commonjs.json  && echo '{\"type\": \"commonjs\"}' > commonjs/package.json",
