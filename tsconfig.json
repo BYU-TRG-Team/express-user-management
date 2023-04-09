@@ -9,6 +9,7 @@
     "noUnusedLocals": false,
     "moduleResolution": "node",
     "baseUrl": ".",
+    "rootDir": ".",
     "esModuleInterop": true,
     "declaration": true,  
     "paths": {
