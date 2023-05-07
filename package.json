@@ -13,8 +13,8 @@
     "build": "npm run build:all",
     "test": "jest --coverage",
     "migrate": "node-pg-migrate -t pgmigrations_identity",
-    "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix",
+    "lint": "eslint src __tests__ --ext .ts",
+    "lint:fix": "eslint src __tests__ --ext .ts --fix",
     "prepare": "husky install"
   },
   "engines": {

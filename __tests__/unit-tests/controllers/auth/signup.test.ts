@@ -53,7 +53,7 @@ describe("tests signup method", () => {
       email: req.body.email,
       name: req.body.name
     };
-    const mockPGPoolClient = await dependencyContainer.DB.pool.connect()
+    const mockPGPoolClient = await dependencyContainer.DB.pool.connect();
 
     jest.spyOn(dependencyContainer.AuthController, "sendVerificationEmail");
     jest.spyOn(dependencyContainer.DB.pool, "connect").mockImplementation(() => mockPGPoolClient);
