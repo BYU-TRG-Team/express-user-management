@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
 import { getMockReq, getMockRes } from "@jest-mock/express";
-import * as errorMessages from "@constants/errors/messages";
 import * as authMiddleware from "@middleware/auth";
 import { MOCK_AUTH_SECRET } from "@tests/constants";
 import { Role } from "@typings/auth";
-import * as cookieConfig from "@constants/http/cookie";
+import { AUTHORIZATION_ERROR } from "@constants/errors";
+import { HTTP_COOKIE_NAME } from "@constants/auth";
 
 describe("tests checkRole method", () => {
   afterEach(() => {
@@ -23,7 +23,7 @@ describe("tests checkRole method", () => {
     });
     const req = getMockReq({
       cookies: {
-        [cookieConfig.NAME]: authToken
+        [HTTP_COOKIE_NAME]: authToken
       },
     });
     const { res, next } = getMockRes();
@@ -45,7 +45,7 @@ describe("tests checkRole method", () => {
     });
     const req = getMockReq({
       cookies: {
-        [cookieConfig.NAME]: authToken
+        [HTTP_COOKIE_NAME]: authToken
       },
     });
     const { res, next } = getMockRes();
@@ -57,7 +57,7 @@ describe("tests checkRole method", () => {
     expect(res.status).toHaveBeenCalledWith(403);
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send).toHaveBeenCalledWith({
-      message: errorMessages.ACCESS_FORBIDDEN
+      message: AUTHORIZATION_ERROR
     });
   });
 });

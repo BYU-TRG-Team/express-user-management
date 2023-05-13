@@ -4,7 +4,8 @@ import { getMockReq, getMockRes } from "@jest-mock/express";
 import { Role } from "@typings/auth";
 import dependencyInjection from "@di";
 import * as mockConstants from "@tests/constants";
-import * as cookieConfig from "@constants/http/cookie";
+import { HTTP_COOKIE_NAME } from "@constants/auth";
+import { constructHTTPCookieConfig } from "@helpers/auth";
 
 jest.mock("pg");
 
@@ -143,14 +144,16 @@ describe("tests signin method", () => {
 
     expect(res.cookie).toHaveBeenCalledTimes(1);
     const mockResCookieCall = (res.cookie as jest.Mock).mock.calls[0];
-    expect(mockResCookieCall[0]).toBe(cookieConfig.NAME);
+    expect(mockResCookieCall[0]).toBe(HTTP_COOKIE_NAME);
     expect(jwtDecode(mockResCookieCall[1])).toMatchObject({
       id: mockUser.user_id,
       role: Role.Admin,
       verified: true,
       username: mockUser.username,
     });
-    expect(mockResCookieCall[2]).toMatchObject(cookieConfig.OPTIONS(currentDate.valueOf()));
+    expect(mockResCookieCall[2]).toMatchObject(
+      constructHTTPCookieConfig()
+    );
 
     expect(res.json).toHaveBeenCalledTimes(1);
     const mockJsonCall = (res.json as jest.Mock).mock.calls[0];

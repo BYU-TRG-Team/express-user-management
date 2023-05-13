@@ -4,8 +4,9 @@ import { getMockReq, getMockRes } from "@jest-mock/express";
 import { Role, SessionTokenType } from "@typings/auth";
 import dependencyInjection from "@di";
 import * as mockConstants from "@tests/constants";
-import * as errorMessages from "@constants/errors/messages";
-import * as cookieConfig from "@constants/http/cookie";
+import { GENERIC_ERROR } from "@constants/errors";
+import { HTTP_COOKIE_NAME } from "@constants/auth";
+import { constructHTTPCookieConfig } from "@helpers/auth";
 
 jest.mock("pg");
 
@@ -67,7 +68,7 @@ describe("tests processRecovery method", () => {
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send).toHaveBeenCalledWith({ 
-      message: errorMessages.GENERIC
+      message: GENERIC_ERROR
     });
   });
 
@@ -109,7 +110,7 @@ describe("tests processRecovery method", () => {
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send).toHaveBeenCalledWith({ message: 
-      errorMessages.GENERIC
+      GENERIC_ERROR
     });
   });
 
@@ -187,14 +188,16 @@ describe("tests processRecovery method", () => {
 
     expect(res.cookie).toBeCalledTimes(1);
     const mockCookieCall = (res.cookie as jest.Mock).mock.calls[0];
-    expect(mockCookieCall[0]).toBe(cookieConfig.NAME);
+    expect(mockCookieCall[0]).toBe(HTTP_COOKIE_NAME);
     expect(jwtDecode(mockCookieCall[1])).toMatchObject({
       id: mockUser.user_id,
       role: Role.Admin,
       verified: true,
       username: mockUser.username,
     });
-    expect(mockCookieCall[2]).toStrictEqual(cookieConfig.OPTIONS(currentDate.valueOf()));
+    expect(mockCookieCall[2]).toStrictEqual(
+      constructHTTPCookieConfig()
+    );
 
     expect(res.send).toBeCalledTimes(1);
     const mockSendCall = (res.send as jest.Mock).mock.calls[0];

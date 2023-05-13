@@ -46,6 +46,9 @@
       "@di/*": [
         "./src/di/*"
       ],
+      "@helpers/*": [
+        "./src/helpers/*"
+      ],
       "@services/*": [
         "./src/services/*"
       ],

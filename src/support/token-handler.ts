@@ -5,7 +5,7 @@ import jwtDecode from "jwt-decode";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { AuthToken, AuthTokenAttributes } from "@typings/auth";
-import * as cookieConfig from "@constants/http/cookie";
+import { HTTP_COOKIE_NAME } from "@constants/auth";
 
 class TokenHandler {
   private tokenSecret: string;
@@ -15,7 +15,7 @@ class TokenHandler {
   }
 
   generateUpdatedUserAuthToken(req: Request, newAttributes: AuthTokenAttributes): AuthToken {
-    const oldToken = jwtDecode(req.cookies[cookieConfig.NAME]) as AuthToken;
+    const oldToken = jwtDecode(req.cookies[HTTP_COOKIE_NAME]) as AuthToken;
 
     const newToken = jwt.sign({
       ...oldToken,
