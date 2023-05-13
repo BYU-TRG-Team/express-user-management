@@ -1,64 +1,11 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "target": "ES6", 
-    "module": "CommonJS", 
-    "resolveJsonModule": true,
-    "sourceMap": true, 
-    "outDir": "./commonjs", 
-    "strict": true, 
-    "noUnusedLocals": false,
-    "moduleResolution": "node",
-    "baseUrl": ".",
-    "rootDir": ".",
-    "esModuleInterop": true,
-    "declaration": true,  
-    "paths": {
-      "@tests/*": [
-        "./__tests__/*"
-      ],
-      "@": [
-        "./src"
-      ],
-      "@typings": [
-        "./src/types"
-      ],
-      "@typings/*": [
-        "./src/types/*"
-      ],
-      "@middleware/*": [
-        "./src/middleware/*"
-      ],
-      "@constants/*": [
-        "./src/constants/*"
-      ],
-      "@controllers/*": [
-        "./src/controllers/*"
-      ],
-      "@db": [
-        "./src/db"
-      ],
-      "@db/*": [
-        "./src/db/*"
-      ],
-      "@di": [
-        "./src/di"
-      ],
-      "@di/*": [
-        "./src/di/*"
-      ],
-      "@services/*": [
-        "./src/services/*"
-      ],
-      "@support/*": [
-        "./src/support/*"
-      ],
-      "@routes/*": [
-        "./src/routes/*"
-      ],
-    },
+    "module": "CommonJS",
+    "outDir": "./commonjs"
   },
   "include": [
     "src/**/*",
-    "@types"
+    "@types/"
   ]
 }
