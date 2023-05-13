@@ -19,7 +19,7 @@ describe("tests processRecovery method", () => {
     const req = getMockReq({
       body: {},
       params: {
-        token: mockConstants.MOCK_TOKEN,
+        token: "TEST",
       },
     });
     const { res } = getMockRes();
@@ -39,10 +39,10 @@ describe("tests processRecovery method", () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
-        password: mockConstants.MOCK_PASSWORD,
+        password: "TEST",
       },
       params: {
-        token: mockConstants.MOCK_TOKEN,
+        token: "TEST",
       },
     });
     const { res } = getMockRes();
@@ -75,18 +75,18 @@ describe("tests processRecovery method", () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
-        password: mockConstants.MOCK_PASSWORD,
+        password: "TEST",
       },
       params: {
-        token: mockConstants.MOCK_TOKEN,
+        token: "TEST",
       },
     });
     const { res } = getMockRes();
     const mockToken = {
       created_at: new Date(Date.now() - 1800001), // Password reset token is considered expired after 30 minutes
-      token: mockConstants.MOCK_TOKEN,
+      token: "TEST",
       type: SessionTokenType.Password,
-      user_id: mockConstants.MOCK_UUID,
+      user_id: "TEST",
     };
 
     jest.spyOn(dependencyContainer.DB.objects.Token, "findTokens").mockResolvedValue({
@@ -117,28 +117,28 @@ describe("tests processRecovery method", () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
-        password: mockConstants.MOCK_PASSWORD,
+        password: "TEST",
       },
       params: {
-        token: mockConstants.MOCK_TOKEN,
+        token: "TEST",
       },
     });
     const { res } = getMockRes();
     const currentDate = new Date();
     const mockToken = {
       created_at: currentDate,
-      token: mockConstants.MOCK_TOKEN,
+      token: "TEST",
       type: SessionTokenType.Password,
-      user_id: mockConstants.MOCK_UUID,
+      user_id: "TEST",
     };
     const mockUser = {
-      user_id: mockConstants.MOCK_UUID, 
+      user_id: "TEST", 
       verified: true, 
       role_id: Role.Admin, 
-      username: mockConstants.MOCK_USERNAME,
-      password: mockConstants.MOCK_PASSWORD,
-      email: mockConstants.MOCK_EMAIL,
-      name: mockConstants.RANDOM_STRING
+      username: "TEST",
+      password: "TEST",
+      email: "TEST",
+      name: "TEST"
     };
 
     jest.spyOn(Date, "now").mockImplementation(() => currentDate.valueOf());

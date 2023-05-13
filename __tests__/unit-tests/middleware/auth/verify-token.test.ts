@@ -16,7 +16,7 @@ describe("tests verifyToken method", () => {
       id: 1, 
       role: Role.Admin, 
       verified: true, 
-      username: "test",
+      username: "TEST",
     }, MOCK_AUTH_SECRET, {
       expiresIn: 604800, //  1 week
     });
@@ -52,9 +52,9 @@ describe("tests verifyToken method", () => {
   test("should fail with 403 due to invalid jwt token", async () => {
     const authToken = jwt.sign({
       id: 1, 
-      role: "superadmin", 
+      role: Role.Admin, 
       verified: true, 
-      username: "test", 
+      username: "TEST", 
       rememberMe: false,
     }, `${MOCK_AUTH_SECRET}_FOO`, {
       expiresIn: 604800, //  1 week

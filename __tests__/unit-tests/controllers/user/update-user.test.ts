@@ -15,17 +15,17 @@ describe("tests updateUser method", () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
-        username: mockConstants.MOCK_USERNAME,
-        email: mockConstants.MOCK_EMAIL,
-        name: mockConstants.RANDOM_STRING,
-        password: mockConstants.MOCK_PASSWORD,
+        username: "TEST",
+        email: "TEST",
+        name: "TEST",
+        password: "TEST",
         roleId: Role.Admin
       },
       params: {
-        id: mockConstants.MOCK_UUID,
+        id: "TEST",
       },
       role: Role.User,
-      userId: mockConstants.MOCK_UUID
+      userId: "TEST"
     });
     const { res } = getMockRes();
 
@@ -54,17 +54,17 @@ describe("tests updateUser method", () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
-        username: mockConstants.MOCK_USERNAME,
-        email: mockConstants.MOCK_EMAIL,
-        name: mockConstants.RANDOM_STRING,
-        password: mockConstants.MOCK_PASSWORD,
+        username: "TEST",
+        email: "TEST",
+        name: "TEST",
+        password: "TEST",
         roleId: Role.Admin
       },
       params: {
-        id: mockConstants.MOCK_UUID,
+        id: "TEST",
       },
       role: Role.Admin,
-      userId: mockConstants.MOCK_UUID
+      userId: "TEST"
     });
     const { res } = getMockRes();
 
@@ -100,17 +100,17 @@ describe("tests updateUser method", () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
-        username: mockConstants.MOCK_USERNAME,
-        email: mockConstants.MOCK_EMAIL,
-        name: mockConstants.RANDOM_STRING,
-        password: mockConstants.MOCK_PASSWORD,
+        username: "TEST",
+        email: "TEST",
+        name: "TEST",
+        password: "TEST",
         roleId: Role.Admin
       },
       params: {
-        id: mockConstants.MOCK_UUID,
+        id: "TEST",
       },
       role: Role.Admin,
-      userId: `${mockConstants.MOCK_UUID}_GIBBERISH`
+      userId: "FOO"
     });
     const { res } = getMockRes();
 
