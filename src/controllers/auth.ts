@@ -1,13 +1,14 @@
 import bcrypt from "bcrypt";
 import { Logger } from "winston";
 import { Response, Request } from "express";
-import * as errorMessages from "@constants/errors/messages";
 import TokenHandler from "@support/token-handler";
 import SmtpService from "@services/smtp";
 import DB from "@db";
 import { SessionTokenType } from "@typings/auth";
 import { User } from "@typings/user";
-import * as cookieConfig from "@constants/http/cookie";
+import { LOGIN_AUTHENTICATION_ERROR, GENERIC_ERROR } from "@constants/errors";
+import { HTTP_COOKIE_NAME } from "@constants/auth";
+import { constructHTTPCookieConfig } from "@helpers/auth";
 
 class AuthController {
   private smtpService: SmtpService;
@@ -79,7 +80,7 @@ class AuthController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: GENERIC_ERROR });
     } finally {
       if (transactionInProgress) {
         await client.query("ROLLBACK");
@@ -105,7 +106,7 @@ class AuthController {
       const userResponse = await this.db.objects.User.findUsers({ username });
 
       if (userResponse.rows.length === 0) {
-        res.status(400).send({ message: errorMessages.LOGIN_ERROR });
+        res.status(400).send({ message: LOGIN_AUTHENTICATION_ERROR });
         return;
       }
 
@@ -118,16 +119,16 @@ class AuthController {
 
       if (!passwordIsValid) {
         res.status(400).send({
-          message: errorMessages.LOGIN_ERROR,
+          message: LOGIN_AUTHENTICATION_ERROR,
         });
         return;
       }
 
       const token = this.tokenHandler.generateUserAuthToken(user, req);
       res.cookie(
-        cookieConfig.NAME, 
+        HTTP_COOKIE_NAME, 
         token, 
-        cookieConfig.OPTIONS(Date.now())
+        constructHTTPCookieConfig()
       );
       res.json({ token });
     } catch (err: any) {
@@ -135,7 +136,7 @@ class AuthController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: GENERIC_ERROR });
     }
   }
 
@@ -145,14 +146,14 @@ class AuthController {
 
   logout(_req: Request, res: Response) {
     try {
-      res.clearCookie(cookieConfig.NAME, { path: "/" }).send();
+      res.clearCookie(HTTP_COOKIE_NAME, { path: "/" }).send();
       return;
     } catch (err: any) {
       this.logger.log({
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: GENERIC_ERROR });
     }
   }
 
@@ -180,7 +181,7 @@ class AuthController {
       });
 
       if (userResponse.rows.length === 0) {
-        res.status(500).send({ message: errorMessages.GENERIC });
+        res.status(500).send({ message: GENERIC_ERROR });
         return;
       }
       const user = userResponse.rows[0];
@@ -199,7 +200,7 @@ class AuthController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: GENERIC_ERROR });
     }
   }
 
@@ -230,7 +231,7 @@ class AuthController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: GENERIC_ERROR });
     }
   }
 
@@ -245,14 +246,14 @@ class AuthController {
       });
 
       if (tokenResponse.rows.length === 0) {
-        res.status(400).send({ message: errorMessages.GENERIC });
+        res.status(400).send({ message: GENERIC_ERROR });
         return;
       }
 
       const token = tokenResponse.rows[0];
 
       if (this.tokenHandler.isPasswordTokenExpired(token)) {
-        res.status(400).send({ message: errorMessages.GENERIC });
+        res.status(400).send({ message: GENERIC_ERROR });
         return;
       }
 
@@ -262,7 +263,7 @@ class AuthController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: GENERIC_ERROR });
     }
   }
 
@@ -283,13 +284,13 @@ class AuthController {
         "type": SessionTokenType.Password
       });
       if (tokenResponse.rows.length === 0) {
-        res.status(400).send({ message: errorMessages.GENERIC });
+        res.status(400).send({ message: GENERIC_ERROR });
         return;
       }
 
       const token = tokenResponse.rows[0];
       if (this.tokenHandler.isPasswordTokenExpired(token)) {
-        res.status(400).send({ message: errorMessages.GENERIC });
+        res.status(400).send({ message: GENERIC_ERROR });
         return;
       }
 
@@ -297,7 +298,7 @@ class AuthController {
         "user_id": token.user_id
       });
       if (userResponse.rows.length === 0) {
-        res.status(500).send({ message: errorMessages.GENERIC });
+        res.status(500).send({ message: GENERIC_ERROR });
         return;
       }
 
@@ -313,9 +314,9 @@ class AuthController {
       
       const authToken = this.tokenHandler.generateUserAuthToken(user, req);
       res.cookie(
-        cookieConfig.NAME, 
+        HTTP_COOKIE_NAME, 
         authToken, 
-        cookieConfig.OPTIONS(Date.now())
+        constructHTTPCookieConfig()
       );
       res.send({ token: authToken });
     } catch (err: any) {
@@ -323,7 +324,7 @@ class AuthController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: GENERIC_ERROR });
     }
   }
 

@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
 import { getMockReq, getMockRes } from "@jest-mock/express";
-import * as errorMessages from "@constants/errors/messages";
 import * as authMiddleware from "@middleware/auth";
 import { MOCK_AUTH_SECRET } from "@tests/constants";
 import { Role } from "@typings/auth";
-import * as cookieConfig from "@constants/http/cookie";
+import { AUTHENTICATION_ERROR, AUTHORIZATION_ERROR} from "@constants/errors";
+import { HTTP_COOKIE_NAME } from "@constants/auth";
 
 describe("tests verifyToken method", () => {
   afterEach(() => {
@@ -22,7 +22,7 @@ describe("tests verifyToken method", () => {
     });
     const req = getMockReq({
       cookies: {
-        [cookieConfig.NAME]: authToken
+        [HTTP_COOKIE_NAME]: authToken
       },
     });
     const { res, next } = getMockRes();
@@ -43,7 +43,7 @@ describe("tests verifyToken method", () => {
     expect(next).toHaveBeenCalledTimes(0);
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send).toHaveBeenCalledWith({
-      message: errorMessages.REQUEST_UNAUTHORIZED,
+      message: AUTHENTICATION_ERROR,
     });
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(401);
@@ -61,7 +61,7 @@ describe("tests verifyToken method", () => {
     });
     const req = getMockReq({
       cookies: {
-        [cookieConfig.NAME]: authToken
+        [HTTP_COOKIE_NAME]: authToken
       },
     });
     const { res, next } = getMockRes();
@@ -71,7 +71,7 @@ describe("tests verifyToken method", () => {
     expect(next).toHaveBeenCalledTimes(0);
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send).toHaveBeenCalledWith({
-      message: errorMessages.ACCESS_FORBIDDEN,
+      message: AUTHORIZATION_ERROR,
     });
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(403);

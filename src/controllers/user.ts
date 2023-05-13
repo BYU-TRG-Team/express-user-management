@@ -2,10 +2,11 @@ import bcrypt from "bcrypt";
 import { Logger } from "winston";
 import { Request, Response } from "express";
 import TokenHandler from "@support/token-handler";
-import * as errorMessages from "@constants/errors/messages";
 import DB from "@db";
-import * as cookieConfig from "@constants/http/cookie";
 import { Role } from "@typings/auth";
+import { RESOURCE_NOT_FOUND_ERROR, GENERIC_ERROR } from "@constants/errors";
+import { HTTP_COOKIE_NAME } from "@constants/auth";
+import { constructHTTPCookieConfig } from "@helpers/auth";
 
 class UserController {
   private logger: Logger;
@@ -64,9 +65,9 @@ class UserController {
       if (newAttributes.username) {
         const newToken = await this.tokenHandler.generateUpdatedUserAuthToken(req, newAttributes);
         res.cookie(
-          cookieConfig.NAME, 
+          HTTP_COOKIE_NAME, 
           newToken, 
-          cookieConfig.OPTIONS(Date.now())
+          constructHTTPCookieConfig()
         );
         res.send({ newToken });
         return;
@@ -78,7 +79,7 @@ class UserController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: GENERIC_ERROR });
     }
   }
 
@@ -88,7 +89,7 @@ class UserController {
   async getUser(req: Request, res: Response) {
     try {
       if (req.params.id !== req.userId) {
-        return res.status(400).send({ message: errorMessages.GENERIC });
+        return res.status(400).send({ message: GENERIC_ERROR });
       }
 
       const usersQuery = await this.db.objects.User.findUsers({
@@ -96,7 +97,7 @@ class UserController {
       });
 
       if (usersQuery.rows.length === 0) {
-        return res.status(404).send({ message: errorMessages.RESOURCE_NOT_FOUND });
+        return res.status(404).send({ message: RESOURCE_NOT_FOUND_ERROR });
       }
 
       const { email, username, name } = usersQuery.rows[0];
@@ -109,7 +110,7 @@ class UserController {
         level: "error",
         message: err,
       });
-      return res.status(500).send({ message: errorMessages.GENERIC });
+      return res.status(500).send({ message: GENERIC_ERROR });
     }
   }
 
@@ -125,7 +126,7 @@ class UserController {
         level: "error",
         message: err,
       });
-      return res.status(500).send({ message: errorMessages.GENERIC });
+      return res.status(500).send({ message: GENERIC_ERROR });
     }
   }
 
@@ -141,7 +142,7 @@ class UserController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: errorMessages.GENERIC });
+      res.status(500).send({ message: GENERIC_ERROR });
     }
   }
 }

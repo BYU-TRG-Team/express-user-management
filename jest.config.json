@@ -27,6 +27,7 @@
     "^@db/(.*)$": "<rootDir>/src/db/$1",
     "^@di$": "<rootDir>/src/di",
     "^@di/(.*)$": "<rootDir>/src/di/$1",
+    "^@helpers/(.*)$": "<rootDir>/src/helpers/$1",
     "^@services/(.*)$": "<rootDir>/src/services/$1",
     "^@support/(.*)$":  "<rootDir>/src/support/$1",
     "^@routes/(.*)$": "<rootDir>/src/routes/$1"
