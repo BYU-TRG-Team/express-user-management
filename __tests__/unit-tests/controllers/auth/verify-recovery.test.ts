@@ -10,7 +10,7 @@ describe("tests verifyRecovery method", () => {
     jest.restoreAllMocks();
   });
   
-  it("should throw a 400 error for non valid token", async () => {
+  test("should throw a 400 error for non valid token", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       params: {
@@ -43,7 +43,7 @@ describe("tests verifyRecovery method", () => {
     });
   });
 
-  it("should throw a 400 error for expired token", async () => {
+  test("should throw a 400 error for expired token", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       params: {
@@ -82,7 +82,7 @@ describe("tests verifyRecovery method", () => {
     });
   });
 
-  it("should redirect to /recover/test", async () => {
+  test("should redirect to /recover/test", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       params: {

@@ -11,7 +11,7 @@ describe("tests updateUser method", () => {
     jest.restoreAllMocks();
   });
 
-  it("should update the user profile once with username, email, name, and password", async () => {
+  test("should update the user profile once with username, email, name, and password", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
@@ -50,7 +50,7 @@ describe("tests updateUser method", () => {
     });
   });
 
-  it("should update the user profile once with username, email, name, and password, and then a second time with roleId", async () => {
+  test("should update the user profile once with username, email, name, and password, and then a second time with roleId", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
@@ -96,7 +96,7 @@ describe("tests updateUser method", () => {
     );
   });
 
-  it("should update the user profile once with roleId", async () => {
+  test("should update the user profile once with roleId", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {

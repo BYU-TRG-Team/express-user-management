@@ -12,7 +12,7 @@ describe("tests signup method", () => {
     jest.restoreAllMocks();
   });
   
-  it("should throw a 400 error due to body not including name", async () => {
+  test("should throw a 400 error due to body not including name", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
@@ -33,7 +33,7 @@ describe("tests signup method", () => {
     });
   });
 
-  it("should create a new user and send a verification email", async () => {
+  test("should create a new user and send a verification email", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {

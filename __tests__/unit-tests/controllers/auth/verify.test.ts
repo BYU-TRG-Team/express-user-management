@@ -10,7 +10,7 @@ describe("tests verify method", () => {
     jest.restoreAllMocks();
   });
 
-  it("should redirect to /login for invalid verify token", async () => {
+  test("should redirect to /login for invalid verify token", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       params: {
@@ -39,7 +39,7 @@ describe("tests verify method", () => {
     expect(res.redirect).toHaveBeenCalledWith("/login");
   });
 
-  it("should set user as verified, remove token, and redirect to /login", async () => {
+  test("should set user as verified, remove token, and redirect to /login", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       params: {

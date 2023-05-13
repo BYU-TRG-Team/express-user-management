@@ -11,7 +11,7 @@ describe("tests recovery method", () => {
     jest.restoreAllMocks();
   });
   
-  it("should throw a 400 error for invalid body", async () => {
+  test("should throw a 400 error for invalid body", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {},
@@ -28,7 +28,7 @@ describe("tests recovery method", () => {
     });
   });
 
-  it("should redirect to /recover/sent but not send a password reset email", async () => {
+  test("should redirect to /recover/sent but not send a password reset email", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
@@ -59,7 +59,7 @@ describe("tests recovery method", () => {
     expect(res.redirect).toHaveBeenCalledWith("/recover/sent");
   });
 
-  it("should redirect to /recover/sent and send a password reset email", async () => {
+  test("should redirect to /recover/sent and send a password reset email", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
