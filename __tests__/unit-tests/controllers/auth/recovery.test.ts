@@ -32,7 +32,7 @@ describe("tests recovery method", () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
-        email: mockConstants.MOCK_EMAIL
+        email: "TEST"
       },
     });
     const { res } = getMockRes();
@@ -63,18 +63,18 @@ describe("tests recovery method", () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
-        email: mockConstants.MOCK_EMAIL
+        email: "TEST"
       },
     });
     const { res } = getMockRes();
     const mockUser = {
-      user_id: mockConstants.MOCK_UUID, 
+      user_id: "TEST", 
       verified: true, 
       role_id: Role.Admin, 
-      username: mockConstants.MOCK_USERNAME,
-      password: mockConstants.MOCK_PASSWORD,
-      email: mockConstants.MOCK_EMAIL,
-      name: mockConstants.RANDOM_STRING
+      username: "TEST",
+      password: "TEST",
+      email: "TEST",
+      name: "TEST"
     };
 
     jest.spyOn(dependencyContainer.DB.objects.User, "findUsers").mockResolvedValue({

@@ -17,7 +17,7 @@ describe("tests signin method", () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
-        username: mockConstants.MOCK_USERNAME
+        username: "TEST"
       },
     });
     const { res } = getMockRes();
@@ -36,8 +36,8 @@ describe("tests signin method", () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
-        username: mockConstants.MOCK_USERNAME,
-        password: mockConstants.MOCK_PASSWORD
+        username: "TEST",
+        password: "TEST"
       },
     });
     const { res } = getMockRes();
@@ -69,19 +69,19 @@ describe("tests signin method", () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
-        username: mockConstants.MOCK_USERNAME,
-        password: mockConstants.MOCK_PASSWORD
+        username: "TEST",
+        password: "TEST"
       },
     });
     const { res } = getMockRes();
     const mockUser = {
-      user_id: mockConstants.MOCK_UUID, 
+      user_id: "TEST", 
       verified: true, 
       role_id: Role.Admin, 
       username: req.body.username,
       password: await bcrypt.hash(`${req.body.password}_GIBBERISH`, 10),
-      email: mockConstants.MOCK_EMAIL,
-      name: mockConstants.RANDOM_STRING
+      email: "TEST",
+      name: "TEST"
     };
 
     jest.spyOn(dependencyContainer.DB.objects.User, "findUsers").mockResolvedValue({
@@ -110,20 +110,20 @@ describe("tests signin method", () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
-        username: mockConstants.MOCK_USERNAME,
-        password: mockConstants.MOCK_PASSWORD
+        username: "TEST",
+        password: "TEST"
       },
     });
     const { res } = getMockRes();
     const currentDate = new Date();
     const mockUser = {
-      user_id: mockConstants.MOCK_UUID, 
+      user_id: "TEST", 
       verified: true, 
       role_id: Role.Admin, 
       username: req.body.username,
       password: await bcrypt.hash(req.body.password, 10),
-      email: mockConstants.MOCK_EMAIL,
-      name: mockConstants.RANDOM_STRING
+      email: "TEST",
+      name: "TEST"
     };
     
     jest.spyOn(dependencyContainer.DB.objects.User, "findUsers").mockResolvedValue({

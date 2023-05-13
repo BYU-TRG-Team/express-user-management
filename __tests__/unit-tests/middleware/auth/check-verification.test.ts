@@ -16,7 +16,7 @@ describe("tests checkVerification method", () => {
       id: 1, 
       role: Role.Admin, 
       verified: true, 
-      username: "test", 
+      username: "TEST", 
       rememberMe: false,
     }, MOCK_AUTH_SECRET, {
       expiresIn: 604800, //  1 week
@@ -38,7 +38,7 @@ describe("tests checkVerification method", () => {
       id: 1, 
       role: Role.Admin, 
       verified: false, 
-      username: "test", 
+      username: "TEST", 
       rememberMe: false,
     }, MOCK_AUTH_SECRET, {
       expiresIn: 604800, //  1 week
