@@ -13,7 +13,7 @@ describe("tests signin method", () => {
     jest.restoreAllMocks();
   });
   
-  it("should throw a 400 error for invalid body", async () => {
+  test("should throw a 400 error for invalid body", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
@@ -32,7 +32,7 @@ describe("tests signin method", () => {
     });
   });
 
-  it("should throw a 400 error for no found user", async () => {
+  test("should throw a 400 error for no found user", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
@@ -65,7 +65,7 @@ describe("tests signin method", () => {
     });
   });
 
-  it("should throw a 400 error for invalid password", async () => {
+  test("should throw a 400 error for invalid password", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
@@ -106,7 +106,7 @@ describe("tests signin method", () => {
     });
   });
 
-  it("should successfully return a jwt token", async () => {
+  test("should successfully return a jwt token", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {

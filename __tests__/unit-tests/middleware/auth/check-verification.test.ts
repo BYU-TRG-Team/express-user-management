@@ -11,7 +11,7 @@ describe("tests checkVerification method", () => {
     jest.restoreAllMocks();
   });
   
-  it("should call next due to verified token", async () => {
+  test("should call next due to verified token", async () => {
     const authToken = jwt.sign({
       id: 1, 
       role: Role.Admin, 
@@ -33,7 +33,7 @@ describe("tests checkVerification method", () => {
     expect(next).toHaveBeenCalledTimes(1);
   });
 
-  it("should fail with 403 due to invalid or unverified token", async () => {
+  test("should fail with 403 due to invalid or unverified token", async () => {
     const authToken = jwt.sign({
       id: 1, 
       role: Role.Admin, 

@@ -11,7 +11,7 @@ describe("tests verifyToken method", () => {
     jest.restoreAllMocks();
   });
   
-  it("should call next due to valid token", async () => {
+  test("should call next due to valid token", async () => {
     const authToken = jwt.sign({
       id: 1, 
       role: Role.Admin, 
@@ -34,7 +34,7 @@ describe("tests verifyToken method", () => {
     expect(req.role).toBe(Role.Admin);
   });
 
-  it("should fail with 401 due to absent jwt token", async () => {
+  test("should fail with 401 due to absent jwt token", async () => {
     const req = getMockReq();
     const { res, next } = getMockRes();
 
@@ -49,7 +49,7 @@ describe("tests verifyToken method", () => {
     expect(res.status).toHaveBeenCalledWith(401);
   });
 
-  it("should fail with 403 due to invalid jwt token", async () => {
+  test("should fail with 403 due to invalid jwt token", async () => {
     const authToken = jwt.sign({
       id: 1, 
       role: "superadmin", 

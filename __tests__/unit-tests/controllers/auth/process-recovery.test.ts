@@ -14,7 +14,7 @@ describe("tests processRecovery method", () => {
     jest.restoreAllMocks();
   });
   
-  it("should throw a 400 error due to an invalid body", async () => {
+  test("should throw a 400 error due to an invalid body", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {},
@@ -35,7 +35,7 @@ describe("tests processRecovery method", () => {
     });
   });
 
-  it("should throw a 400 error due to an invalid token", async () => {
+  test("should throw a 400 error due to an invalid token", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
@@ -71,7 +71,7 @@ describe("tests processRecovery method", () => {
     });
   });
 
-  it("should throw a 400 error due to an expired token", async () => {
+  test("should throw a 400 error due to an expired token", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
@@ -113,7 +113,7 @@ describe("tests processRecovery method", () => {
     });
   });
 
-  it("should successfully update password and return token and cookie", async () => {
+  test("should successfully update password and return token and cookie", async () => {
     const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {

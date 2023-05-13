@@ -11,7 +11,7 @@ describe("tests checkRole method", () => {
     jest.restoreAllMocks();
   });
   
-  it("should call next due to token including specified role", async () => {
+  test("should call next due to token including specified role", async () => {
     const authToken = jwt.sign({
       id: 1, 
       role: Role.Admin, 
@@ -33,7 +33,7 @@ describe("tests checkRole method", () => {
     expect(next).toHaveBeenCalledTimes(1);
   });
 
-  it("should fail with a 403 for token not including specified role", async () => {
+  test("should fail with a 403 for token not including specified role", async () => {
     const authToken = jwt.sign({
       id: 1, 
       role: Role.Staff, 
