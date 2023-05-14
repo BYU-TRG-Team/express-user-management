@@ -32,7 +32,7 @@ class AuthController {
   */
   async signup(req: Request, res: Response) {
     let transactionInProgress = false;
-    const client = await this.db.pool.connect();
+    const client = await this.db.connectionPool.connect();
 
     try {
       const {

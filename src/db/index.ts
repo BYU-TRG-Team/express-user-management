@@ -1,4 +1,4 @@
-import pg from "pg";
+import pg, { PoolConfig } from "pg";
 import Token from "@db/token";
 import User from "@db/user";
 
@@ -8,12 +8,15 @@ type DBObjects = {
 }
 
 class DB {
-  public pool: pg.Pool;
+  public connectionPool: pg.Pool;
   public objects: DBObjects;
 
-  constructor(pool: pg.Pool, objects: DBObjects ) { 
-    this.pool = pool;
-    this.objects = objects;
+  constructor(dbClientConfig: PoolConfig) { 
+    this.connectionPool = new pg.Pool(dbClientConfig);
+    this.objects = {
+      User: new User(this.connectionPool),
+      Token: new Token(this.connectionPool),
+    };
   }
 }
 

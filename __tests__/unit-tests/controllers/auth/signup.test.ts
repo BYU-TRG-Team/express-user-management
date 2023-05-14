@@ -53,10 +53,10 @@ describe("tests signup method", () => {
       email: req.body.email,
       name: req.body.name
     };
-    const mockPGPoolClient = await bottle.container.DBClient.pool.connect();
+    const mockPGPoolClient = await bottle.container.DBClient.connectionPool.connect();
 
     jest.spyOn(bottle.container.AuthController, "sendVerificationEmail");
-    jest.spyOn(bottle.container.DBClient.pool, "connect").mockImplementation(() => mockPGPoolClient);
+    jest.spyOn(bottle.container.DBClient.connectionPool, "connect").mockImplementation(() => mockPGPoolClient);
     jest.spyOn(bottle.container.DBClient.objects.User, "create").mockResolvedValue({
       rows: [mockUser],
       command: "",
