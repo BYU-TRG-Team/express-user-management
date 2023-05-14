@@ -29,7 +29,6 @@
     "^@db/(.*)$": "<rootDir>/src/db/$1",
     "^@bottle$": "<rootDir>/src/bottle",
     "^@helpers/(.*)$": "<rootDir>/src/helpers/$1",
-    "^@helpers$": "<rootDir>/src/helpers",
     "^@support/(.*)$":  "<rootDir>/src/support/$1",
     "^@routes/(.*)$": "<rootDir>/src/routes/$1"
   },
