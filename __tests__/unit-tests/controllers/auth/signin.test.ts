@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import jwtDecode from "jwt-decode";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 import { Role } from "@typings/auth";
-import dependencyInjection from "@di";
+import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
 import { HTTP_COOKIE_NAME } from "@constants/auth";
 import { constructHTTPCookieConfig } from "@helpers/auth";
@@ -15,7 +15,7 @@ describe("tests signin method", () => {
   });
   
   test("should throw a 400 error for invalid body", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         username: "TEST"
@@ -23,7 +23,7 @@ describe("tests signin method", () => {
     });
     const { res } = getMockRes();
 
-    await dependencyContainer.AuthController.signin(req, res);
+    await bottle.container.AuthController.signin(req, res);
 
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(400);
@@ -34,7 +34,7 @@ describe("tests signin method", () => {
   });
 
   test("should throw a 400 error for no found user", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         username: "TEST",
@@ -43,7 +43,7 @@ describe("tests signin method", () => {
     });
     const { res } = getMockRes();
 
-    jest.spyOn(dependencyContainer.DB.objects.User, "findUsers").mockResolvedValue({
+    jest.spyOn(bottle.container.DBClient.objects.User, "findUsers").mockResolvedValue({
       rows: [],
       command: "",
       oid: 0,
@@ -51,10 +51,10 @@ describe("tests signin method", () => {
       fields: []
     });
 
-    await dependencyContainer.AuthController.signin(req, res);
+    await bottle.container.AuthController.signin(req, res);
 
-    expect(dependencyContainer.DB.objects.User.findUsers).toHaveBeenCalledTimes(1);
-    expect(dependencyContainer.DB.objects.User.findUsers).toBeCalledWith({
+    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledTimes(1);
+    expect(bottle.container.DBClient.objects.User.findUsers).toBeCalledWith({
       "username": req.body.username
     });
 
@@ -67,7 +67,7 @@ describe("tests signin method", () => {
   });
 
   test("should throw a 400 error for invalid password", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         username: "TEST",
@@ -85,7 +85,7 @@ describe("tests signin method", () => {
       name: "TEST"
     };
 
-    jest.spyOn(dependencyContainer.DB.objects.User, "findUsers").mockResolvedValue({
+    jest.spyOn(bottle.container.DBClient.objects.User, "findUsers").mockResolvedValue({
       rows: [mockUser],
       command: "",
       oid: 0,
@@ -93,9 +93,9 @@ describe("tests signin method", () => {
       fields: []
     });
 
-    await dependencyContainer.AuthController.signin(req, res);
+    await bottle.container.AuthController.signin(req, res);
 
-    expect(dependencyContainer.DB.objects.User.findUsers).toBeCalledWith({
+    expect(bottle.container.DBClient.objects.User.findUsers).toBeCalledWith({
       "username": req.body.username
     });
 
@@ -108,7 +108,7 @@ describe("tests signin method", () => {
   });
 
   test("should successfully return a jwt token", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         username: "TEST",
@@ -127,7 +127,7 @@ describe("tests signin method", () => {
       name: "TEST"
     };
     
-    jest.spyOn(dependencyContainer.DB.objects.User, "findUsers").mockResolvedValue({
+    jest.spyOn(bottle.container.DBClient.objects.User, "findUsers").mockResolvedValue({
       rows: [mockUser],
       command: "",
       oid: 0,
@@ -136,9 +136,9 @@ describe("tests signin method", () => {
     });
     jest.spyOn(Date, "now").mockImplementation(() => currentDate.valueOf());
 
-    await dependencyContainer.AuthController.signin(req, res);
+    await bottle.container.AuthController.signin(req, res);
 
-    expect(dependencyContainer.DB.objects.User.findUsers).toBeCalledWith({
+    expect(bottle.container.DBClient.objects.User.findUsers).toBeCalledWith({
       "username": req.body.username
     });
 

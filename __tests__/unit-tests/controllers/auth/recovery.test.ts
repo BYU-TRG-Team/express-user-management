@@ -1,5 +1,5 @@
 import { getMockReq, getMockRes } from "@jest-mock/express";
-import dependencyInjection from "@di";
+import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
 import { Role } from "@typings/auth";
 
@@ -12,13 +12,13 @@ describe("tests recovery method", () => {
   });
   
   test("should throw a 400 error for invalid body", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {},
     });
     const { res } = getMockRes();
 
-    await dependencyContainer.AuthController.recovery(req, res);
+    await bottle.container.AuthController.recovery(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.status).toHaveBeenCalledTimes(1);
@@ -29,7 +29,7 @@ describe("tests recovery method", () => {
   });
 
   test("should redirect to /recover/sent but not send a password reset email", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         email: "TEST"
@@ -37,30 +37,30 @@ describe("tests recovery method", () => {
     });
     const { res } = getMockRes();
 
-    jest.spyOn(dependencyContainer.DB.objects.User, "findUsers").mockResolvedValue({
+    jest.spyOn(bottle.container.DBClient.objects.User, "findUsers").mockResolvedValue({
       rows: [],
       command: "",
       oid: 0,
       rowCount: 0,
       fields: []
     });
-    jest.spyOn(dependencyContainer.AuthController, "sendPasswordResetEmail");
+    jest.spyOn(bottle.container.AuthController, "sendPasswordResetEmail");
 
-    await dependencyContainer.AuthController.recovery(req, res);
+    await bottle.container.AuthController.recovery(req, res);
 
-    expect(dependencyContainer.DB.objects.User.findUsers).toHaveBeenCalledTimes(1);
-    expect(dependencyContainer.DB.objects.User.findUsers).toHaveBeenCalledWith({
+    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledTimes(1);
+    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledWith({
       "email": req.body.email,
     });
 
-    expect(dependencyContainer.AuthController.sendPasswordResetEmail).toHaveBeenCalledTimes(0);
+    expect(bottle.container.AuthController.sendPasswordResetEmail).toHaveBeenCalledTimes(0);
 
     expect(res.redirect).toHaveBeenCalledTimes(1);
     expect(res.redirect).toHaveBeenCalledWith("/recover/sent");
   });
 
   test("should redirect to /recover/sent and send a password reset email", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         email: "TEST"
@@ -77,24 +77,24 @@ describe("tests recovery method", () => {
       name: "TEST"
     };
 
-    jest.spyOn(dependencyContainer.DB.objects.User, "findUsers").mockResolvedValue({
+    jest.spyOn(bottle.container.DBClient.objects.User, "findUsers").mockResolvedValue({
       rows: [mockUser],
       command: "",
       oid: 0,
       rowCount: 1,
       fields: []
     });
-    jest.spyOn(dependencyContainer.AuthController, "sendPasswordResetEmail");
+    jest.spyOn(bottle.container.AuthController, "sendPasswordResetEmail");
 
-    await dependencyContainer.AuthController.recovery(req, res);
+    await bottle.container.AuthController.recovery(req, res);
 
-    expect(dependencyContainer.DB.objects.User.findUsers).toHaveBeenCalledTimes(1);
-    expect(dependencyContainer.DB.objects.User.findUsers).toHaveBeenCalledWith({
+    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledTimes(1);
+    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledWith({
       "email": req.body.email,
     });
 
-    expect(dependencyContainer.AuthController.sendPasswordResetEmail).toHaveBeenCalledTimes(1);
-    expect(dependencyContainer.AuthController.sendPasswordResetEmail).toHaveBeenCalledWith(
+    expect(bottle.container.AuthController.sendPasswordResetEmail).toHaveBeenCalledTimes(1);
+    expect(bottle.container.AuthController.sendPasswordResetEmail).toHaveBeenCalledWith(
       req,
       mockUser
     );

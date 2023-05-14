@@ -19,6 +19,9 @@
       "@": [
         "./src"
       ],
+      "@config-manager": [
+        "./src/config-manager"
+      ],
       "@typings": [
         "./src/types"
       ],
@@ -40,11 +43,8 @@
       "@db/*": [
         "./src/db/*"
       ],
-      "@di": [
-        "./src/di"
-      ],
-      "@di/*": [
-        "./src/di/*"
+      "@bottle": [
+        "./src/bottle"
       ],
       "@helpers/*": [
         "./src/helpers/*"

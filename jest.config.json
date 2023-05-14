@@ -18,6 +18,7 @@
   "moduleNameMapper": {
     "^@tests/(.*)$": "<rootDir>/__tests__/$1",
     "^@$": "<rootDir>/src",
+    "^@config-manager$": "<rootDir>/src/config-manager",
     "^@typings$": "<rootDir>/src/types",
     "^@typings/(.*)$": "<rootDir>/src/types/$1",
     "^@middleware/(.*)$": "<rootDir>/src/middleware/$1",
@@ -25,8 +26,7 @@
     "^@controllers/(.*)$": "<rootDir>/src/controllers/$1",
     "^@db$": "<rootDir>/src/db",
     "^@db/(.*)$": "<rootDir>/src/db/$1",
-    "^@di$": "<rootDir>/src/di",
-    "^@di/(.*)$": "<rootDir>/src/di/$1",
+    "^@bottle$": "<rootDir>/src/bottle",
     "^@helpers/(.*)$": "<rootDir>/src/helpers/$1",
     "^@services/(.*)$": "<rootDir>/src/services/$1",
     "^@support/(.*)$":  "<rootDir>/src/support/$1",

@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import jwtDecode from "jwt-decode";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 import { Role, SessionTokenType } from "@typings/auth";
-import dependencyInjection from "@di";
+import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
 import { GENERIC_ERROR } from "@constants/errors";
 import { HTTP_COOKIE_NAME } from "@constants/auth";
@@ -16,7 +16,7 @@ describe("tests processRecovery method", () => {
   });
   
   test("should throw a 400 error due to an invalid body", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {},
       params: {
@@ -25,7 +25,7 @@ describe("tests processRecovery method", () => {
     });
     const { res } = getMockRes();
 
-    await dependencyContainer.AuthController.processRecovery(req, res);
+    await bottle.container.AuthController.processRecovery(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.status).toHaveBeenCalledTimes(1);
@@ -37,7 +37,7 @@ describe("tests processRecovery method", () => {
   });
 
   test("should throw a 400 error due to an invalid token", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         password: "TEST",
@@ -48,7 +48,7 @@ describe("tests processRecovery method", () => {
     });
     const { res } = getMockRes();
 
-    jest.spyOn(dependencyContainer.DB.objects.Token, "findTokens").mockResolvedValue({
+    jest.spyOn(bottle.container.DBClient.objects.Token, "findTokens").mockResolvedValue({
       rows: [],
       command: "",
       oid: 0,
@@ -56,10 +56,10 @@ describe("tests processRecovery method", () => {
       fields: []
     });
     
-    await dependencyContainer.AuthController.processRecovery(req, res);
+    await bottle.container.AuthController.processRecovery(req, res);
 
-    expect(dependencyContainer.DB.objects.Token.findTokens).toHaveBeenCalledTimes(1);
-    expect(dependencyContainer.DB.objects.Token.findTokens).toHaveBeenCalledWith({
+    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledTimes(1);
+    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledWith({
       "token": req.params.token,
       "type": SessionTokenType.Password
     });
@@ -73,7 +73,7 @@ describe("tests processRecovery method", () => {
   });
 
   test("should throw a 400 error due to an expired token", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         password: "TEST",
@@ -90,7 +90,7 @@ describe("tests processRecovery method", () => {
       user_id: "TEST",
     };
 
-    jest.spyOn(dependencyContainer.DB.objects.Token, "findTokens").mockResolvedValue({
+    jest.spyOn(bottle.container.DBClient.objects.Token, "findTokens").mockResolvedValue({
       rows: [mockToken],
       command: "",
       oid: 0,
@@ -98,10 +98,10 @@ describe("tests processRecovery method", () => {
       fields: []
     });
 
-    await dependencyContainer.AuthController.processRecovery(req, res);
+    await bottle.container.AuthController.processRecovery(req, res);
 
-    expect(dependencyContainer.DB.objects.Token.findTokens).toHaveBeenCalledTimes(1);
-    expect(dependencyContainer.DB.objects.Token.findTokens).toHaveBeenCalledWith({
+    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledTimes(1);
+    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledWith({
       "token": req.params.token,
       "type": SessionTokenType.Password
     });
@@ -115,7 +115,7 @@ describe("tests processRecovery method", () => {
   });
 
   test("should successfully update password and return token and cookie", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         password: "TEST",
@@ -143,38 +143,38 @@ describe("tests processRecovery method", () => {
     };
 
     jest.spyOn(Date, "now").mockImplementation(() => currentDate.valueOf());
-    jest.spyOn(dependencyContainer.DB.objects.Token, "findTokens").mockResolvedValue({
+    jest.spyOn(bottle.container.DBClient.objects.Token, "findTokens").mockResolvedValue({
       rows: [mockToken],
       command: "",
       oid: 0,
       rowCount: 1,
       fields: []
     });
-    jest.spyOn(dependencyContainer.DB.objects.User, "findUsers").mockResolvedValue({
+    jest.spyOn(bottle.container.DBClient.objects.User, "findUsers").mockResolvedValue({
       rows: [mockUser],
       command: "",
       oid: 0,
       rowCount: 1,
       fields: []
     });
-    jest.spyOn(dependencyContainer.DB.objects.User, "setAttributes");
-    jest.spyOn(dependencyContainer.DB.objects.Token, "deleteToken");
+    jest.spyOn(bottle.container.DBClient.objects.User, "setAttributes");
+    jest.spyOn(bottle.container.DBClient.objects.Token, "deleteToken");
     
-    await dependencyContainer.AuthController.processRecovery(req, res);
+    await bottle.container.AuthController.processRecovery(req, res);
 
-    expect(dependencyContainer.DB.objects.Token.findTokens).toHaveBeenCalledTimes(1);
-    expect(dependencyContainer.DB.objects.Token.findTokens).toHaveBeenCalledWith({
+    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledTimes(1);
+    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledWith({
       "token": req.params.token,
       "type": SessionTokenType.Password
     });
 
-    expect(dependencyContainer.DB.objects.User.findUsers).toHaveBeenCalledTimes(1);
-    expect(dependencyContainer.DB.objects.User.findUsers).toHaveBeenCalledWith({
+    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledTimes(1);
+    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledWith({
       "user_id": mockToken.user_id
     });
 
-    expect(dependencyContainer.DB.objects.User.setAttributes).toHaveBeenCalledTimes(1);
-    const mockSetAttributesCall = (dependencyContainer.DB.objects.User.setAttributes as jest.Mock).mock.calls[0];
+    expect(bottle.container.DBClient.objects.User.setAttributes).toHaveBeenCalledTimes(1);
+    const mockSetAttributesCall = (bottle.container.DBClient.objects.User.setAttributes as jest.Mock).mock.calls[0];
     expect(mockSetAttributesCall[0]).toBe(mockUser.user_id);
     expect(Object.keys(mockSetAttributesCall[1]).length).toBe(1);
     expect(mockSetAttributesCall[1]).toHaveProperty("password");
@@ -183,8 +183,8 @@ describe("tests processRecovery method", () => {
       mockSetAttributesCall[1].password,
     )).toBeTruthy();
 
-    expect(dependencyContainer.DB.objects.Token.deleteToken).toHaveBeenCalledTimes(1);
-    expect(dependencyContainer.DB.objects.Token.deleteToken).toHaveBeenCalledWith(req.params.token);
+    expect(bottle.container.DBClient.objects.Token.deleteToken).toHaveBeenCalledTimes(1);
+    expect(bottle.container.DBClient.objects.Token.deleteToken).toHaveBeenCalledWith(req.params.token);
 
     expect(res.cookie).toBeCalledTimes(1);
     const mockCookieCall = (res.cookie as jest.Mock).mock.calls[0];

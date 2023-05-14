@@ -1,13 +1,10 @@
 import { PoolConfig } from "pg";
 import { Logger } from "winston";
-import { NodemailerInterface } from "@typings/smtp";
+import { SMTPClientConfig } from "@typings/smtp";
 import { AuthConfig } from "@typings/auth";
 
 export type InitOptions = {
-  smtpConfig: {
-    transporterConfig: NodemailerInterface,
-    email: string;
-  },
+  smtpConfig: SMTPClientConfig;
   authConfig: AuthConfig;
   dbConfig: PoolConfig;
   logger: Logger;

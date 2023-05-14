@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 import { Role } from "@typings/auth";
-import dependencyInjection from "@di";
+import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
 
 jest.mock("pg");
@@ -12,7 +12,7 @@ describe("tests updateUser method", () => {
   });
 
   test("should update the user profile once with username, email, name, and password", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         username: "TEST",
@@ -29,12 +29,12 @@ describe("tests updateUser method", () => {
     });
     const { res } = getMockRes();
 
-    jest.spyOn(dependencyContainer.DB.objects.User, "setAttributes");
+    jest.spyOn(bottle.container.DBClient.objects.User, "setAttributes");
 
-    await dependencyContainer.UserController.updateUser(req, res);
+    await bottle.container.UserController.updateUser(req, res);
 
-    expect(dependencyContainer.DB.objects.User.setAttributes).toHaveBeenCalledTimes(1);
-    const mockSetAttributesCall = (dependencyContainer.DB.objects.User.setAttributes as jest.Mock).mock.calls[0];
+    expect(bottle.container.DBClient.objects.User.setAttributes).toHaveBeenCalledTimes(1);
+    const mockSetAttributesCall = (bottle.container.DBClient.objects.User.setAttributes as jest.Mock).mock.calls[0];
     expect(mockSetAttributesCall[0]).toBe(req.params.id);
     Object.keys(mockSetAttributesCall[0]).forEach((attr: string, index: number) => {
       const correspondingValue = mockSetAttributesCall[1][index];
@@ -51,7 +51,7 @@ describe("tests updateUser method", () => {
   });
 
   test("should update the user profile once with username, email, name, and password, and then a second time with roleId", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         username: "TEST",
@@ -68,12 +68,12 @@ describe("tests updateUser method", () => {
     });
     const { res } = getMockRes();
 
-    jest.spyOn(dependencyContainer.DB.objects.User, "setAttributes");
+    jest.spyOn(bottle.container.DBClient.objects.User, "setAttributes");
 
-    await dependencyContainer.UserController.updateUser(req, res);
+    await bottle.container.UserController.updateUser(req, res);
 
-    expect(dependencyContainer.DB.objects.User.setAttributes).toHaveBeenCalledTimes(2);
-    const mockSetAttributesCall = (dependencyContainer.DB.objects.User.setAttributes as jest.Mock).mock.calls[0];
+    expect(bottle.container.DBClient.objects.User.setAttributes).toHaveBeenCalledTimes(2);
+    const mockSetAttributesCall = (bottle.container.DBClient.objects.User.setAttributes as jest.Mock).mock.calls[0];
     expect(mockSetAttributesCall[0]).toBe(req.params.id);
     Object.keys(mockSetAttributesCall[0]).forEach((attr: string, index: number) => {
       const correspondingValue = mockSetAttributesCall[1][index];
@@ -88,7 +88,7 @@ describe("tests updateUser method", () => {
       }
     });
 
-    expect(dependencyContainer.DB.objects.User.setAttributes).toHaveBeenLastCalledWith(
+    expect(bottle.container.DBClient.objects.User.setAttributes).toHaveBeenLastCalledWith(
       req.params.id,
       {
         "role_id": req.body.roleId
@@ -97,7 +97,7 @@ describe("tests updateUser method", () => {
   });
 
   test("should update the user profile once with roleId", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         username: "TEST",
@@ -114,12 +114,12 @@ describe("tests updateUser method", () => {
     });
     const { res } = getMockRes();
 
-    jest.spyOn(dependencyContainer.DB.objects.User, "setAttributes");
+    jest.spyOn(bottle.container.DBClient.objects.User, "setAttributes");
 
-    await dependencyContainer.UserController.updateUser(req, res);
+    await bottle.container.UserController.updateUser(req, res);
 
-    expect(dependencyContainer.DB.objects.User.setAttributes).toHaveBeenCalledTimes(1);
-    expect(dependencyContainer.DB.objects.User.setAttributes).toHaveBeenLastCalledWith(
+    expect(bottle.container.DBClient.objects.User.setAttributes).toHaveBeenCalledTimes(1);
+    expect(bottle.container.DBClient.objects.User.setAttributes).toHaveBeenLastCalledWith(
       req.params.id,
       {
         "role_id": req.body.roleId
