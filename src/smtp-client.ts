@@ -1,15 +1,15 @@
-import ConfigManager from "@config-manager";
+import { SMTPClientConfig } from "@typings/smtp";
 import nodemailer from "nodemailer";
 
 class SMTPClient {
   private transporter: nodemailer.Transporter;
   private senderAddress: string;
 
-  constructor(configManager: ConfigManager) {
+  constructor(smtpClientConfig: SMTPClientConfig) {
     this.transporter = nodemailer.createTransport(
-      configManager.smtpClient.transporterConfig
+      smtpClientConfig.transporterConfig
     );
-    this.senderAddress = configManager.smtpClient.email;
+    this.senderAddress = smtpClientConfig.email;
   }
 
   async sendEmail(options: nodemailer.SendMailOptions): Promise<void> {

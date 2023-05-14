@@ -7,7 +7,6 @@ import AuthController from "@controllers/auth";
 import UserController from "@controllers/user";
 import TokenHandler from "@support/token-handler";
 import Bottle from "bottlejs";
-import ConfigManager from "@config-manager";
 import SMTPClient from "@smtp-client";
 
 export default function constructBottle(initOptions: InitOptions): Bottle {
@@ -20,12 +19,11 @@ export default function constructBottle(initOptions: InitOptions): Bottle {
   const bottle = new Bottle();
   
   bottle.factory("Logger", () => logger);
-  bottle.factory("ConfigManager", () => {
-    return new ConfigManager(
-      authConfig,
-      dbConfig,
-      smtpConfig
-    );
+  bottle.factory("TokenHandler", () => {
+    return new TokenHandler(authConfig);
+  });
+  bottle.factory("SMTPClient", () => {
+    return new SMTPClient(smtpConfig);
   });
   bottle.factory("DBClient", () => {
     const connectionPool = new pg.Pool(dbConfig);
@@ -36,8 +34,6 @@ export default function constructBottle(initOptions: InitOptions): Bottle {
       Token: token,
     });
   });
-  bottle.service("TokenHandler", TokenHandler, "ConfigManager");
-  bottle.service("SMTPClient", SMTPClient, "ConfigManager");
   bottle.service("AuthController", AuthController, "SMTPClient", "TokenHandler", "DBClient", "Logger");
   bottle.service("UserController", UserController, "TokenHandler", "Logger", "DBClient");
 
