@@ -6,12 +6,13 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { AuthToken, AuthTokenAttributes } from "@typings/auth";
 import { HTTP_COOKIE_NAME } from "@constants/auth";
+import ConfigManager from "@config-manager";
 
 class TokenHandler {
   private tokenSecret: string;
 
-  constructor(tokenSecret: string) {
-    this.tokenSecret = tokenSecret;
+  constructor(configManager: ConfigManager) {
+    this.tokenSecret = configManager.authConfig.secret;
   }
 
   generateUpdatedUserAuthToken(req: Request, newAttributes: AuthTokenAttributes): AuthToken {

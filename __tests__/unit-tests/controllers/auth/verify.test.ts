@@ -1,6 +1,6 @@
 import { getMockReq, getMockRes } from "@jest-mock/express";
 import { Role, SessionTokenType } from "@typings/auth";
-import dependencyInjection from "@di";
+import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
 
 jest.mock("pg");
@@ -11,7 +11,7 @@ describe("tests verify method", () => {
   });
 
   test("should redirect to /login for invalid verify token", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       params: {
         token: "TEST",
@@ -19,7 +19,7 @@ describe("tests verify method", () => {
     });
     const { res } = getMockRes();
 
-    jest.spyOn(dependencyContainer.DB.objects.Token, "findTokens").mockResolvedValue({
+    jest.spyOn(bottle.container.DBClient.objects.Token, "findTokens").mockResolvedValue({
       rows: [],
       command: "",
       oid: 0,
@@ -27,10 +27,10 @@ describe("tests verify method", () => {
       fields: []
     });
 
-    await dependencyContainer.AuthController.verify(req, res);
+    await bottle.container.AuthController.verify(req, res);
 
-    expect(dependencyContainer.DB.objects.Token.findTokens).toHaveBeenCalledTimes(1);
-    expect(dependencyContainer.DB.objects.Token.findTokens).toHaveBeenCalledWith({
+    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledTimes(1);
+    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledWith({
       "token": req.params.token,
       "type": SessionTokenType.Verification
     });
@@ -40,7 +40,7 @@ describe("tests verify method", () => {
   });
 
   test("should set user as verified, remove token, and redirect to /login", async () => {
-    const dependencyContainer = dependencyInjection(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       params: {
         token: "TEST",
@@ -63,16 +63,16 @@ describe("tests verify method", () => {
       name: "TEST"
     };
 
-    jest.spyOn(dependencyContainer.DB.objects.User, "setAttributes");
-    jest.spyOn(dependencyContainer.DB.objects.Token, "deleteToken");
-    jest.spyOn(dependencyContainer.DB.objects.Token, "findTokens").mockResolvedValue({
+    jest.spyOn(bottle.container.DBClient.objects.User, "setAttributes");
+    jest.spyOn(bottle.container.DBClient.objects.Token, "deleteToken");
+    jest.spyOn(bottle.container.DBClient.objects.Token, "findTokens").mockResolvedValue({
       rows: [mockToken],
       command: "",
       oid: 0,
       rowCount: 1,
       fields: []
     });
-    jest.spyOn(dependencyContainer.DB.objects.User, "findUsers").mockResolvedValue({
+    jest.spyOn(bottle.container.DBClient.objects.User, "findUsers").mockResolvedValue({
       rows: [mockUser],
       command: "",
       oid: 0,
@@ -80,29 +80,29 @@ describe("tests verify method", () => {
       fields: []
     });
 
-    await dependencyContainer.AuthController.verify(req, res);
+    await bottle.container.AuthController.verify(req, res);
 
-    expect(dependencyContainer.DB.objects.Token.findTokens).toHaveBeenCalledTimes(1);
-    expect(dependencyContainer.DB.objects.Token.findTokens).toHaveBeenCalledWith({
+    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledTimes(1);
+    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledWith({
       "token": req.params.token,
       "type": SessionTokenType.Verification
     });
 
-    expect(dependencyContainer.DB.objects.User.findUsers).toHaveBeenCalledTimes(1);
-    expect(dependencyContainer.DB.objects.User.findUsers).toHaveBeenCalledWith({
+    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledTimes(1);
+    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledWith({
       "user_id": mockToken.user_id
     });
     
-    expect(dependencyContainer.DB.objects.User.setAttributes).toHaveBeenCalledTimes(1);
-    expect(dependencyContainer.DB.objects.User.setAttributes).toHaveBeenCalledWith(
+    expect(bottle.container.DBClient.objects.User.setAttributes).toHaveBeenCalledTimes(1);
+    expect(bottle.container.DBClient.objects.User.setAttributes).toHaveBeenCalledWith(
       mockToken.user_id,
       {
         "verified": true,
       }
     );
 
-    expect(dependencyContainer.DB.objects.Token.deleteToken).toHaveBeenCalledTimes(1);
-    expect(dependencyContainer.DB.objects.Token.deleteToken).toHaveBeenCalledWith(
+    expect(bottle.container.DBClient.objects.Token.deleteToken).toHaveBeenCalledTimes(1);
+    expect(bottle.container.DBClient.objects.Token.deleteToken).toHaveBeenCalledWith(
       req.params.token
     );
 

@@ -26,6 +26,6 @@ export type AuthTokenAttributes = {
   username?: string;
 }
 
-export type AuthConfig = {
+export interface AuthConfig {
   secret: string;
 }

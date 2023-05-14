@@ -1,6 +1,6 @@
 import express, { Express } from "express";
 import cookieParser from "cookie-parser";
-import dependencyInjection from "@di/index";
+import constructBottle from "@bottle";
 import constructAuthRoutes from "@routes/auth";
 import constructUserRoutes from "@routes/user";
 import { InitOptions } from "@typings/system";
@@ -12,13 +12,13 @@ const init = (app: Express, initOptions: InitOptions) => {
     extended: true,
   }));
 
-  const di = dependencyInjection(initOptions);
+  const bottle = constructBottle(initOptions);
   
-  constructAuthRoutes(app, di);
-  constructUserRoutes(app, di);
+  constructAuthRoutes(app, bottle);
+  constructUserRoutes(app, bottle);
 
   return {
-    userService: di.DB.objects.User,
+    userService: bottle.container.DBClient.objects.User,
   };
 };
 

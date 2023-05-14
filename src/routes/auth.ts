@@ -1,19 +1,20 @@
+import Bottle from "bottlejs";
 import { Express } from "express";
 
-const constructAuthRoutes = (app: Express, di: any) => {
-  app.post("/api/auth/signup", di.AuthController.signup.bind(di.AuthController));
+const constructAuthRoutes = (app: Express, bottle: Bottle) => {
+  app.post("/api/auth/signup", bottle.container.AuthController.signup.bind(bottle.container.AuthController));
 
-  app.post("/api/auth/signin", di.AuthController.signin.bind(di.AuthController));
+  app.post("/api/auth/signin", bottle.container.AuthController.signin.bind(bottle.container.AuthController));
 
-  app.get("/api/auth/logout", di.AuthController.logout.bind(di.AuthController));
+  app.get("/api/auth/logout", bottle.container.AuthController.logout.bind(bottle.container.AuthController));
 
-  app.get("/api/auth/verify/:token", di.AuthController.verify.bind(di.AuthController));
+  app.get("/api/auth/verify/:token", bottle.container.AuthController.verify.bind(bottle.container.AuthController));
 
-  app.post("/api/auth/recovery", di.AuthController.recovery.bind(di.AuthController));
+  app.post("/api/auth/recovery", bottle.container.AuthController.recovery.bind(bottle.container.AuthController));
 
-  app.get("/api/auth/recovery/verify/:token", di.AuthController.verifyRecovery.bind(di.AuthController));
+  app.get("/api/auth/recovery/verify/:token", bottle.container.AuthController.verifyRecovery.bind(bottle.container.AuthController));
 
-  app.post("/api/auth/recovery/:token", di.AuthController.processRecovery.bind(di.AuthController));
+  app.post("/api/auth/recovery/:token", bottle.container.AuthController.processRecovery.bind(bottle.container.AuthController));
 };
 
 export default constructAuthRoutes;

@@ -1,37 +1,37 @@
 import { Express } from "express";
 import * as authMiddleware from "@middleware/auth";
 import { Role } from "@typings/auth";
-import { DIContainer } from "@di/index";
+import Bottle from "bottlejs";
 
-const constructUserRoutes = (app: Express, di: DIContainer) => {
+const constructUserRoutes = (app: Express, bottle: Bottle) => {
   app.get(
     "/api/user/:id",
-    authMiddleware.verifyToken(di.config.secret),
+    authMiddleware.verifyToken(bottle.container.config.secret),
     authMiddleware.checkVerification,
-    di.UserController.getUser.bind(di.UserController),
+    bottle.container.UserController.getUser.bind(bottle.container.UserController),
   );
 
   app.get(
     "/api/users",
-    authMiddleware.verifyToken(di.config.secret),
+    authMiddleware.verifyToken(bottle.container.config.secret),
     authMiddleware.checkVerification,
     authMiddleware.checkRole([Role.Admin]),
-    di.UserController.getUsers.bind(di.UserController),
+    bottle.container.UserController.getUsers.bind(bottle.container.UserController),
   );
 
   app.patch(
     "/api/user/:id",
-    authMiddleware.verifyToken(di.config.secret),
+    authMiddleware.verifyToken(bottle.container.config.secret),
     authMiddleware.checkVerification,
-    di.UserController.updateUser.bind(di.UserController),
+    bottle.container.UserController.updateUser.bind(bottle.container.UserController),
   );
 
   app.delete(
     "/api/user/:id",
-    authMiddleware.verifyToken(di.config.secret),
+    authMiddleware.verifyToken(bottle.container.config.secret),
     authMiddleware.checkVerification,
     authMiddleware.checkRole([Role.Admin]),
-    di.UserController.deleteUser.bind(di.UserController),
+    bottle.container.UserController.deleteUser.bind(bottle.container.UserController),
   );
 };
 
