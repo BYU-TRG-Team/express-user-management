@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { Logger } from "winston";
 import { Response, Request } from "express";
 import TokenHandler from "@support/token-handler";
-import SmtpService from "@services/smtp";
+import SMTPClient from "@smtp-client";
 import DB from "@db";
 import { SessionTokenType } from "@typings/auth";
 import { User } from "@typings/user";
@@ -11,13 +11,13 @@ import { HTTP_COOKIE_NAME } from "@constants/auth";
 import { constructHTTPCookieConfig } from "@helpers/auth";
 
 class AuthController {
-  private smtpService: SmtpService;
+  private smtpClient: SMTPClient;
   private tokenHandler: TokenHandler;
   private db: DB;
   private logger: Logger;
 
-  constructor(smtpService: SmtpService, tokenHandler: TokenHandler, db: DB, logger: Logger) {
-    this.smtpService = smtpService;
+  constructor(smtpClient: SMTPClient, tokenHandler: TokenHandler, db: DB, logger: Logger) {
+    this.smtpClient = smtpClient;
     this.tokenHandler = tokenHandler;
     this.db = db;
     this.logger = logger;
@@ -333,14 +333,13 @@ class AuthController {
     const emailOptions = {
       subject: "Account Verification Request",
       to: user.email,
-      from: this.smtpService.hostAddress,
       html: `
       <p>Hi ${user.username},</p>
       <p>Please visit this <a href="${link}">link</a> to verify your account.</p> 
       <p>If you did not request this, please ignore this email.</p>`,
     };
 
-    return this.smtpService.sendEmail(emailOptions);
+    return this.smtpClient.sendEmail(emailOptions);
   }
 
   async sendPasswordResetEmail(req: Request, user: User) {
@@ -365,14 +364,13 @@ class AuthController {
     const emailOptions = {
       subject: "Password Recovery Request",
       to: user.email,
-      from: this.smtpService.hostAddress,
       html: `
       <p>Hi ${user.username},</p>
       <p>Please visit this <a href="${link}">link</a> to reset your password.</p> 
       <p>If you did not request this, please ignore this email.</p>`,
     };
 
-    return this.smtpService.sendEmail(emailOptions);
+    return this.smtpClient.sendEmail(emailOptions);
   }
 }
 

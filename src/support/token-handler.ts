@@ -12,7 +12,7 @@ class TokenHandler {
   private tokenSecret: string;
 
   constructor(configManager: ConfigManager) {
-    this.tokenSecret = configManager.authConfig.secret;
+    this.tokenSecret = configManager.auth.secret;
   }
 
   generateUpdatedUserAuthToken(req: Request, newAttributes: AuthTokenAttributes): AuthToken {

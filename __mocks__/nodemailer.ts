@@ -1,7 +1,3 @@
-const nodemailer = jest.createMockFromModule("nodemailer") as any;
+import nodemailerMock from "nodemailer-mock"
 
-nodemailer.createTransport = () => ({
-  sendMail: () => new Promise<void>((resolve) => resolve())
-});
-
-export default nodemailer;
+export default nodemailerMock
