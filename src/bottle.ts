@@ -19,23 +19,24 @@ export default function constructBottle(initOptions: InitOptions): Bottle {
   const bottle = new Bottle();
   
   bottle.factory("Logger", () => logger);
-  bottle.factory("TokenHandler", () => {
-    return new TokenHandler(authConfig);
-  });
-  bottle.factory("SMTPClient", () => {
-    return new SMTPClient(smtpConfig);
-  });
-  bottle.factory("DBClient", () => {
-    const connectionPool = new pg.Pool(dbConfig);
-    const user =  new User(connectionPool);
-    const token = new Token(connectionPool);
-    return new Database(connectionPool, {
-      User: user,
-      Token: token,
-    });
-  });
-  bottle.service("AuthController", AuthController, "SMTPClient", "TokenHandler", "DBClient", "Logger");
-  bottle.service("UserController", UserController, "TokenHandler", "Logger", "DBClient");
+  bottle.factory("TokenHandler", () => new TokenHandler(authConfig));
+  bottle.factory("SMTPClient", () => new SMTPClient(smtpConfig));
+  bottle.factory("DBClient", () => new Database(dbConfig));
+  bottle.service(
+    "AuthController", 
+    AuthController, 
+    "SMTPClient", 
+    "TokenHandler", 
+    "DBClient", 
+    "Logger")
+  ;
+  bottle.service(
+    "UserController", 
+    UserController, 
+    "TokenHandler", 
+    "Logger", 
+    "DBClient"
+  );
 
   return bottle;
 }
