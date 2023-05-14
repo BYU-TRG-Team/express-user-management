@@ -22,6 +22,9 @@
       "@config-manager": [
         "./src/config-manager"
       ],
+      "@smtp-client": [
+        "./src/smtp-client"
+      ],
       "@typings": [
         "./src/types"
       ],
@@ -49,8 +52,8 @@
       "@helpers/*": [
         "./src/helpers/*"
       ],
-      "@services/*": [
-        "./src/services/*"
+      "@helpers": [
+        "./src/helpers"
       ],
       "@support/*": [
         "./src/support/*"

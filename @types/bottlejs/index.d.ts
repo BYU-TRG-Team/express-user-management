@@ -3,18 +3,16 @@ import AuthController from "@controllers/auth";
 import Database from "@db";
 import TokenHandler from "@support/token-handler";
 import { Logger } from "winston";
-import { Transport } from "nodemailer"
-import SmtpService from "@services/smtp";
+import SMTPClient from "@smtp-client";
 import ConfigManager from "@config-manager";
 
 declare module "bottlejs" {
   interface IContainer {
     Logger: Logger,
     ConfigManager: ConfigManager,
-    SMTPClient: Transport
+    SMTPClient: SMTPClient
     DBClient: Database,
     TokenHandler: TokenHandler,
-    SMTPService: SmtpService,
     AuthController: AuthController,
     UserController: UserController,
   }

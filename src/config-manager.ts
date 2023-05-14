@@ -1,20 +1,22 @@
 import { AuthConfig } from "@typings/auth";
 import { PoolConfig } from "pg";
 import { SMTPClientConfig } from "@typings/smtp";
+import { deepFreeze } from "@helpers";
 
 class ConfigManager {
-  public authConfig: AuthConfig;
-  public dbClientConfig: PoolConfig;
-  public smtpClientConfig: SMTPClientConfig;
+  public auth: AuthConfig;
+  public dbClient: PoolConfig;
+  public smtpClient: SMTPClientConfig;
 
   constructor(
     authConfig: AuthConfig,
     dbClientConfig: PoolConfig,
     smtpClientConfig: SMTPClientConfig,
   ) {
-    this.authConfig = Object.freeze(authConfig);
-    this.dbClientConfig = Object.freeze(dbClientConfig);
-    this.smtpClientConfig = Object.freeze(smtpClientConfig);
+    this.auth = authConfig;
+    this.dbClient = dbClientConfig;
+    this.smtpClient = smtpClientConfig;
+    deepFreeze(this);
   }
 }
 

@@ -19,6 +19,7 @@
     "^@tests/(.*)$": "<rootDir>/__tests__/$1",
     "^@$": "<rootDir>/src",
     "^@config-manager$": "<rootDir>/src/config-manager",
+    "^@smtp-client$": "<rootDir>/src/smtp-client",
     "^@typings$": "<rootDir>/src/types",
     "^@typings/(.*)$": "<rootDir>/src/types/$1",
     "^@middleware/(.*)$": "<rootDir>/src/middleware/$1",
@@ -28,7 +29,7 @@
     "^@db/(.*)$": "<rootDir>/src/db/$1",
     "^@bottle$": "<rootDir>/src/bottle",
     "^@helpers/(.*)$": "<rootDir>/src/helpers/$1",
-    "^@services/(.*)$": "<rootDir>/src/services/$1",
+    "^@helpers$": "<rootDir>/src/helpers",
     "^@support/(.*)$":  "<rootDir>/src/support/$1",
     "^@routes/(.*)$": "<rootDir>/src/routes/$1"
   },
