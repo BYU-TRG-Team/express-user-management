@@ -23,6 +23,7 @@
     "^@typings$": "<rootDir>/src/types",
     "^@typings/(.*)$": "<rootDir>/src/types/$1",
     "^@middleware/(.*)$": "<rootDir>/src/middleware/$1",
+    "^@configs/(.*)$": "<rootDir>/src/configs/$1",
     "^@constants/(.*)$": "<rootDir>/src/constants/$1",
     "^@controllers/(.*)$": "<rootDir>/src/controllers/$1",
     "^@db$": "<rootDir>/src/db",
