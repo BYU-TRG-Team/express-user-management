@@ -9,6 +9,8 @@ import { User } from "@typings/user";
 import { LOGIN_AUTHENTICATION_ERROR, GENERIC_ERROR } from "@constants/errors";
 import { HTTP_COOKIE_NAME } from "@constants/auth";
 import { constructHTTPCookieConfig } from "@helpers/auth";
+import { PoolClient } from "pg";
+import { isError } from "@helpers/types";
 
 class AuthController {
   private smtpClient: SMTPClient;
@@ -31,25 +33,34 @@ class AuthController {
   * @name
   */
   async signup(req: Request, res: Response) {
-    let transactionInProgress = false;
-    const client = await this.db.connectionPool.connect();
+    let dbTXNClient: PoolClient;
+    const {
+      username, email, password, name,
+    } = req.body ;
+
+    if (username === undefined || email === undefined || password === undefined || name === undefined) {
+      res.status(400).send({ message: "Body must include username, email, password, and name" });
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
-      const {
-        username, email, password, name,
-      } = req.body ;
-
-      if (username === undefined || email === undefined || password === undefined || name === undefined) {
-        res.status(400).send({ message: "Body must include username, email, password, and name" });
-        return;
+      dbTXNClient = await this.db.beginTransaction();
+    } catch (err) {
+      if (isError(err)) {
+        this.logger.log({
+          level: "error",
+          message: err.message,
+        });
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+      res.status(500).send({ message: GENERIC_ERROR });
+      return;
+    }
 
-      await client.query("BEGIN");
-      transactionInProgress = true;
-
-      const userResponse = await this.db.objects.User.create(username, email, hashedPassword, 1, name, client);
+    try {
+      const userResponse = await this.db.objects.User.create(username, email, hashedPassword, 1, name, dbTXNClient);
       const newUser = userResponse.rows[0];
       let emailVerificationToken;
 
@@ -57,7 +68,7 @@ class AuthController {
         const shortToken = this.tokenHandler.generateShortToken();
 
         try {
-          await this.db.objects.Token.create(newUser.user_id, shortToken, SessionTokenType.Verification, client);
+          await this.db.objects.Token.create(newUser.user_id, shortToken, SessionTokenType.Verification, dbTXNClient);
           emailVerificationToken = shortToken;
         } catch(e: any) {
           if (e.code === "23505") {
@@ -69,24 +80,19 @@ class AuthController {
       }
 
       await this.sendVerificationEmail(req, newUser, emailVerificationToken);
-
-      await client.query("COMMIT");
-      transactionInProgress = false;
-
+      await this.db.commitTransaction(dbTXNClient);
       res.status(204).send();
-      return;
     } catch (err: any) {
-      this.logger.log({
-        level: "error",
-        message: err,
-      });
-      res.status(500).send({ message: GENERIC_ERROR });
-    } finally {
-      if (transactionInProgress) {
-        await client.query("ROLLBACK");
+      if (isError(err)) {
+        this.logger.log({
+          level: "error",
+          message: err.message,
+        });
       }
-      client.release();
-    }
+      
+      await this.db.rollbackTransaction(dbTXNClient);
+      res.status(500).send({ message: GENERIC_ERROR });
+    } 
   }
 
   /*
