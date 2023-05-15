@@ -6,14 +6,14 @@ import Bottle from "bottlejs";
 const constructUserRoutes = (app: Express, bottle: Bottle) => {
   app.get(
     "/api/user/:id",
-    authMiddleware.verifyToken(bottle.container.config.secret),
+    authMiddleware.verifyToken(bottle.container.AuthConfig.jwtSecret),
     authMiddleware.checkVerification,
     bottle.container.UserController.getUser.bind(bottle.container.UserController),
   );
 
   app.get(
     "/api/users",
-    authMiddleware.verifyToken(bottle.container.config.secret),
+    authMiddleware.verifyToken(bottle.container.AuthConfig.jwtSecret),
     authMiddleware.checkVerification,
     authMiddleware.checkRole([Role.Admin]),
     bottle.container.UserController.getUsers.bind(bottle.container.UserController),
@@ -21,14 +21,14 @@ const constructUserRoutes = (app: Express, bottle: Bottle) => {
 
   app.patch(
     "/api/user/:id",
-    authMiddleware.verifyToken(bottle.container.config.secret),
+    authMiddleware.verifyToken(bottle.container.AuthConfig.jwtSecret),
     authMiddleware.checkVerification,
     bottle.container.UserController.updateUser.bind(bottle.container.UserController),
   );
 
   app.delete(
     "/api/user/:id",
-    authMiddleware.verifyToken(bottle.container.config.secret),
+    authMiddleware.verifyToken(bottle.container.AuthConfig.jwtSecret),
     authMiddleware.checkVerification,
     authMiddleware.checkRole([Role.Admin]),
     bottle.container.UserController.deleteUser.bind(bottle.container.UserController),

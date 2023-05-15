@@ -4,14 +4,15 @@ import { User } from "@typings/user";
 import jwtDecode from "jwt-decode";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import { AuthConfig, AuthToken, AuthTokenAttributes } from "@typings/auth";
+import AuthConfig from "@configs/auth";
+import { AuthToken, AuthTokenAttributes } from "@typings/auth";
 import { HTTP_COOKIE_NAME } from "@constants/auth";
 
 class TokenHandler {
-  private tokenSecret: string;
+  private authConfig_: AuthConfig;
 
   constructor(authConfig: AuthConfig) {
-    this.tokenSecret = authConfig.secret;
+    this.authConfig_ = authConfig;
   }
 
   generateUpdatedUserAuthToken(req: Request, newAttributes: AuthTokenAttributes): AuthToken {
@@ -20,7 +21,7 @@ class TokenHandler {
     const newToken = jwt.sign({
       ...oldToken,
       ...newAttributes,
-    }, this.tokenSecret) as unknown as AuthToken;
+    }, this.authConfig_.jwtSecret) as unknown as AuthToken;
 
     return newToken;
   }
@@ -41,7 +42,7 @@ class TokenHandler {
 
     const token = jwt.sign({
       id: user_id, role: role_id, verified, username
-    }, this.tokenSecret) as unknown as AuthToken;
+    }, this.authConfig_.jwtSecret) as unknown as AuthToken;
 
     return token;
   }

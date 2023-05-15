@@ -2,20 +2,20 @@ import { SMTPClientConfig } from "@typings/smtp";
 import nodemailer from "nodemailer";
 
 class SMTPClient {
-  private transporter: nodemailer.Transporter;
-  private senderAddress: string;
+  private transporter_: nodemailer.Transporter;
+  private senderAddress_: string;
 
   constructor(smtpClientConfig: SMTPClientConfig) {
-    this.transporter = nodemailer.createTransport(
+    this.transporter_ = nodemailer.createTransport(
       smtpClientConfig.transporterConfig
     );
-    this.senderAddress = smtpClientConfig.email;
+    this.senderAddress_ = smtpClientConfig.email;
   }
 
   async sendEmail(options: nodemailer.SendMailOptions): Promise<void> {
-    return await this.transporter.sendMail({
+    return await this.transporter_.sendMail({
       ...options,
-      from: this.senderAddress,
+      from: this.senderAddress_,
     });
   }
 }
