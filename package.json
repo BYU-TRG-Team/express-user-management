@@ -38,6 +38,7 @@
     "@types/jest": "^27.4.1",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/pg": "^8.6.4",
+    "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^5.51.0",
     "@typescript-eslint/parser": "^5.51.0",
     "eslint": "^8.10.0",
@@ -60,6 +61,7 @@
     "node-pg-migrate": "^6.2.1",
     "nodemailer": "^6.7.2",
     "pg": "^8.7.3",
+    "uuid": "^9.0.0",
     "winston": "^3.6.0"
   }
 }

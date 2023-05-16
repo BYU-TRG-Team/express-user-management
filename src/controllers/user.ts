@@ -4,19 +4,20 @@ import { Request, Response } from "express";
 import TokenHandler from "@support/token-handler";
 import DB from "@db";
 import { Role } from "@typings/auth";
-import { RESOURCE_NOT_FOUND_ERROR, GENERIC_ERROR } from "@constants/errors";
+import { RESOURCE_NOT_FOUND_ERROR, GENERIC_ERROR, AUTHORIZATION_ERROR } from "@constants/errors";
 import { HTTP_COOKIE_NAME } from "@constants/auth";
 import { constructHTTPCookieConfig } from "@helpers/auth";
+import UserRepository from "@db/repositories/user-repository";
 
 class UserController {
-  private logger: Logger;
-  private db: DB;
-  private tokenHandler: TokenHandler;
+  private logger_: Logger;
+  private dbClient_: DB;
+  private tokenHandler_: TokenHandler;
 
   constructor(tokenHandler: TokenHandler, logger: Logger, db: DB) {
-    this.tokenHandler = tokenHandler;
-    this.logger = logger;
-    this.db = db;
+    this.tokenHandler_ = tokenHandler;
+    this.logger_ = logger;
+    this.dbClient_ = db;
   }
 
   /*
@@ -28,54 +29,64 @@ class UserController {
   * @roleId (optional)
   */
   async updateUser(req: Request, res: Response) {
-    try {
-      const isClientUser = req.userId === req.params.id;
-      const newAttributes: {[key: string]: string} = {};
-      const newAdminAttributes: {[key: string]: string} = {};
-
-      Object.keys(req.body).forEach((attr) => {
-        if (["username", "email", "name", "password"].includes(attr)) {
-          newAttributes[attr] = req.body[attr];
-        }
-
-        if (["roleId"].includes(attr)) {
-          newAdminAttributes["role_id"] = req.body[attr];
-        }
+    const userRepo = new UserRepository(this.dbClient_.connectionPool);
+    
+    if (
+      req.role !== Role.Admin &&
+      req.userId !== req.params.id
+    ) {
+      return res.status(403).send({
+        message: AUTHORIZATION_ERROR,
       });
+    }
+    
+    try {
+      const user = await userRepo.getByUUID(req.params.id);
 
-      if (newAttributes.password !== undefined) {
-        newAttributes.password = await bcrypt.hash(newAttributes.password, 10);
+      if (user === null) {
+        return res.status(404).send({ message: RESOURCE_NOT_FOUND_ERROR });
       }
 
-      if (
-        isClientUser
-        && Object.keys(newAttributes).length > 0
-      ) {
-        await this.db.objects.User.setAttributes(req.params.id, newAttributes);
+      for (const attr of Object.keys(req.body)) {
+        const value = req.body[attr];
+        switch(attr) {
+        case "roleId":
+          if (req.role === Role.Admin ) {
+            user.roleId = value;
+          }
+          break;
+
+        case "username":
+          user.username = value;
+          break;
+
+        case "email":
+          user.email = value;
+          break;
+            
+        case "name":
+          user.name = value;
+          break;
+
+        case "password":
+          user.password = await bcrypt.hash(value, 10);
+          break;
+            
+        default: 
+        }
       }
 
-      // Update these attributes regardless of whether the param id is equal to the client's id
-      if (
-        req.role === Role.Admin
-        && Object.keys(newAdminAttributes).length > 0
-      ) {
-        await this.db.objects.User.setAttributes(req.params.id, newAdminAttributes);
-      }
+      await userRepo.update(user);
 
-      if (newAttributes.username) {
-        const newToken = await this.tokenHandler.generateUpdatedUserAuthToken(req, newAttributes);
-        res.cookie(
-          HTTP_COOKIE_NAME, 
-          newToken, 
-          constructHTTPCookieConfig()
-        );
-        res.send({ newToken });
-        return;
-      }
-
-      res.status(204).send();
+      const newToken = await this.tokenHandler_.generateUserAuthToken(user);
+      res.cookie(
+        HTTP_COOKIE_NAME, 
+        newToken, 
+        constructHTTPCookieConfig()
+      );
+      return res.send({ newToken });
     } catch (err: any) {
-      this.logger.log({
+      this.logger_.log({
         level: "error",
         message: err,
       });
@@ -87,26 +98,37 @@ class UserController {
   * GET /api/user/:id
   */
   async getUser(req: Request, res: Response) {
+    const userRepo = new UserRepository(this.dbClient_.connectionPool);
+
     try {
-      if (req.params.id !== req.userId) {
-        return res.status(400).send({ message: GENERIC_ERROR });
+      if (
+        req.role !== Role.Admin &&
+        req.userId !== req.params.id
+      ) {
+        return res.status(403).send({
+          message: AUTHORIZATION_ERROR,
+        });
+      }
+      
+      const user = await userRepo.getByUUID(req.params.id);
+
+      if (user === null) {
+        return res.status(404).send({ 
+          message: RESOURCE_NOT_FOUND_ERROR 
+        });
       }
 
-      const usersQuery = await this.db.objects.User.findUsers({
-        "user_id": req.params.id,
-      });
-
-      if (usersQuery.rows.length === 0) {
-        return res.status(404).send({ message: RESOURCE_NOT_FOUND_ERROR });
-      }
-
-      const { email, username, name } = usersQuery.rows[0];
+      const { 
+        email, 
+        username,
+        name 
+      } = user;
 
       return res.status(200).send({
         email, username, name,
       });
     } catch (err: any) {
-      this.logger.log({
+      this.logger_.log({
         level: "error",
         message: err,
       });
@@ -117,12 +139,14 @@ class UserController {
   /*
   * GET /api/users
   */
-  async getUsers(req: Request, res: Response) {
+  async getUsers(_req: Request, res: Response) {
+    const userRepo = new UserRepository(this.dbClient_.connectionPool);
+
     try {
-      const usersQuery = await this.db.objects.User.getAllUsers();
-      return res.json({ users: usersQuery.rows });
+      const users = await userRepo.getAll();
+      return res.json({ users });
     } catch (err: any) {
-      this.logger.log({
+      this.logger_.log({
         level: "error",
         message: err,
       });
@@ -134,11 +158,18 @@ class UserController {
   * DELETE /api/user/:id
   */
   async deleteUser(req: Request, res: Response) {
+    const userRepo = new UserRepository(this.dbClient_.connectionPool);
+
     try {
-      await this.db.objects.User.deleteUser(req.params.id);
+      const user = await userRepo.getByUUID(req.params.id);
+
+      if (user !== null) {
+        await userRepo.delete(user);
+      }
+
       res.status(204).send();
     } catch (err: any) {
-      this.logger.log({
+      this.logger_.log({
         level: "error",
         message: err,
       });

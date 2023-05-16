@@ -1,6 +1,6 @@
 import { Request } from "express";
 import { Token } from "@typings/token";
-import { User } from "@typings/user";
+import User from "@db/models/user";
 import jwtDecode from "jwt-decode";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
@@ -35,13 +35,13 @@ class TokenHandler {
     return crypto.randomBytes(20).toString("hex");
   }
 
-  generateUserAuthToken(user: User, _req: Request): AuthToken {
+  generateUserAuthToken(user: User): AuthToken {
     const {
-      verified, user_id, username, role_id,
+      verified, userId, username, roleId,
     } = user;
 
     const token = jwt.sign({
-      id: user_id, role: role_id, verified, username
+      id: userId, role: roleId, verified, username
     }, this.authConfig_.jwtSecret) as unknown as AuthToken;
 
     return token;
