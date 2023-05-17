@@ -1,13 +1,13 @@
 import Repository from "@db/repositories/repository";
 import User from "@db/models/user";
 import { UserSchema } from "@typings/db";
-import { PoolClient, Pool } from "pg";
+import { PoolClient, Pool, Client } from "pg";
 import { UUID } from "@typings";
 
 class UserRepository extends Repository<User>{
-  private dbClient_: PoolClient | Pool;
+  private dbClient_: PoolClient | Pool | Client;
   
-  constructor(dbClient: PoolClient | Pool) {
+  constructor(dbClient: PoolClient | Pool | Client) {
     super();
     this.dbClient_ = dbClient;
   }
@@ -15,7 +15,7 @@ class UserRepository extends Repository<User>{
   async getAll() {
     const query = "SELECT * FROM identity.user ORDER BY user_id ASC;";
     const { rows } = await this.dbClient_.query<UserSchema>(query);
-    
+
     return rows.map((rawUser) => {
       return new User({
         ...rawUser,
@@ -26,7 +26,7 @@ class UserRepository extends Repository<User>{
   }
 
   async getByUUID(uuid: UUID) {
-    const query = "SELECT * FROM identity.user WHERE user_id=$1";
+    const query = "SELECT * FROM identity.user WHERE user_id=$1;";
     const { rows } = await this.dbClient_.query<UserSchema>(query, [uuid]);
 
     if (rows.length === 0) return null;
@@ -40,7 +40,7 @@ class UserRepository extends Repository<User>{
   }
 
   async getByUsername(username: string) {
-    const query = "SELECT * FROM identity.user WHERE username=$1";
+    const query = "SELECT * FROM identity.user WHERE username=$1;";
     const { rows } = await this.dbClient_.query<UserSchema>(query, [username]);
 
     if (rows.length === 0) return null;
@@ -54,7 +54,7 @@ class UserRepository extends Repository<User>{
   }
 
   async getByEmail(email: string) {
-    const query = "SELECT * FROM identity.user WHERE email=$1";
+    const query = "SELECT * FROM identity.user WHERE email=$1;";
     const { rows } = await this.dbClient_.query<UserSchema>(query, [email]);
 
     if (rows.length === 0) return null;
@@ -70,7 +70,7 @@ class UserRepository extends Repository<User>{
   async create(user: User) {
     const query = `
       INSERT INTO identity.user (user_id, username, verified, password, email, name, role_id) 
-      VALUES ($1, $2, $3, $4, $5, $6) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7) 
       RETURNING *;
     `;
     await this.dbClient_.query<User>(

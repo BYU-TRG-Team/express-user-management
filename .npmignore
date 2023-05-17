@@ -1,10 +1,9 @@
 __mocks__/
-__tests__/
+tests/
 coverage/
 .github/
 .husky/
 src/
-.eslintignore
 .eslintrc
 .gitignore
 jest.config.json

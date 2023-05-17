@@ -1,0 +1,51 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_PASSWORD: test-pw
+      POSTGRES_USER: test-user
+      POSTGRES_DB: express-user-management
+    hostname: express-user-management-pg-instance
+    networks:
+      - express-user-management-integration-tests-net
+
+  pg-migrations:
+    image: express-user-management:dev
+    depends_on:
+    - db
+    environment:
+      DATABASE_URL: postgres://test-user:test-pw@express-user-management-pg-instance:5432/express-user-management
+    entrypoint: [
+      "./wait-for-it/wait-for-it.sh",
+      "express-user-management-pg-instance:5432", 
+      "--", 
+      "npm", 
+      "run", 
+      "migrate", 
+      "up"
+    ]
+    networks:
+      - express-user-management-integration-tests-net
+
+  test-runner:
+    image: express-user-management:dev
+    depends_on:
+      pg-migrations:
+         condition: service_completed_successfully
+    networks:
+      - express-user-management-integration-tests-net
+    entrypoint: [
+      "npm",
+      "exec",
+      "--",
+      "jest",
+      "--coverage",
+      "--runInBand",
+      "--testMatch=**/tests/integration-tests/**/*.test.ts"
+    ]
+    
+networks:
+  express-user-management-integration-tests-net:
+    driver: bridge
+    name: express-user-management-integration-tests-net

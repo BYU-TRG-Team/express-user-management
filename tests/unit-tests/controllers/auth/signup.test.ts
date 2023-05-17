@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import { getMockReq, getMockRes } from "@jest-mock/express";
-import { Role, SessionTokenType } from "@typings/auth";
+import { SessionTokenType } from "@typings/auth";
 import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
 import UserRepository from "@db/repositories/user-repository";

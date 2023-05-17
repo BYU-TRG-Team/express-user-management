@@ -4,7 +4,6 @@
   "transform": {
     "^.+\\.ts?$": "ts-jest"
   },
-  "testMatch": ["**/__tests__/**/*.test.ts"],
   "collectCoverage": true,
   "collectCoverageFrom": ["src/**/*.ts"],
   "coverageThreshold": {
@@ -16,7 +15,7 @@
     }
   },
   "moduleNameMapper": {
-    "^@tests/(.*)$": "<rootDir>/__tests__/$1",
+    "^@tests/(.*)$": "<rootDir>/tests/$1",
     "^@$": "<rootDir>/src",
     "^@config-manager$": "<rootDir>/src/config-manager",
     "^@smtp-client$": "<rootDir>/src/smtp-client",
