@@ -14,7 +14,7 @@
     "declaration": true,  
     "paths": {
       "@tests/*": [
-        "./__tests__/*"
+        "./tests/*"
       ],
       "@": [
         "./src"
@@ -66,6 +66,6 @@
   "include": [
     "src/**/*",
     "@types/",
-    "__tests__/"
+    "tests"
   ]
 }

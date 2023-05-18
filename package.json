@@ -11,10 +11,11 @@
     "build:es6": "rm -rf dist/ && tsc --project tsconfig.json && resolve-tspaths --project tsconfig.json",
     "build:all": "npm run build:es6 && npm run build:commonjs",
     "build": "npm run build:all",
-    "test": "jest --coverage",
+    "unit-tests": "bin/run_unit_tests",
+    "integration-tests": "bin/run_integration_tests",
     "migrate": "node-pg-migrate -t pgmigrations_identity",
-    "lint": "eslint src __tests__ --ext .ts",
-    "lint:fix": "eslint src __tests__ --ext .ts --fix",
+    "lint": "eslint src tests --ext .ts",
+    "lint:fix": "eslint src tests --ext .ts --fix",
     "prepare": "husky install"
   },
   "engines": {
@@ -31,6 +32,7 @@
   },
   "homepage": "https://github.com/BYU-TRG-Team/express-user-management#readme",
   "devDependencies": {
+    "@faker-js/faker": "^8.0.1",
     "@jest-mock/express": "^2.0.1",
     "@types/bcrypt": "^5.0.0",
     "@types/cookie-parser": "^1.4.2",

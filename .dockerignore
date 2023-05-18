@@ -1,0 +1,12 @@
+.github/
+.husky/
+coverage/
+dist/
+commonjs/
+node_modules/
+.dockerignore
+.eslintrc
+.gitignore
+.npmignore
+Dockerfile
+README.md
