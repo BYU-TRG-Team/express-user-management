@@ -2,6 +2,8 @@ import { getMockReq, getMockRes } from "@jest-mock/express";
 import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
 import { Role } from "@typings/auth";
+import UserRepository from "@db/repositories/user-repository";
+import User from "@db/models/user";
 
 jest.mock("pg");
 jest.mock("nodemailer");
@@ -37,21 +39,13 @@ describe("tests recovery method", () => {
     });
     const { res } = getMockRes();
 
-    jest.spyOn(bottle.container.DBClient.objects.User, "findUsers").mockResolvedValue({
-      rows: [],
-      command: "",
-      oid: 0,
-      rowCount: 0,
-      fields: []
-    });
+    jest.spyOn(UserRepository.prototype, "getByEmail").mockResolvedValue(null);
     jest.spyOn(bottle.container.AuthController, "sendPasswordResetEmail");
 
     await bottle.container.AuthController.recovery(req, res);
 
-    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledTimes(1);
-    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledWith({
-      "email": req.body.email,
-    });
+    expect(UserRepository.prototype.getByEmail).toHaveBeenCalledTimes(1);
+    expect(UserRepository.prototype.getByEmail).toHaveBeenCalledWith(req.body.email);
 
     expect(bottle.container.AuthController.sendPasswordResetEmail).toHaveBeenCalledTimes(0);
 
@@ -67,31 +61,23 @@ describe("tests recovery method", () => {
       },
     });
     const { res } = getMockRes();
-    const mockUser = {
-      user_id: "TEST", 
+    const mockUser = new User({
+      userId: "TEST", 
       verified: true, 
-      role_id: Role.Admin, 
+      roleId: Role.Admin, 
       username: "TEST",
       password: "TEST",
       email: "TEST",
       name: "TEST"
-    };
-
-    jest.spyOn(bottle.container.DBClient.objects.User, "findUsers").mockResolvedValue({
-      rows: [mockUser],
-      command: "",
-      oid: 0,
-      rowCount: 1,
-      fields: []
     });
+
+    jest.spyOn(UserRepository.prototype, "getByEmail").mockResolvedValue(mockUser);
     jest.spyOn(bottle.container.AuthController, "sendPasswordResetEmail");
 
     await bottle.container.AuthController.recovery(req, res);
 
-    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledTimes(1);
-    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledWith({
-      "email": req.body.email,
-    });
+    expect(UserRepository.prototype.getByEmail).toHaveBeenCalledTimes(1);
+    expect(UserRepository.prototype.getByEmail).toHaveBeenCalledWith(req.body.email);
 
     expect(bottle.container.AuthController.sendPasswordResetEmail).toHaveBeenCalledTimes(1);
     expect(bottle.container.AuthController.sendPasswordResetEmail).toHaveBeenCalledWith(

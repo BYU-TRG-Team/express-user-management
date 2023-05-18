@@ -1,9 +1,7 @@
 import pg, { PoolConfig, PoolClient } from "pg";
 import Token from "@db/token";
-import User from "@db/user";
 
 type DBObjects = {
-  User: User;
   Token: Token;
 }
 
@@ -14,7 +12,6 @@ class DBClient {
   constructor(dbClientConfig: PoolConfig) { 
     this.connectionPool = new pg.Pool(dbClientConfig);
     this.objects = {
-      User: new User(this.connectionPool),
       Token: new Token(this.connectionPool),
     };
   }

@@ -7,6 +7,8 @@ import * as mockConstants from "@tests/constants";
 import { GENERIC_ERROR } from "@constants/errors";
 import { HTTP_COOKIE_NAME } from "@constants/auth";
 import { constructHTTPCookieConfig } from "@helpers/auth";
+import UserRepository from "@db/repositories/user-repository";
+import User from "@db/models/user";
 
 jest.mock("pg");
 
@@ -118,7 +120,7 @@ describe("tests processRecovery method", () => {
     const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
-        password: "TEST",
+        password: "FOO",
       },
       params: {
         token: "TEST",
@@ -132,15 +134,15 @@ describe("tests processRecovery method", () => {
       type: SessionTokenType.Password,
       user_id: "TEST",
     };
-    const mockUser = {
-      user_id: "TEST", 
+    const mockUser = new User({
+      userId: "TEST", 
       verified: true, 
-      role_id: Role.Admin, 
+      roleId: Role.Admin, 
       username: "TEST",
       password: "TEST",
       email: "TEST",
       name: "TEST"
-    };
+    });
 
     jest.spyOn(Date, "now").mockImplementation(() => currentDate.valueOf());
     jest.spyOn(bottle.container.DBClient.objects.Token, "findTokens").mockResolvedValue({
@@ -150,14 +152,8 @@ describe("tests processRecovery method", () => {
       rowCount: 1,
       fields: []
     });
-    jest.spyOn(bottle.container.DBClient.objects.User, "findUsers").mockResolvedValue({
-      rows: [mockUser],
-      command: "",
-      oid: 0,
-      rowCount: 1,
-      fields: []
-    });
-    jest.spyOn(bottle.container.DBClient.objects.User, "setAttributes");
+    jest.spyOn(UserRepository.prototype, "getByUUID").mockResolvedValue(mockUser);
+    jest.spyOn(UserRepository.prototype, "update");
     jest.spyOn(bottle.container.DBClient.objects.Token, "deleteToken");
     
     await bottle.container.AuthController.processRecovery(req, res);
@@ -168,20 +164,23 @@ describe("tests processRecovery method", () => {
       "type": SessionTokenType.Password
     });
 
-    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledTimes(1);
-    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledWith({
-      "user_id": mockToken.user_id
-    });
+    expect(UserRepository.prototype.getByUUID).toHaveBeenCalledTimes(1);
+    expect(UserRepository.prototype.getByUUID).toHaveBeenCalledWith(mockToken.user_id);
 
-    expect(bottle.container.DBClient.objects.User.setAttributes).toHaveBeenCalledTimes(1);
-    const mockSetAttributesCall = (bottle.container.DBClient.objects.User.setAttributes as jest.Mock).mock.calls[0];
-    expect(mockSetAttributesCall[0]).toBe(mockUser.user_id);
-    expect(Object.keys(mockSetAttributesCall[1]).length).toBe(1);
-    expect(mockSetAttributesCall[1]).toHaveProperty("password");
+    const updatedPassword = (
+      (UserRepository.prototype.update as jest.Mock).mock.calls[0][0] as User
+    ).password;
+    const updatedUser = new User({
+      ...mockUser,
+      password: updatedPassword
+    });
     expect(bcrypt.compareSync(
       req.body.password,
-      mockSetAttributesCall[1].password,
+      updatedPassword,
     )).toBeTruthy();
+    
+    expect(UserRepository.prototype.update).toHaveBeenCalledTimes(1);
+    expect(UserRepository.prototype.update).toHaveBeenCalledWith(updatedUser);
 
     expect(bottle.container.DBClient.objects.Token.deleteToken).toHaveBeenCalledTimes(1);
     expect(bottle.container.DBClient.objects.Token.deleteToken).toHaveBeenCalledWith(req.params.token);
@@ -190,7 +189,7 @@ describe("tests processRecovery method", () => {
     const mockCookieCall = (res.cookie as jest.Mock).mock.calls[0];
     expect(mockCookieCall[0]).toBe(HTTP_COOKIE_NAME);
     expect(jwtDecode(mockCookieCall[1])).toMatchObject({
-      id: mockUser.user_id,
+      id: mockUser.userId,
       role: Role.Admin,
       verified: true,
       username: mockUser.username,
@@ -202,7 +201,7 @@ describe("tests processRecovery method", () => {
     expect(res.send).toBeCalledTimes(1);
     const mockSendCall = (res.send as jest.Mock).mock.calls[0];
     expect(jwtDecode(mockSendCall[0].token)).toMatchObject({
-      id: mockUser.user_id,
+      id: mockUser.userId,
       role: Role.Admin,
       verified: true,
       username: mockUser.username,

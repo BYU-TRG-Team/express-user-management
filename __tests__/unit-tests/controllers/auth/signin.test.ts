@@ -6,6 +6,8 @@ import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
 import { HTTP_COOKIE_NAME } from "@constants/auth";
 import { constructHTTPCookieConfig } from "@helpers/auth";
+import UserRepository from "@db/repositories/user-repository";
+import User from "@db/models/user";
 
 jest.mock("pg");
 
@@ -43,20 +45,12 @@ describe("tests signin method", () => {
     });
     const { res } = getMockRes();
 
-    jest.spyOn(bottle.container.DBClient.objects.User, "findUsers").mockResolvedValue({
-      rows: [],
-      command: "",
-      oid: 0,
-      rowCount: 0,
-      fields: []
-    });
+    jest.spyOn(UserRepository.prototype, "getByUsername").mockResolvedValue(null);
 
     await bottle.container.AuthController.signin(req, res);
 
-    expect(bottle.container.DBClient.objects.User.findUsers).toHaveBeenCalledTimes(1);
-    expect(bottle.container.DBClient.objects.User.findUsers).toBeCalledWith({
-      "username": req.body.username
-    });
+    expect(UserRepository.prototype.getByUsername).toHaveBeenCalledTimes(1);
+    expect(UserRepository.prototype.getByUsername).toBeCalledWith(req.body.username);
 
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(400);
@@ -75,29 +69,21 @@ describe("tests signin method", () => {
       },
     });
     const { res } = getMockRes();
-    const mockUser = {
-      user_id: "TEST", 
+    const mockUser = new User({
+      userId: "TEST", 
       verified: true, 
-      role_id: Role.Admin, 
+      roleId: Role.Admin, 
       username: req.body.username,
       password: await bcrypt.hash(`${req.body.password}_GIBBERISH`, 10),
       email: "TEST",
       name: "TEST"
-    };
-
-    jest.spyOn(bottle.container.DBClient.objects.User, "findUsers").mockResolvedValue({
-      rows: [mockUser],
-      command: "",
-      oid: 0,
-      rowCount: 1,
-      fields: []
     });
+
+    jest.spyOn(UserRepository.prototype, "getByUsername").mockResolvedValue(mockUser);
 
     await bottle.container.AuthController.signin(req, res);
 
-    expect(bottle.container.DBClient.objects.User.findUsers).toBeCalledWith({
-      "username": req.body.username
-    });
+    expect(UserRepository.prototype.getByUsername).toBeCalledWith(req.body.username);
 
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.status).toHaveBeenCalledWith(400);
@@ -117,36 +103,28 @@ describe("tests signin method", () => {
     });
     const { res } = getMockRes();
     const currentDate = new Date();
-    const mockUser = {
-      user_id: "TEST", 
+    const mockUser = new User({
+      userId: "TEST", 
       verified: true, 
-      role_id: Role.Admin, 
+      roleId: Role.Admin, 
       username: req.body.username,
       password: await bcrypt.hash(req.body.password, 10),
       email: "TEST",
       name: "TEST"
-    };
-    
-    jest.spyOn(bottle.container.DBClient.objects.User, "findUsers").mockResolvedValue({
-      rows: [mockUser],
-      command: "",
-      oid: 0,
-      rowCount: 1,
-      fields: []
     });
+    
+    jest.spyOn(UserRepository.prototype, "getByUsername").mockResolvedValue(mockUser);
     jest.spyOn(Date, "now").mockImplementation(() => currentDate.valueOf());
 
     await bottle.container.AuthController.signin(req, res);
 
-    expect(bottle.container.DBClient.objects.User.findUsers).toBeCalledWith({
-      "username": req.body.username
-    });
+    expect(UserRepository.prototype.getByUsername).toBeCalledWith(req.body.username);
 
     expect(res.cookie).toHaveBeenCalledTimes(1);
     const mockResCookieCall = (res.cookie as jest.Mock).mock.calls[0];
     expect(mockResCookieCall[0]).toBe(HTTP_COOKIE_NAME);
     expect(jwtDecode(mockResCookieCall[1])).toMatchObject({
-      id: mockUser.user_id,
+      id: mockUser.userId,
       role: Role.Admin,
       verified: true,
       username: mockUser.username,
@@ -158,7 +136,7 @@ describe("tests signin method", () => {
     expect(res.json).toHaveBeenCalledTimes(1);
     const mockJsonCall = (res.json as jest.Mock).mock.calls[0];
     expect(jwtDecode(mockJsonCall[0].token)).toMatchObject({
-      id: mockUser.user_id,
+      id: mockUser.userId,
       role: Role.Admin,
       verified: true,
       username: mockUser.username,

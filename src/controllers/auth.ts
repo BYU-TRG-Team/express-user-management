@@ -3,26 +3,27 @@ import { Logger } from "winston";
 import { Response, Request } from "express";
 import TokenHandler from "@support/token-handler";
 import SMTPClient from "@smtp-client";
-import DB from "@db";
+import DBClient from "@db";
 import { SessionTokenType } from "@typings/auth";
-import { User } from "@typings/user";
+import User from "@db/models/user";
 import { LOGIN_AUTHENTICATION_ERROR, GENERIC_ERROR } from "@constants/errors";
 import { HTTP_COOKIE_NAME } from "@constants/auth";
 import { constructHTTPCookieConfig } from "@helpers/auth";
 import { PoolClient } from "pg";
 import { isError } from "@helpers/types";
+import UserRepository from "@db/repositories/user-repository";
 
 class AuthController {
-  private smtpClient: SMTPClient;
-  private tokenHandler: TokenHandler;
-  private db: DB;
-  private logger: Logger;
+  private smtpClient_: SMTPClient;
+  private tokenHandler_: TokenHandler;
+  private dbClient_: DBClient;
+  private logger_: Logger;
 
-  constructor(smtpClient: SMTPClient, tokenHandler: TokenHandler, db: DB, logger: Logger) {
-    this.smtpClient = smtpClient;
-    this.tokenHandler = tokenHandler;
-    this.db = db;
-    this.logger = logger;
+  constructor(smtpClient: SMTPClient, tokenHandler: TokenHandler, dbClient: DBClient, logger: Logger) {
+    this.smtpClient_ = smtpClient;
+    this.tokenHandler_ = tokenHandler;
+    this.dbClient_ = dbClient;
+    this.logger_ = logger;
   }
 
   /*
@@ -46,10 +47,10 @@ class AuthController {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
-      dbTXNClient = await this.db.beginTransaction();
+      dbTXNClient = await this.dbClient_.beginTransaction();
     } catch (err) {
       if (isError(err)) {
-        this.logger.log({
+        this.logger_.log({
           level: "error",
           message: err.message,
         });
@@ -60,15 +61,21 @@ class AuthController {
     }
 
     try {
-      const userResponse = await this.db.objects.User.create(username, email, hashedPassword, 1, name, dbTXNClient);
-      const newUser = userResponse.rows[0];
+      const userRepo = new UserRepository(dbTXNClient);
+      const newUser = new User({
+        password: hashedPassword,
+        username,
+        email,
+        name,
+      });
+      await userRepo.create(newUser);
+      
       let emailVerificationToken;
-
       while(emailVerificationToken === undefined) {
-        const shortToken = this.tokenHandler.generateShortToken();
+        const shortToken = this.tokenHandler_.generateShortToken();
 
         try {
-          await this.db.objects.Token.create(newUser.user_id, shortToken, SessionTokenType.Verification, dbTXNClient);
+          await this.dbClient_.objects.Token.create(newUser.userId, shortToken, SessionTokenType.Verification, dbTXNClient);
           emailVerificationToken = shortToken;
         } catch(e: any) {
           if (e.code === "23505") {
@@ -80,17 +87,17 @@ class AuthController {
       }
 
       await this.sendVerificationEmail(req, newUser, emailVerificationToken);
-      await this.db.commitTransaction(dbTXNClient);
+      await this.dbClient_.commitTransaction(dbTXNClient);
       res.status(204).send();
     } catch (err: any) {
       if (isError(err)) {
-        this.logger.log({
+        this.logger_.log({
           level: "error",
           message: err.message,
         });
       }
       
-      await this.db.rollbackTransaction(dbTXNClient);
+      await this.dbClient_.rollbackTransaction(dbTXNClient);
       res.status(500).send({ message: GENERIC_ERROR });
     } 
   }
@@ -101,6 +108,8 @@ class AuthController {
   * @password
   */
   async signin(req: Request, res: Response) {
+    const userRepo = new UserRepository(this.dbClient_.connectionPool);
+
     try {
       const { username, password } = req.body;
 
@@ -108,15 +117,12 @@ class AuthController {
         res.status(400).send({ message: "Body must include a username and password" });
         return;
       }
-
-      const userResponse = await this.db.objects.User.findUsers({ username });
-
-      if (userResponse.rows.length === 0) {
+      
+      const user = await userRepo.getByUsername(username);
+      if (user === null) {
         res.status(400).send({ message: LOGIN_AUTHENTICATION_ERROR });
         return;
       }
-
-      const user = userResponse.rows[0];
 
       const passwordIsValid = bcrypt.compareSync(
         password,
@@ -130,7 +136,7 @@ class AuthController {
         return;
       }
 
-      const token = this.tokenHandler.generateUserAuthToken(user, req);
+      const token = this.tokenHandler_.generateUserAuthToken(user);
       res.cookie(
         HTTP_COOKIE_NAME, 
         token, 
@@ -138,7 +144,7 @@ class AuthController {
       );
       res.json({ token });
     } catch (err: any) {
-      this.logger.log({
+      this.logger_.log({
         level: "error",
         message: err,
       });
@@ -155,7 +161,7 @@ class AuthController {
       res.clearCookie(HTTP_COOKIE_NAME, { path: "/" }).send();
       return;
     } catch (err: any) {
-      this.logger.log({
+      this.logger_.log({
         level: "error",
         message: err,
       });
@@ -167,9 +173,11 @@ class AuthController {
   * GET api/auth/verify/:token
   */
   async verify(req: Request, res: Response) {
+    const userRepo = new UserRepository(this.dbClient_.connectionPool);
+
     try {
       // Find a matching token
-      const verifyTokenResponse = await this.db.objects.Token.findTokens({
+      const verifyTokenResponse = await this.dbClient_.objects.Token.findTokens({
         "token": req.params.token,
         "type": SessionTokenType.Verification
       });
@@ -180,29 +188,22 @@ class AuthController {
       }
 
       const verifyToken = verifyTokenResponse.rows[0];
-
+      
       // Find associated user
-      const userResponse = await this.db.objects.User.findUsers({
-        "user_id": verifyToken.user_id
-      });
+      const user = await userRepo.getByUUID(verifyToken.user_id);
 
-      if (userResponse.rows.length === 0) {
+      if (user === null) {
         res.status(500).send({ message: GENERIC_ERROR });
         return;
       }
-      const user = userResponse.rows[0];
 
-      // Set user as verified
-      await this.db.objects.User.setAttributes(
-        user.user_id, 
-        {
-          "verified": true,
-        });
-      await this.db.objects.Token.deleteToken(verifyToken.token);
+      user.verified = true;
+      await userRepo.update(user);
+      await this.dbClient_.objects.Token.deleteToken(verifyToken.token);
 
       res.redirect("/login");
     } catch (err: any) {
-      this.logger.log({
+      this.logger_.log({
         level: "error",
         message: err,
       });
@@ -215,6 +216,8 @@ class AuthController {
   * @email
   */
   async recovery(req: Request, res: Response) {
+    const userRepo = new UserRepository(this.dbClient_.connectionPool);
+
     try {
       const { email } = req.body;
 
@@ -223,17 +226,16 @@ class AuthController {
         return;
       }
 
-      const userResponse = await this.db.objects.User.findUsers({ email });
-      if (userResponse.rows.length === 0) {
+      const user = await userRepo.getByEmail(email);
+      if (user === null) {
         res.redirect("/recover/sent");
         return;
       }
 
-      const user = userResponse.rows[0];
       await this.sendPasswordResetEmail(req, user);
       res.redirect("/recover/sent");
     } catch (err: any) {
-      this.logger.log({
+      this.logger_.log({
         level: "error",
         message: err,
       });
@@ -246,7 +248,7 @@ class AuthController {
   */
   async verifyRecovery(req: Request, res: Response) {
     try {
-      const tokenResponse = await this.db.objects.Token.findTokens({
+      const tokenResponse = await this.dbClient_.objects.Token.findTokens({
         "token": req.params.token,
         "type": SessionTokenType.Password
       });
@@ -258,14 +260,14 @@ class AuthController {
 
       const token = tokenResponse.rows[0];
 
-      if (this.tokenHandler.isPasswordTokenExpired(token)) {
+      if (this.tokenHandler_.isPasswordTokenExpired(token)) {
         res.status(400).send({ message: GENERIC_ERROR });
         return;
       }
 
       res.redirect(`/recover/${req.params.token}`);
     } catch (err: any) {
-      this.logger.log({
+      this.logger_.log({
         level: "error",
         message: err,
       });
@@ -277,6 +279,7 @@ class AuthController {
   * @password
   */
   async processRecovery(req: Request, res: Response) {
+    const userRepo = new UserRepository(this.dbClient_.connectionPool);
     const { password } = req.body;
 
     if (password === undefined) {
@@ -285,7 +288,7 @@ class AuthController {
     }
 
     try {
-      const tokenResponse = await this.db.objects.Token.findTokens({
+      const tokenResponse = await this.dbClient_.objects.Token.findTokens({
         "token": req.params.token,
         "type": SessionTokenType.Password
       });
@@ -295,30 +298,24 @@ class AuthController {
       }
 
       const token = tokenResponse.rows[0];
-      if (this.tokenHandler.isPasswordTokenExpired(token)) {
+      if (this.tokenHandler_.isPasswordTokenExpired(token)) {
         res.status(400).send({ message: GENERIC_ERROR });
         return;
       }
 
-      const userResponse = await this.db.objects.User.findUsers({
-        "user_id": token.user_id
-      });
-      if (userResponse.rows.length === 0) {
+      const user = await userRepo.getByUUID(token.user_id);
+      if (user === null) {
         res.status(500).send({ message: GENERIC_ERROR });
         return;
       }
 
-      const user = userResponse.rows[0];
-
       const hashedPassword = await bcrypt.hash(password, 10);
-      await this.db.objects.User.setAttributes(
-        token.user_id,
-        {
-          "password": hashedPassword
-        });
-      await this.db.objects.Token.deleteToken(req.params.token);
       
-      const authToken = this.tokenHandler.generateUserAuthToken(user, req);
+      user.password = hashedPassword;
+      await userRepo.update(user);
+      await this.dbClient_.objects.Token.deleteToken(req.params.token);
+      
+      const authToken = this.tokenHandler_.generateUserAuthToken(user);
       res.cookie(
         HTTP_COOKIE_NAME, 
         authToken, 
@@ -326,7 +323,7 @@ class AuthController {
       );
       res.send({ token: authToken });
     } catch (err: any) {
-      this.logger.log({
+      this.logger_.log({
         level: "error",
         message: err,
       });
@@ -345,17 +342,17 @@ class AuthController {
       <p>If you did not request this, please ignore this email.</p>`,
     };
 
-    return this.smtpClient.sendEmail(emailOptions);
+    return this.smtpClient_.sendEmail(emailOptions);
   }
 
   async sendPasswordResetEmail(req: Request, user: User) {
     let resetPasswordToken: string | undefined;
 
     while(resetPasswordToken === undefined) {
-      const shortToken = this.tokenHandler.generateShortToken();
+      const shortToken = this.tokenHandler_.generateShortToken();
 
       try {
-        await this.db.objects.Token.create(user.user_id, shortToken, SessionTokenType.Password);
+        await this.dbClient_.objects.Token.create(user.userId, shortToken, SessionTokenType.Password);
         resetPasswordToken = shortToken;
       } catch(e: any) {
         if (e.code === 23505) {
@@ -376,7 +373,7 @@ class AuthController {
       <p>If you did not request this, please ignore this email.</p>`,
     };
 
-    return this.smtpClient.sendEmail(emailOptions);
+    return this.smtpClient_.sendEmail(emailOptions);
   }
 }
 

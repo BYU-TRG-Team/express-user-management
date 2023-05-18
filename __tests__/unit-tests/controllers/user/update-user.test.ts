@@ -3,6 +3,8 @@ import { getMockReq, getMockRes } from "@jest-mock/express";
 import { Role } from "@typings/auth";
 import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
+import UserRepository from "@db/repositories/user-repository";
+import User from "@db/models/user";
 
 jest.mock("pg");
 
@@ -28,29 +30,41 @@ describe("tests updateUser method", () => {
       userId: "TEST"
     });
     const { res } = getMockRes();
+    const mockUser = new User({
+      userId: "FOO", 
+      verified: true, 
+      roleId: Role.User, 
+      username: "FOO",
+      password: "FOO",
+      email: "FOO",
+      name: "FOO"
+    });
 
-    jest.spyOn(bottle.container.DBClient.objects.User, "setAttributes");
+    jest.spyOn(UserRepository.prototype, "getByUUID").mockResolvedValue(mockUser);
+    jest.spyOn(UserRepository.prototype, "update");
 
     await bottle.container.UserController.updateUser(req, res);
 
-    expect(bottle.container.DBClient.objects.User.setAttributes).toHaveBeenCalledTimes(1);
-    const mockSetAttributesCall = (bottle.container.DBClient.objects.User.setAttributes as jest.Mock).mock.calls[0];
-    expect(mockSetAttributesCall[0]).toBe(req.params.id);
-    Object.keys(mockSetAttributesCall[0]).forEach((attr: string, index: number) => {
-      const correspondingValue = mockSetAttributesCall[1][index];
-
-      if (attr !== "password") {
-        expect(correspondingValue).toBe(req.body[attr]);
-      } else {
-        expect(bcrypt.compareSync(
-          req.body.password,
-          correspondingValue,
-        )).toBeTruthy();
-      }
+    const updatedPassword = (
+      (UserRepository.prototype.update as jest.Mock).mock.calls[0][0] as User
+    ).password;
+    const updatedUser = new User({
+      ...mockUser,
+      username: req.body.username,
+      email: req.body.email,
+      password: updatedPassword,
+      name: req.body.name
     });
+    expect(bcrypt.compareSync(
+      req.body.password,
+      updatedPassword,
+    )).toBeTruthy();
+
+    expect(UserRepository.prototype.update).toHaveBeenCalledTimes(1);
+    expect(UserRepository.prototype.update).toHaveBeenCalledWith(updatedUser);
   });
 
-  test("should update the user profile once with username, email, name, and password, and then a second time with roleId", async () => {
+  test("should update the user profile once with username, email, name, password, and roleId", async () => {
     const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
     const req = getMockReq({
       body: {
@@ -67,63 +81,38 @@ describe("tests updateUser method", () => {
       userId: "TEST"
     });
     const { res } = getMockRes();
+    const mockUser = new User({
+      userId: "FOO", 
+      verified: true, 
+      roleId: Role.User, 
+      username: "FOO",
+      password: "FOO",
+      email: "FOO",
+      name: "FOO"
+    });
 
-    jest.spyOn(bottle.container.DBClient.objects.User, "setAttributes");
+    jest.spyOn(UserRepository.prototype, "getByUUID").mockResolvedValue(mockUser);
+    jest.spyOn(UserRepository.prototype, "update");
 
     await bottle.container.UserController.updateUser(req, res);
 
-    expect(bottle.container.DBClient.objects.User.setAttributes).toHaveBeenCalledTimes(2);
-    const mockSetAttributesCall = (bottle.container.DBClient.objects.User.setAttributes as jest.Mock).mock.calls[0];
-    expect(mockSetAttributesCall[0]).toBe(req.params.id);
-    Object.keys(mockSetAttributesCall[0]).forEach((attr: string, index: number) => {
-      const correspondingValue = mockSetAttributesCall[1][index];
-
-      if (attr !== "password") {
-        expect(correspondingValue).toBe(req.body[attr]);
-      } else {
-        expect(bcrypt.compareSync(
-          req.body.password,
-          correspondingValue,
-        )).toBeTruthy();
-      }
+    const updatedPassword = (
+      (UserRepository.prototype.update as jest.Mock).mock.calls[0][0] as User
+    ).password;
+    const updatedUser = new User({
+      ...mockUser,
+      username: req.body.username,
+      email: req.body.email,
+      password: updatedPassword,
+      name: req.body.name,
+      roleId: Role.Admin
     });
+    expect(bcrypt.compareSync(
+      req.body.password,
+      updatedPassword,
+    )).toBeTruthy();
 
-    expect(bottle.container.DBClient.objects.User.setAttributes).toHaveBeenLastCalledWith(
-      req.params.id,
-      {
-        "role_id": req.body.roleId
-      }
-    );
-  });
-
-  test("should update the user profile once with roleId", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
-    const req = getMockReq({
-      body: {
-        username: "TEST",
-        email: "TEST",
-        name: "TEST",
-        password: "TEST",
-        roleId: Role.Admin
-      },
-      params: {
-        id: "TEST",
-      },
-      role: Role.Admin,
-      userId: "FOO"
-    });
-    const { res } = getMockRes();
-
-    jest.spyOn(bottle.container.DBClient.objects.User, "setAttributes");
-
-    await bottle.container.UserController.updateUser(req, res);
-
-    expect(bottle.container.DBClient.objects.User.setAttributes).toHaveBeenCalledTimes(1);
-    expect(bottle.container.DBClient.objects.User.setAttributes).toHaveBeenLastCalledWith(
-      req.params.id,
-      {
-        "role_id": req.body.roleId
-      }
-    );
+    expect(UserRepository.prototype.update).toHaveBeenCalledTimes(1);
+    expect(UserRepository.prototype.update).toHaveBeenCalledWith(updatedUser);
   });
 });

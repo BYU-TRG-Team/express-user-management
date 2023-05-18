@@ -16,14 +16,8 @@ const init = (app: Express, initOptions: InitOptions) => {
   
   constructAuthRoutes(app, bottle);
   constructUserRoutes(app, bottle);
-
-  return {
-    userService: bottle.container.DBClient.objects.User,
-  };
 };
 
 export default init;
 export * from "@middleware/auth";
 export * from "@typings/auth";
-export * from "@typings/user";
-
