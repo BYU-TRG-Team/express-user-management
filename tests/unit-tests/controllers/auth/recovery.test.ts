@@ -4,6 +4,7 @@ import * as mockConstants from "@tests/constants";
 import { Role } from "@typings/auth";
 import UserRepository from "@db/repositories/user-repository";
 import User from "@db/models/user";
+import TokenRepository from "@db/repositories/token-repository";
 
 jest.mock("pg");
 jest.mock("nodemailer");
@@ -73,6 +74,8 @@ describe("tests recovery method", () => {
 
     jest.spyOn(UserRepository.prototype, "getByEmail").mockResolvedValue(mockUser);
     jest.spyOn(bottle.container.AuthController, "sendPasswordResetEmail");
+    jest.spyOn(TokenRepository.prototype, "getByUserIdAndType").mockResolvedValue(null);
+    jest.spyOn(UserRepository.prototype, "create").mockResolvedValue();
 
     await bottle.container.AuthController.recovery(req, res);
 
@@ -80,11 +83,6 @@ describe("tests recovery method", () => {
     expect(UserRepository.prototype.getByEmail).toHaveBeenCalledWith(req.body.email);
 
     expect(bottle.container.AuthController.sendPasswordResetEmail).toHaveBeenCalledTimes(1);
-    expect(bottle.container.AuthController.sendPasswordResetEmail).toHaveBeenCalledWith(
-      req,
-      mockUser
-    );
-    
     expect(res.redirect).toHaveBeenCalledTimes(1);
     expect(res.redirect).toHaveBeenCalledWith("/recover/sent");
   });

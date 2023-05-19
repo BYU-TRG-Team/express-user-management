@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import constructBottle from "@bottle";
 import constructAuthRoutes from "@routes/auth";
 import constructUserRoutes from "@routes/user";
-import { InitOptions } from "@typings/system";
+import { InitOptions } from "@typings/library";
 
 const init = (app: Express, initOptions: InitOptions) => {
   app.use(express.json());

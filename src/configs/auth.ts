@@ -1,12 +1,12 @@
 class AuthConfig {
-  private jwtSecret_: string;
+  private httpCookieSecret_: string;
 
-  constructor(jwtSecret: string) {
-    this.jwtSecret_ = jwtSecret;
+  constructor(httpCookieSecret: string) {
+    this.httpCookieSecret_ = httpCookieSecret;
   }
 
-  get jwtSecret() {
-    return this.jwtSecret_;
+  get httpCookieSecret() {
+    return this.httpCookieSecret_;
   }
 }
 

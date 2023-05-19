@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import jwtDecode from "jwt-decode";
-import { Role, AuthToken } from "@typings/auth";
+import { Role, HTTPCookieJWTPayload } from "@typings/auth";
 import { AUTHORIZATION_ERROR, AUTHENTICATION_ERROR } from "@constants/errors";
 import { HTTP_COOKIE_NAME } from "@constants/auth";
 
@@ -23,7 +23,7 @@ export const verifyToken = (authSecret: string) => (req: Request, res: Response,
       return;
     }
 
-    const token = decoded as AuthToken | undefined;
+    const token = decoded as HTTPCookieJWTPayload | undefined;
 
     if (token) {
       req.userId = token.id;
@@ -35,7 +35,7 @@ export const verifyToken = (authSecret: string) => (req: Request, res: Response,
 };
 
 export const checkVerification = (req: Request, res: Response, next: NextFunction) => {
-  const token = jwtDecode(req.cookies[HTTP_COOKIE_NAME]) as undefined | AuthToken;
+  const token = jwtDecode(req.cookies[HTTP_COOKIE_NAME]) as undefined | HTTPCookieJWTPayload;
 
   if (token && token.verified) {
     next();
@@ -48,7 +48,7 @@ export const checkVerification = (req: Request, res: Response, next: NextFunctio
 };
 
 export const checkRole = (roles: Role[]) => (req: Request, res: Response, next: NextFunction) => {
-  const token = jwtDecode(req.cookies[HTTP_COOKIE_NAME]) as AuthToken | undefined;
+  const token = jwtDecode(req.cookies[HTTP_COOKIE_NAME]) as HTTPCookieJWTPayload | undefined;
 
   if (token && roles.includes(token.role)) {
     next();

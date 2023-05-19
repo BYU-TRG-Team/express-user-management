@@ -7,25 +7,23 @@ export enum Role {
   Inactive = 0,
 }
 
-export enum SessionTokenType {
+export enum OneTimeTokenType {
   Password = "password",
   Verification = "verification",
 }
 
-export type AuthToken = {
+export interface HTTPCookieJWTPayload {
   id: UUID;
   role: Role;
   verified: boolean;
   username: string;
 }
 
-export type AuthTokenAttributes = {
-  id?: number;
-  role?: Role;
-  verified?: boolean;
-  username?: string;
+export interface OneTimeTokenJWTPayload {
+  type: OneTimeTokenType,
+  userId: UUID
 }
 
 export interface AuthConfig {
-  secret: string;
+  httpCookieSecret: string;
 }

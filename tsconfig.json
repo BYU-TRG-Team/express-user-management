@@ -55,9 +55,6 @@
       "@helpers/*": [
         "./src/helpers/*"
       ],
-      "@support/*": [
-        "./src/support/*"
-      ],
       "@routes/*": [
         "./src/routes/*"
       ],

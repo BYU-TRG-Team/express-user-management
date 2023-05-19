@@ -1,23 +1,23 @@
 import bcrypt from "bcrypt";
 import { Logger } from "winston";
 import { Request, Response } from "express";
-import TokenHandler from "@support/token-handler";
 import DB from "@db";
 import { Role } from "@typings/auth";
 import { RESOURCE_NOT_FOUND_ERROR, GENERIC_ERROR, AUTHORIZATION_ERROR } from "@constants/errors";
 import { HTTP_COOKIE_NAME } from "@constants/auth";
-import { constructHTTPCookieConfig } from "@helpers/auth";
+import { constructHTTPCookieConfig, createHTTPCookie } from "@helpers/auth";
 import UserRepository from "@db/repositories/user-repository";
+import AuthConfig from "@configs/auth";
 
 class UserController {
   private logger_: Logger;
   private dbClient_: DB;
-  private tokenHandler_: TokenHandler;
+  private authConfig_: AuthConfig;
 
-  constructor(tokenHandler: TokenHandler, logger: Logger, db: DB) {
-    this.tokenHandler_ = tokenHandler;
+  constructor(logger: Logger, db: DB, authConfig:  AuthConfig) {
     this.logger_ = logger;
     this.dbClient_ = db;
+    this.authConfig_ = authConfig;
   }
 
   /*
@@ -78,13 +78,16 @@ class UserController {
 
       await userRepo.update(user);
 
-      const newToken = await this.tokenHandler_.generateUserAuthToken(user);
+      const jwt = createHTTPCookie(
+        user,
+        this.authConfig_
+      );
       res.cookie(
         HTTP_COOKIE_NAME, 
-        newToken, 
+        jwt, 
         constructHTTPCookieConfig()
       );
-      return res.send({ newToken });
+      return res.send({ jwt });
     } catch (err: any) {
       this.logger_.log({
         level: "error",

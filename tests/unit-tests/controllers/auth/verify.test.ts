@@ -1,9 +1,11 @@
 import { getMockReq, getMockRes } from "@jest-mock/express";
-import { Role, SessionTokenType } from "@typings/auth";
+import { OneTimeTokenType, Role } from "@typings/auth";
 import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
 import UserRepository from "@db/repositories/user-repository";
 import User from "@db/models/user";
+import TokenRepository from "@db/repositories/token-repository";
+import Token from "@db/models/token";
 
 jest.mock("pg");
 
@@ -18,24 +20,21 @@ describe("tests verify method", () => {
       params: {
         token: "TEST",
       },
+      query: {
+        userId: "FOO"
+      }
     });
     const { res } = getMockRes();
 
-    jest.spyOn(bottle.container.DBClient.objects.Token, "findTokens").mockResolvedValue({
-      rows: [],
-      command: "",
-      oid: 0,
-      rowCount: 0,
-      fields: []
-    });
+    jest.spyOn(TokenRepository.prototype, "getByUserIdAndType").mockResolvedValue(null);
 
     await bottle.container.AuthController.verify(req, res);
 
-    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledTimes(1);
-    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledWith({
-      "token": req.params.token,
-      "type": SessionTokenType.Verification
-    });
+    expect(TokenRepository.prototype.getByUserIdAndType).toHaveBeenCalledTimes(1);
+    expect(TokenRepository.prototype.getByUserIdAndType).toHaveBeenCalledWith(
+      req.query.userId,
+      OneTimeTokenType.Verification
+    );
 
     expect(res.redirect).toHaveBeenCalledTimes(1);
     expect(res.redirect).toHaveBeenCalledWith("/login");
@@ -49,12 +48,12 @@ describe("tests verify method", () => {
       },
     });
     const { res } = getMockRes();
-    const mockToken = {
-      created_at: new Date(),
+    const mockToken = new Token({
+      createdAt: new Date(),
       token: "TEST",
-      type: SessionTokenType.Verification,
-      user_id: "TEST",
-    };
+      type: OneTimeTokenType.Verification,
+      userId: "TEST",
+    });
     const mockUser = new User({
       userId: "TEST", 
       verified: false ,
@@ -66,14 +65,8 @@ describe("tests verify method", () => {
     });
 
     jest.spyOn(UserRepository.prototype, "update");
-    jest.spyOn(bottle.container.DBClient.objects.Token, "deleteToken");
-    jest.spyOn(bottle.container.DBClient.objects.Token, "findTokens").mockResolvedValue({
-      rows: [mockToken],
-      command: "",
-      oid: 0,
-      rowCount: 1,
-      fields: []
-    });
+    jest.spyOn(TokenRepository.prototype, "delete");
+    jest.spyOn(TokenRepository.prototype, "getByUserIdAndType").mockResolvedValue(mockToken);
     jest.spyOn(UserRepository.prototype, "getByUUID").mockResolvedValue(mockUser);
 
     await bottle.container.AuthController.verify(req, res);
@@ -83,22 +76,20 @@ describe("tests verify method", () => {
       verified: true,
     });
 
-    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledTimes(1);
-    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledWith({
-      "token": req.params.token,
-      "type": SessionTokenType.Verification
-    });
+    expect(TokenRepository.prototype.getByUserIdAndType).toHaveBeenCalledTimes(1);
+    expect(TokenRepository.prototype.getByUserIdAndType).toHaveBeenCalledWith(
+      req.query.userId,
+      OneTimeTokenType.Verification
+    );
 
     expect(UserRepository.prototype.getByUUID).toHaveBeenCalledTimes(1);
-    expect(UserRepository.prototype.getByUUID).toHaveBeenCalledWith(mockToken.user_id);
+    expect(UserRepository.prototype.getByUUID).toHaveBeenCalledWith(mockToken.userId);
     
     expect(UserRepository.prototype.update).toHaveBeenCalledTimes(1);
     expect(UserRepository.prototype.update).toHaveBeenCalledWith(updatedUser);
 
-    expect(bottle.container.DBClient.objects.Token.deleteToken).toHaveBeenCalledTimes(1);
-    expect(bottle.container.DBClient.objects.Token.deleteToken).toHaveBeenCalledWith(
-      req.params.token
-    );
+    expect(TokenRepository.prototype.delete).toHaveBeenCalledTimes(1);
+    expect(TokenRepository.prototype.delete).toHaveBeenCalledWith(mockToken);
 
     expect(res.redirect).toHaveBeenCalledTimes(1);
     expect(res.redirect).toHaveBeenCalledWith("/login");

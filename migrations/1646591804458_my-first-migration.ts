@@ -86,4 +86,5 @@ exports.up = (pgm) => {
 exports.down = (pgm) => {
   pgm.dropTable(tokenTable);
   pgm.dropTable(userTable);
+  pgm.dropSchema(schema)
 };

@@ -1,8 +1,7 @@
-import { InitOptions } from "@typings/system";
+import { InitOptions } from "@typings/library";
 import Database from "@db";
 import AuthController from "@controllers/auth";
 import UserController from "@controllers/user";
-import TokenHandler from "@support/token-handler";
 import Bottle from "bottlejs";
 import SMTPClient from "@smtp-client";
 import AuthConfig from "@configs/auth";
@@ -19,22 +18,22 @@ export default function constructBottle(initOptions: InitOptions): Bottle {
   bottle.factory("Logger", () => logger);
   bottle.factory("SMTPClient", () => new SMTPClient(smtpConfig));
   bottle.factory("DBClient", () => new Database(dbConfig));
-  bottle.factory("AuthConfig", () => new AuthConfig(authConfig.secret));
-  bottle.service("TokenHandler", TokenHandler, "AuthConfig");
+  bottle.factory("AuthConfig", () => new AuthConfig(authConfig.httpCookieSecret));
   bottle.service(
     "AuthController", 
     AuthController, 
     "SMTPClient", 
-    "TokenHandler", 
     "DBClient", 
-    "Logger")
+    "Logger",
+    "AuthConfig",
+  )
   ;
   bottle.service(
     "UserController", 
     UserController, 
-    "TokenHandler", 
     "Logger", 
-    "DBClient"
+    "DBClient",
+    "AuthConfig",
   );
 
   return bottle;

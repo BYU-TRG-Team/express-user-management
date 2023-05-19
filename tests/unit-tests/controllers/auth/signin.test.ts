@@ -135,7 +135,7 @@ describe("tests signin method", () => {
 
     expect(res.json).toHaveBeenCalledTimes(1);
     const mockJsonCall = (res.json as jest.Mock).mock.calls[0];
-    expect(jwtDecode(mockJsonCall[0].token)).toMatchObject({
+    expect(jwtDecode(mockJsonCall[0].jwt)).toMatchObject({
       id: mockUser.userId,
       role: Role.Admin,
       verified: true,
