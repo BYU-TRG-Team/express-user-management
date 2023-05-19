@@ -50,6 +50,7 @@ describe("tests updateUser method", () => {
     ).password;
     const updatedUser = new User({
       ...mockUser,
+      userId: mockUser.userId,
       username: req.body.username,
       email: req.body.email,
       password: updatedPassword,
@@ -101,6 +102,7 @@ describe("tests updateUser method", () => {
     ).password;
     const updatedUser = new User({
       ...mockUser,
+      userId: mockUser.userId,
       username: req.body.username,
       email: req.body.email,
       password: updatedPassword,

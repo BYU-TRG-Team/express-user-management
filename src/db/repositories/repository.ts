@@ -1,5 +1,3 @@
-import { UUID } from "@typings";
-
 abstract class Repository<T> {
   abstract getAll(): Promise<T[]>
   abstract create(entity: T): Promise<void>;
