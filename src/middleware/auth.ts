@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { Role, HTTPCookieJWTPayload } from "@typings/auth";
 import { AUTHORIZATION_ERROR, AUTHENTICATION_ERROR } from "@constants/errors";
-import { HTTP_COOKIE_NAME } from "@constants/auth";
+import AuthConfig from "@configs/auth";
 
 /**
  * Verifies the JWT and exposes attributes of the payload to the request object. 
@@ -12,17 +12,17 @@ import { HTTP_COOKIE_NAME } from "@constants/auth";
  * NOTE: This middleware must be invoked before any other auth middleware.
  *
  */
-export const verifyHTTPCookie = (authSecret: string) => (
+export const verifyHTTPCookie = (authConfig: AuthConfig) => (
   req: Request, 
   res: Response, 
   next: NextFunction
 ) => {
-  const token = req.cookies[HTTP_COOKIE_NAME];
+  const token = req.cookies[authConfig.httpCookieName];
 
   try {
     const payload = jwt.verify( 
       token, 
-      authSecret, 
+      authConfig.httpCookieSecret, 
       { ignoreExpiration: true }
     ) as HTTPCookieJWTPayload;
 

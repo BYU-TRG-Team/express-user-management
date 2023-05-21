@@ -4,7 +4,6 @@ import AuthController from "@controllers/auth";
 import UserController from "@controllers/user";
 import Bottle from "bottlejs";
 import SMTPClient from "@smtp-client";
-import AuthConfig from "@configs/auth";
 
 export default function constructBottle(initOptions: InitOptions): Bottle {
   const {
@@ -16,9 +15,9 @@ export default function constructBottle(initOptions: InitOptions): Bottle {
   const bottle = new Bottle();
   
   bottle.factory("Logger", () => logger);
+  bottle.factory("AuthConfig", () => authConfig);
   bottle.factory("SMTPClient", () => new SMTPClient(smtpConfig));
   bottle.factory("DBClient", () => new Database(dbConfig));
-  bottle.factory("AuthConfig", () => new AuthConfig(authConfig.httpCookieSecret));
   bottle.service(
     "AuthController", 
     AuthController, 

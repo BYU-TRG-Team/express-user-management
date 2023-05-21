@@ -4,7 +4,6 @@ import { Request, Response } from "express";
 import DB from "@db";
 import { Role } from "@typings/auth";
 import { RESOURCE_NOT_FOUND_ERROR, GENERIC_ERROR, AUTHORIZATION_ERROR } from "@constants/errors";
-import { HTTP_COOKIE_NAME } from "@constants/auth";
 import { constructHTTPCookieConfig, createHTTPCookie } from "@helpers/auth";
 import UserRepository from "@db/repositories/user-repository";
 import AuthConfig from "@configs/auth";
@@ -83,7 +82,7 @@ class UserController {
         this.authConfig_
       );
       res.cookie(
-        HTTP_COOKIE_NAME, 
+        this.authConfig_.httpCookieName, 
         jwt, 
         constructHTTPCookieConfig()
       );

@@ -4,7 +4,6 @@ import { getMockReq, getMockRes } from "@jest-mock/express";
 import { Role } from "@typings/auth";
 import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
-import { HTTP_COOKIE_NAME } from "@constants/auth";
 import { constructHTTPCookieConfig } from "@helpers/auth";
 import UserRepository from "@db/repositories/user-repository";
 import User from "@db/models/user";
@@ -122,7 +121,7 @@ describe("tests signin method", () => {
 
     expect(res.cookie).toHaveBeenCalledTimes(1);
     const mockResCookieCall = (res.cookie as jest.Mock).mock.calls[0];
-    expect(mockResCookieCall[0]).toBe(HTTP_COOKIE_NAME);
+    expect(mockResCookieCall[0]).toBe(bottle.container.AuthConfig.httpCookieName);
     expect(jwtDecode(mockResCookieCall[1])).toMatchObject({
       id: mockUser.userId,
       role: Role.Admin,

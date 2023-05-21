@@ -4,7 +4,6 @@ import { Role, OneTimeTokenType } from "@typings/auth";
 import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
 import { GENERIC_ERROR } from "@constants/errors";
-import { HTTP_COOKIE_NAME } from "@constants/auth";
 import { constructHTTPCookieConfig } from "@helpers/auth";
 import UserRepository from "@db/repositories/user-repository";
 import User from "@db/models/user";
@@ -177,7 +176,7 @@ describe("tests processRecovery method", () => {
 
     expect(res.cookie).toBeCalledTimes(1);
     const mockCookieCall = (res.cookie as jest.Mock).mock.calls[0];
-    expect(mockCookieCall[0]).toBe(HTTP_COOKIE_NAME);
+    expect(mockCookieCall[0]).toBe(bottle.container.AuthConfig.httpCookieName);
     // expect(jwtDecode(mockCookieCall[1])).toMatchObject({
     //   id: mockUser.userId,
     //   role: Role.Admin,
