@@ -28,7 +28,7 @@ describe("tests UserRepository", () => {
     }
 
     const users = await userRepository.getAll();
-    expect(users.length).toBe(50);
+    expect(users.length).toStrictEqual(50);
   });
 
   it("should be able to get a user by UUID", async () => {

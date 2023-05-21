@@ -16,7 +16,7 @@ describe("tests signup method", () => {
   });
   
   test("should throw a 400 error due to body not including name", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         username: "TEST",
@@ -37,7 +37,7 @@ describe("tests signup method", () => {
   });
 
   test("should create a new user and send a verification email", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         username: "TEST",

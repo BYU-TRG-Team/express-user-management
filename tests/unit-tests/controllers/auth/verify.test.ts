@@ -15,7 +15,7 @@ describe("tests verify method", () => {
   });
 
   test("should redirect to /login for invalid verify token", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       params: {
         token: "TEST",
@@ -41,7 +41,7 @@ describe("tests verify method", () => {
   });
 
   test("should set user as verified, remove token, and redirect to /login", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       params: {
         token: "TEST",

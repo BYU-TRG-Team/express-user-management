@@ -19,7 +19,7 @@ describe("tests processRecovery method", () => {
   });
   
   test("should throw a 400 error due to an invalid body", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       body: {},
       params: {
@@ -40,7 +40,7 @@ describe("tests processRecovery method", () => {
   });
 
   test("should throw a 400 error due to an invalid token", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         password: "TEST",
@@ -73,7 +73,7 @@ describe("tests processRecovery method", () => {
   });
 
   test("should throw a 400 error due to an expired token", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         password: "TEST",
@@ -112,7 +112,7 @@ describe("tests processRecovery method", () => {
   });
 
   test("should successfully update password and return token and cookie", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         password: "FOO",

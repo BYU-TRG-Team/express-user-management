@@ -15,7 +15,7 @@ describe("tests recovery method", () => {
   });
   
   test("should throw a 400 error for invalid body", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       body: {},
     });
@@ -32,7 +32,7 @@ describe("tests recovery method", () => {
   });
 
   test("should redirect to /recover/sent but not send a password reset email", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         email: "TEST"
@@ -55,7 +55,7 @@ describe("tests recovery method", () => {
   });
 
   test("should redirect to /recover/sent and send a password reset email", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         email: "TEST"

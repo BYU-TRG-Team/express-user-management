@@ -6,6 +6,7 @@ declare global {
     interface Request {
         userId: UUID;
         role: Role;
+        verified: boolean;
     }
   }
 }

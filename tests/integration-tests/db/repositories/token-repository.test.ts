@@ -29,7 +29,7 @@ describe("tests TokenRepository", () => {
     }
 
     const tokens = await tokenRepository.getAll();
-    expect(tokens.length).toBe(50);
+    expect(tokens.length).toStrictEqual(50);
   });
 
   it("should be able to get a token given a userId and type", async () => {

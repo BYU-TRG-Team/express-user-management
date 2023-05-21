@@ -6,31 +6,31 @@ import Bottle from "bottlejs";
 const constructUserRoutes = (app: Express, bottle: Bottle) => {
   app.get(
     "/api/user/:id",
-    authMiddleware.verifyToken(bottle.container.AuthConfig.httpCookieSecret),
-    authMiddleware.checkVerification,
+    authMiddleware.verifyHTTPCookie(bottle.container.AuthConfig.httpCookieSecret),
+    authMiddleware.checkUserVerification,
     bottle.container.UserController.getUser.bind(bottle.container.UserController),
   );
 
   app.get(
     "/api/users",
-    authMiddleware.verifyToken(bottle.container.AuthConfig.httpCookieSecret),
-    authMiddleware.checkVerification,
-    authMiddleware.checkRole([Role.Admin]),
+    authMiddleware.verifyHTTPCookie(bottle.container.AuthConfig.httpCookieSecret),
+    authMiddleware.checkUserVerification,
+    authMiddleware.checkUserRole([Role.Admin]),
     bottle.container.UserController.getUsers.bind(bottle.container.UserController),
   );
 
   app.patch(
     "/api/user/:id",
-    authMiddleware.verifyToken(bottle.container.AuthConfig.httpCookieSecret),
-    authMiddleware.checkVerification,
+    authMiddleware.verifyHTTPCookie(bottle.container.AuthConfig.httpCookieSecret),
+    authMiddleware.checkUserVerification,
     bottle.container.UserController.updateUser.bind(bottle.container.UserController),
   );
 
   app.delete(
     "/api/user/:id",
-    authMiddleware.verifyToken(bottle.container.AuthConfig.httpCookieSecret),
-    authMiddleware.checkVerification,
-    authMiddleware.checkRole([Role.Admin]),
+    authMiddleware.verifyHTTPCookie(bottle.container.AuthConfig.httpCookieSecret),
+    authMiddleware.checkUserVerification,
+    authMiddleware.checkUserRole([Role.Admin]),
     bottle.container.UserController.deleteUser.bind(bottle.container.UserController),
   );
 };

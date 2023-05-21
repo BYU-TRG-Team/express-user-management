@@ -17,7 +17,7 @@ describe("tests signin method", () => {
   });
   
   test("should throw a 400 error for invalid body", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         username: "TEST"
@@ -36,7 +36,7 @@ describe("tests signin method", () => {
   });
 
   test("should throw a 400 error for no found user", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         username: "TEST",
@@ -61,7 +61,7 @@ describe("tests signin method", () => {
   });
 
   test("should throw a 400 error for invalid password", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         username: "TEST",
@@ -94,7 +94,7 @@ describe("tests signin method", () => {
   });
 
   test("should successfully return a jwt token", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         username: "TEST",

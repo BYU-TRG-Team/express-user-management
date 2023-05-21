@@ -13,7 +13,7 @@ describe("tests verifyRecovery method", () => {
   });
   
   test("should throw a 400 error for non valid token", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       params: {
         token: "TEST",
@@ -42,7 +42,7 @@ describe("tests verifyRecovery method", () => {
   });
 
   test("should throw a 400 error for expired token", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       params: {
         token: "TEST",
@@ -78,7 +78,7 @@ describe("tests verifyRecovery method", () => {
   });
 
   test("should redirect to /recover/test", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       params: {
         token: "TEST",
