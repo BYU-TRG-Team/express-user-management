@@ -11,8 +11,11 @@ interface TokenInfo {
 }
 
 class Token {
-  public userId: UUID;
-  public type: OneTimeTokenType;
+  /*
+  * Primary key: (user_id, type)
+  */
+  private _userId: UUID;
+  private _type: OneTimeTokenType;
   public token: string;
   public createdAt: Date;
 
@@ -24,10 +27,18 @@ class Token {
       createdAt = new Date(),
     } = tokenInfo;
 
-    this.userId = userId;
-    this.type = type;
+    this._userId = userId;
+    this._type = type;
     this.token = token;
     this.createdAt = createdAt;
+  }
+
+  get userId() {
+    return this._userId;
+  }
+
+  get type() {
+    return this._type;
   }
 
   public isExpired() {

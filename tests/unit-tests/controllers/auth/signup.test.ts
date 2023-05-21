@@ -63,6 +63,7 @@ describe("tests signup method", () => {
     expect(newUser).toStrictEqual(
       new User({
         ...newUser,
+        userId: newUser.userId,
         username: req.body.username,
         email: req.body.email,
         name: req.body.name,

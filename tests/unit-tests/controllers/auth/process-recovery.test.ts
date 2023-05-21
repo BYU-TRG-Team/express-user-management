@@ -161,6 +161,7 @@ describe("tests processRecovery method", () => {
     ).password;
     const updatedUser = new User({
       ...mockUser,
+      userId: mockUser.userId,
       password: updatedPassword
     });
     expect(bcrypt.compareSync(

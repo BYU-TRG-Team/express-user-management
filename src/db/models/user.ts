@@ -13,7 +13,10 @@ interface UserInfo {
 }
 
 class User {
-  public userId: UUID;
+  /*
+  * Primary key: user_id
+  */
+  private _userId: UUID; 
   public username: string;
   public verified: boolean;
   public password: string;
@@ -32,13 +35,17 @@ class User {
       roleId = Role.User
     } = userInfo;
 
-    this.userId = userId;
+    this._userId = userId;
     this.username = username;
     this.verified = verified;
     this.password = password;
     this.email = email;
     this.name = name;
     this.roleId = roleId;
+  }
+
+  get userId() {
+    return this._userId;
   }
 }
 

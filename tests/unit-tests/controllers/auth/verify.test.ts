@@ -73,6 +73,7 @@ describe("tests verify method", () => {
 
     const updatedUser = new User({
       ...mockUser,
+      userId: mockUser.userId,
       verified: true,
     });
 
