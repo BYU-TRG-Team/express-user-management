@@ -2,8 +2,6 @@ version: "3.9"
 services:
   test-runner:
     image: express-user-management:dev
-    networks:
-      - express-user-management-unit-tests-net
     entrypoint: [
       "npm",
       "exec",
@@ -13,6 +11,9 @@ services:
       "--runInBand",
       "--testMatch=**/tests/unit-tests/**/*.test.ts"
     ]
+    networks:
+      - express-user-management-unit-tests-net
+
     
 networks:
   express-user-management-unit-tests-net:

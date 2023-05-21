@@ -33,8 +33,6 @@ services:
     depends_on:
       pg-migrations:
          condition: service_completed_successfully
-    networks:
-      - express-user-management-integration-tests-net
     entrypoint: [
       "npm",
       "exec",
@@ -44,6 +42,8 @@ services:
       "--runInBand",
       "--testMatch=**/tests/integration-tests/**/*.test.ts"
     ]
+    networks:
+      - express-user-management-integration-tests-net
     
 networks:
   express-user-management-integration-tests-net:
