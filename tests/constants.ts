@@ -1,4 +1,4 @@
-import { InitOptions } from "@typings/system";
+import { InitOptions } from "@typings/library";
 import winston from "winston";
 
 export const TEST_DB_CONNECTION_URL="postgres://test-user:test-pw@express-user-management-pg-instance:5432/express-user-management";
@@ -9,7 +9,7 @@ export const MOCK_INIT_OPTIONS: InitOptions = {
     email: "foo@bar.com"
   },
   authConfig: {
-    secret: MOCK_AUTH_SECRET
+    httpCookieSecret: MOCK_AUTH_SECRET
   },
   dbConfig: {},
   logger: winston.createLogger({

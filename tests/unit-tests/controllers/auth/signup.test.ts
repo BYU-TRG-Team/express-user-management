@@ -1,10 +1,11 @@
 import bcrypt from "bcrypt";
 import { getMockReq, getMockRes } from "@jest-mock/express";
-import { SessionTokenType } from "@typings/auth";
 import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
 import UserRepository from "@db/repositories/user-repository";
 import User from "@db/models/user";
+import TokenRepository from "@db/repositories/token-repository";
+import { Token } from "nodemailer/lib/xoauth2";
 
 jest.mock("pg");
 jest.mock("nodemailer");
@@ -52,7 +53,7 @@ describe("tests signup method", () => {
     jest.spyOn(bottle.container.AuthController, "sendVerificationEmail");
     jest.spyOn(bottle.container.DBClient.connectionPool, "connect").mockImplementation(() => mockPGPoolClient);
     jest.spyOn(UserRepository.prototype, "create").mockResolvedValue();
-    jest.spyOn(bottle.container.DBClient.objects.Token, "create");
+    jest.spyOn(TokenRepository.prototype, "create").mockResolvedValue();
 
     await bottle.container.AuthController.signup(req, res);
 
@@ -76,18 +77,13 @@ describe("tests signup method", () => {
     const verificationEmailCall = (bottle.container.AuthController.sendVerificationEmail as jest.Mock).mock.calls[0];
     expect(verificationEmailCall[0]).toStrictEqual(req);
     expect(verificationEmailCall[1]).toStrictEqual(newUser);
-    const verificationToken = verificationEmailCall[2];
+    const verificationToken = verificationEmailCall[2] as Token;
 
     expect(UserRepository.prototype.create).toHaveBeenCalledTimes(1);
     expect(UserRepository.prototype.create).toHaveBeenCalledWith(newUser);
 
-    expect(bottle.container.DBClient.objects.Token.create).toHaveBeenCalledTimes(1);
-    expect(bottle.container.DBClient.objects.Token.create).toHaveBeenCalledWith(
-      newUser.userId,
-      verificationToken,
-      SessionTokenType.Verification,
-      mockPGPoolClient
-    );
+    expect(TokenRepository.prototype.create).toHaveBeenCalledTimes(1);
+    expect(TokenRepository.prototype.create).toHaveBeenCalledWith(verificationToken);
 
     expect(mockPGPoolClient.query).toHaveBeenCalledWith("BEGIN");
     expect(mockPGPoolClient.query).toHaveBeenLastCalledWith("COMMIT");

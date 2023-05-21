@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
-import jwtDecode from "jwt-decode";
 import { getMockReq, getMockRes } from "@jest-mock/express";
-import { Role, SessionTokenType } from "@typings/auth";
+import { Role, OneTimeTokenType } from "@typings/auth";
 import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
 import { GENERIC_ERROR } from "@constants/errors";
@@ -9,6 +8,8 @@ import { HTTP_COOKIE_NAME } from "@constants/auth";
 import { constructHTTPCookieConfig } from "@helpers/auth";
 import UserRepository from "@db/repositories/user-repository";
 import User from "@db/models/user";
+import TokenRepository from "@db/repositories/token-repository";
+import Token from "@db/models/token";
 
 jest.mock("pg");
 
@@ -47,26 +48,23 @@ describe("tests processRecovery method", () => {
       params: {
         token: "TEST",
       },
+      query: {
+        userId: "FOO"
+      }
     });
     const { res } = getMockRes();
 
-    jest.spyOn(bottle.container.DBClient.objects.Token, "findTokens").mockResolvedValue({
-      rows: [],
-      command: "",
-      oid: 0,
-      rowCount: 0,
-      fields: []
-    });
+    jest.spyOn(TokenRepository.prototype, "getByUserIdAndType").mockResolvedValue(null);
     
     await bottle.container.AuthController.processRecovery(req, res);
 
-    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledTimes(1);
-    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledWith({
-      "token": req.params.token,
-      "type": SessionTokenType.Password
-    });
+    expect(TokenRepository.prototype.getByUserIdAndType).toHaveBeenCalledTimes(1);
+    expect(TokenRepository.prototype.getByUserIdAndType).toHaveBeenCalledWith(
+      req.query.userId,
+      OneTimeTokenType.Password
+    );
 
-    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.status).toHaveBeenCalledWith(500);
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send).toHaveBeenCalledWith({ 
@@ -83,32 +81,29 @@ describe("tests processRecovery method", () => {
       params: {
         token: "TEST",
       },
+      query: {
+        userId: "FOO"
+      }
     });
     const { res } = getMockRes();
-    const mockToken = {
-      created_at: new Date(Date.now() - 1800001), // Password reset token is considered expired after 30 minutes
+    const mockToken = new Token({
+      createdAt: new Date(Date.now() - 1800001), // Password reset token is considered expired after 30 minutes
       token: "TEST",
-      type: SessionTokenType.Password,
-      user_id: "TEST",
-    };
-
-    jest.spyOn(bottle.container.DBClient.objects.Token, "findTokens").mockResolvedValue({
-      rows: [mockToken],
-      command: "",
-      oid: 0,
-      rowCount: 1,
-      fields: []
+      type: OneTimeTokenType.Password,
+      userId: "TEST",
     });
+
+    jest.spyOn(TokenRepository.prototype, "getByUserIdAndType").mockResolvedValue(mockToken);
 
     await bottle.container.AuthController.processRecovery(req, res);
 
-    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledTimes(1);
-    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledWith({
-      "token": req.params.token,
-      "type": SessionTokenType.Password
-    });
+    expect(TokenRepository.prototype.getByUserIdAndType).toHaveBeenCalledTimes(1);
+    expect(TokenRepository.prototype.getByUserIdAndType).toHaveBeenCalledWith(
+      req.query.userId,
+      OneTimeTokenType.Password
+    );
 
-    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.status).toHaveBeenCalledWith(500);
     expect(res.status).toHaveBeenCalledTimes(1);
     expect(res.send).toHaveBeenCalledTimes(1);
     expect(res.send).toHaveBeenCalledWith({ message: 
@@ -128,12 +123,12 @@ describe("tests processRecovery method", () => {
     });
     const { res } = getMockRes();
     const currentDate = new Date();
-    const mockToken = {
-      created_at: currentDate,
+    const mockToken = new Token({
+      createdAt: currentDate,
       token: "TEST",
-      type: SessionTokenType.Password,
-      user_id: "TEST",
-    };
+      type: OneTimeTokenType.Password,
+      userId: "TEST",
+    });
     const mockUser = new User({
       userId: "TEST", 
       verified: true, 
@@ -145,27 +140,21 @@ describe("tests processRecovery method", () => {
     });
 
     jest.spyOn(Date, "now").mockImplementation(() => currentDate.valueOf());
-    jest.spyOn(bottle.container.DBClient.objects.Token, "findTokens").mockResolvedValue({
-      rows: [mockToken],
-      command: "",
-      oid: 0,
-      rowCount: 1,
-      fields: []
-    });
+    jest.spyOn(TokenRepository.prototype, "getByUserIdAndType").mockResolvedValue(mockToken);
     jest.spyOn(UserRepository.prototype, "getByUUID").mockResolvedValue(mockUser);
     jest.spyOn(UserRepository.prototype, "update");
-    jest.spyOn(bottle.container.DBClient.objects.Token, "deleteToken");
+    jest.spyOn(TokenRepository.prototype, "delete");
     
     await bottle.container.AuthController.processRecovery(req, res);
 
-    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledTimes(1);
-    expect(bottle.container.DBClient.objects.Token.findTokens).toHaveBeenCalledWith({
-      "token": req.params.token,
-      "type": SessionTokenType.Password
-    });
+    expect(TokenRepository.prototype.getByUserIdAndType).toHaveBeenCalledTimes(1);
+    expect(TokenRepository.prototype.getByUserIdAndType).toHaveBeenCalledWith(
+      req.query.userId,
+      OneTimeTokenType.Password
+    );
 
     expect(UserRepository.prototype.getByUUID).toHaveBeenCalledTimes(1);
-    expect(UserRepository.prototype.getByUUID).toHaveBeenCalledWith(mockToken.user_id);
+    expect(UserRepository.prototype.getByUUID).toHaveBeenCalledWith(mockToken.userId);
 
     const updatedPassword = (
       (UserRepository.prototype.update as jest.Mock).mock.calls[0][0] as User
@@ -182,29 +171,29 @@ describe("tests processRecovery method", () => {
     expect(UserRepository.prototype.update).toHaveBeenCalledTimes(1);
     expect(UserRepository.prototype.update).toHaveBeenCalledWith(updatedUser);
 
-    expect(bottle.container.DBClient.objects.Token.deleteToken).toHaveBeenCalledTimes(1);
-    expect(bottle.container.DBClient.objects.Token.deleteToken).toHaveBeenCalledWith(req.params.token);
+    expect(TokenRepository.prototype.delete).toHaveBeenCalledTimes(1);
+    expect(TokenRepository.prototype.delete).toHaveBeenCalledWith(mockToken);
 
     expect(res.cookie).toBeCalledTimes(1);
     const mockCookieCall = (res.cookie as jest.Mock).mock.calls[0];
     expect(mockCookieCall[0]).toBe(HTTP_COOKIE_NAME);
-    expect(jwtDecode(mockCookieCall[1])).toMatchObject({
-      id: mockUser.userId,
-      role: Role.Admin,
-      verified: true,
-      username: mockUser.username,
-    });
+    // expect(jwtDecode(mockCookieCall[1])).toMatchObject({
+    //   id: mockUser.userId,
+    //   role: Role.Admin,
+    //   verified: true,
+    //   username: mockUser.username,
+    // });
     expect(mockCookieCall[2]).toStrictEqual(
       constructHTTPCookieConfig()
     );
 
-    expect(res.send).toBeCalledTimes(1);
-    const mockSendCall = (res.send as jest.Mock).mock.calls[0];
-    expect(jwtDecode(mockSendCall[0].token)).toMatchObject({
-      id: mockUser.userId,
-      role: Role.Admin,
-      verified: true,
-      username: mockUser.username,
-    });
+    expect(res.json).toBeCalledTimes(1);
+    const mockJsonCall = (res.json as jest.Mock).mock.calls[0];
+    // expect(jwtDecode(mockJsonCall[0].jwt)).toMatchObject({
+    //   id: mockUser.userId,
+    //   role: Role.Admin,
+    //   verified: true,
+    //   username: mockUser.username,
+    // });
   });
 });

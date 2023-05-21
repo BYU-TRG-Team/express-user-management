@@ -1,29 +1,31 @@
 import bcrypt from "bcrypt";
 import { Logger } from "winston";
 import { Response, Request } from "express";
-import TokenHandler from "@support/token-handler";
 import SMTPClient from "@smtp-client";
 import DBClient from "@db";
-import { SessionTokenType } from "@typings/auth";
+import { OneTimeTokenType } from "@typings/auth";
 import User from "@db/models/user";
 import { LOGIN_AUTHENTICATION_ERROR, GENERIC_ERROR } from "@constants/errors";
 import { HTTP_COOKIE_NAME } from "@constants/auth";
-import { constructHTTPCookieConfig } from "@helpers/auth";
+import { constructHTTPCookieConfig, createHTTPCookie } from "@helpers/auth";
 import { PoolClient } from "pg";
 import { isError } from "@helpers/types";
 import UserRepository from "@db/repositories/user-repository";
+import TokenRepository from "@db/repositories/token-repository";
+import Token from "@db/models/token";
+import AuthConfig from "@configs/auth";
 
 class AuthController {
   private smtpClient_: SMTPClient;
-  private tokenHandler_: TokenHandler;
   private dbClient_: DBClient;
   private logger_: Logger;
+  private authConfig_: AuthConfig;
 
-  constructor(smtpClient: SMTPClient, tokenHandler: TokenHandler, dbClient: DBClient, logger: Logger) {
+  constructor(smtpClient: SMTPClient, dbClient: DBClient, logger: Logger, authConfig: AuthConfig) {
     this.smtpClient_ = smtpClient;
-    this.tokenHandler_ = tokenHandler;
     this.dbClient_ = dbClient;
     this.logger_ = logger;
+    this.authConfig_ = authConfig;
   }
 
   /*
@@ -56,37 +58,27 @@ class AuthController {
         });
       }
 
-      res.status(500).send({ message: GENERIC_ERROR });
-      return;
+      return res.status(500).send({ message: GENERIC_ERROR });
     }
 
     try {
       const userRepo = new UserRepository(dbTXNClient);
+      const tokenRepo = new TokenRepository(dbTXNClient);
+      
       const newUser = new User({
         password: hashedPassword,
         username,
         email,
         name,
       });
-      await userRepo.create(newUser);
+      const verificationToken = new Token({
+        userId: newUser.userId,
+        type: OneTimeTokenType.Verification
+      });
       
-      let emailVerificationToken;
-      while(emailVerificationToken === undefined) {
-        const shortToken = this.tokenHandler_.generateShortToken();
-
-        try {
-          await this.dbClient_.objects.Token.create(newUser.userId, shortToken, SessionTokenType.Verification, dbTXNClient);
-          emailVerificationToken = shortToken;
-        } catch(e: any) {
-          if (e.code === "23505") {
-            continue;
-          }
-
-          throw new Error(`Error creating a verification token. PG error code ${e.code}`);
-        }
-      }
-
-      await this.sendVerificationEmail(req, newUser, emailVerificationToken);
+      await userRepo.create(newUser);
+      await tokenRepo.create(verificationToken);
+      await this.sendVerificationEmail(req, newUser, verificationToken);
       await this.dbClient_.commitTransaction(dbTXNClient);
       res.status(204).send();
     } catch (err: any) {
@@ -136,13 +128,16 @@ class AuthController {
         return;
       }
 
-      const token = this.tokenHandler_.generateUserAuthToken(user);
+      const jwt = createHTTPCookie(
+        user,
+        this.authConfig_
+      );
       res.cookie(
         HTTP_COOKIE_NAME, 
-        token, 
+        jwt, 
         constructHTTPCookieConfig()
       );
-      res.json({ token });
+      res.json({ jwt });
     } catch (err: any) {
       this.logger_.log({
         level: "error",
@@ -174,32 +169,28 @@ class AuthController {
   */
   async verify(req: Request, res: Response) {
     const userRepo = new UserRepository(this.dbClient_.connectionPool);
+    const tokenRepo = new TokenRepository(this.dbClient_.connectionPool);
 
+    /*
+    * TODO: Remove use of userId query param. Replace with path param.
+    */
     try {
       // Find a matching token
-      const verifyTokenResponse = await this.dbClient_.objects.Token.findTokens({
-        "token": req.params.token,
-        "type": SessionTokenType.Verification
-      });
+      const verificationToken = await tokenRepo.getByUserIdAndType(
+        req.query.userId as string,
+        OneTimeTokenType.Verification
+      ); 
 
-      if (verifyTokenResponse.rows.length === 0) {
-        res.redirect("/login");
-        return;
-      }
+      if (verificationToken === null) return res.redirect("/login");
 
-      const verifyToken = verifyTokenResponse.rows[0];
-      
       // Find associated user
-      const user = await userRepo.getByUUID(verifyToken.user_id);
+      const user = await userRepo.getByUUID(verificationToken.userId);
 
-      if (user === null) {
-        res.status(500).send({ message: GENERIC_ERROR });
-        return;
-      }
+      if (user === null) return res.redirect("/login");
 
       user.verified = true;
       await userRepo.update(user);
-      await this.dbClient_.objects.Token.deleteToken(verifyToken.token);
+      await tokenRepo.delete(verificationToken);
 
       res.redirect("/login");
     } catch (err: any) {
@@ -207,7 +198,9 @@ class AuthController {
         level: "error",
         message: err,
       });
-      res.status(500).send({ message: GENERIC_ERROR });
+      res.status(500).send({ 
+        message: GENERIC_ERROR 
+      });
     }
   }
 
@@ -216,9 +209,26 @@ class AuthController {
   * @email
   */
   async recovery(req: Request, res: Response) {
-    const userRepo = new UserRepository(this.dbClient_.connectionPool);
+    let dbTXNClient: PoolClient;
 
     try {
+      dbTXNClient = await this.dbClient_.beginTransaction();
+    } catch (err) {
+      if (isError(err)) {
+        this.logger_.log({
+          level: "error",
+          message: err.message,
+        });
+      }
+
+      return res.status(500).send({ 
+        message: GENERIC_ERROR 
+      });
+    }
+
+    try {
+      const userRepo = new UserRepository(dbTXNClient);
+      const tokenRepo = new TokenRepository(dbTXNClient);
       const { email } = req.body;
 
       if (email === undefined) {
@@ -231,14 +241,32 @@ class AuthController {
         res.redirect("/recover/sent");
         return;
       }
+      
+      // Check if recovery token already exists
+      const currentRecoveryToken = await tokenRepo.getByUserIdAndType(
+        user.userId,
+        OneTimeTokenType.Password,
+      );
 
-      await this.sendPasswordResetEmail(req, user);
+      if (currentRecoveryToken !== null) {
+        await tokenRepo.delete(currentRecoveryToken);
+      }
+      
+      const recoveryToken = new Token({
+        userId: user.userId,
+        type: OneTimeTokenType.Password
+      });
+      await tokenRepo.create(recoveryToken);
+      await this.sendPasswordResetEmail(req, user, recoveryToken);
+      await this.dbClient_.commitTransaction(dbTXNClient);
       res.redirect("/recover/sent");
     } catch (err: any) {
       this.logger_.log({
         level: "error",
         message: err,
       });
+
+      await this.dbClient_.rollbackTransaction(dbTXNClient);
       res.status(500).send({ message: GENERIC_ERROR });
     }
   }
@@ -247,25 +275,30 @@ class AuthController {
   * GET api/auth/recovery/verify/:token
   */
   async verifyRecovery(req: Request, res: Response) {
+    const tokenRepo = new TokenRepository(this.dbClient_.connectionPool);
+    /*
+    * TODO: Remove use of userId query param. Replace with path param.
+    */
     try {
-      const tokenResponse = await this.dbClient_.objects.Token.findTokens({
-        "token": req.params.token,
-        "type": SessionTokenType.Password
-      });
+      const recoveryToken = await tokenRepo.getByUserIdAndType(
+        req.query.userId as string,
+        OneTimeTokenType.Password
+      ); 
 
-      if (tokenResponse.rows.length === 0) {
-        res.status(400).send({ message: GENERIC_ERROR });
-        return;
+      if (recoveryToken === null) {
+        return res.status(500).send({ 
+          message: GENERIC_ERROR 
+        });
       }
 
-      const token = tokenResponse.rows[0];
-
-      if (this.tokenHandler_.isPasswordTokenExpired(token)) {
-        res.status(400).send({ message: GENERIC_ERROR });
-        return;
+      if (recoveryToken.isExpired()) {
+        await tokenRepo.delete(recoveryToken);
+        return res.status(500).send({ 
+          message: GENERIC_ERROR 
+        });
       }
 
-      res.redirect(`/recover/${req.params.token}`);
+      res.redirect(`/recover/${req.params.token}?userId=${req.query.userId}`);
     } catch (err: any) {
       this.logger_.log({
         level: "error",
@@ -280,6 +313,7 @@ class AuthController {
   */
   async processRecovery(req: Request, res: Response) {
     const userRepo = new UserRepository(this.dbClient_.connectionPool);
+    const tokenRepo = new TokenRepository(this.dbClient_.connectionPool);
     const { password } = req.body;
 
     if (password === undefined) {
@@ -287,41 +321,50 @@ class AuthController {
       return;
     }
 
+    /*
+    * TODO: Remove use of userId query param. Replace with path param.
+    */
     try {
-      const tokenResponse = await this.dbClient_.objects.Token.findTokens({
-        "token": req.params.token,
-        "type": SessionTokenType.Password
-      });
-      if (tokenResponse.rows.length === 0) {
-        res.status(400).send({ message: GENERIC_ERROR });
-        return;
+      const recoveryToken = await tokenRepo.getByUserIdAndType(
+        req.query.userId as string,
+        OneTimeTokenType.Password
+      );
+      if (recoveryToken === null) {
+        return res.status(500).send({ 
+          message: GENERIC_ERROR 
+        });
       }
 
-      const token = tokenResponse.rows[0];
-      if (this.tokenHandler_.isPasswordTokenExpired(token)) {
-        res.status(400).send({ message: GENERIC_ERROR });
-        return;
+      if (recoveryToken.isExpired()) {
+        await tokenRepo.delete(recoveryToken);
+        return res.status(500).send({ 
+          message: GENERIC_ERROR 
+        });
       }
 
-      const user = await userRepo.getByUUID(token.user_id);
+      const user = await userRepo.getByUUID(recoveryToken.userId);
       if (user === null) {
-        res.status(500).send({ message: GENERIC_ERROR });
-        return;
+        return res.status(500).send({ 
+          message: GENERIC_ERROR 
+        });
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
       
       user.password = hashedPassword;
       await userRepo.update(user);
-      await this.dbClient_.objects.Token.deleteToken(req.params.token);
+      await tokenRepo.delete(recoveryToken);
       
-      const authToken = this.tokenHandler_.generateUserAuthToken(user);
+      const jwt = createHTTPCookie(
+        user,
+        this.authConfig_
+      );
       res.cookie(
         HTTP_COOKIE_NAME, 
-        authToken, 
+        jwt, 
         constructHTTPCookieConfig()
       );
-      res.send({ token: authToken });
+      res.json({ jwt });
     } catch (err: any) {
       this.logger_.log({
         level: "error",
@@ -331,8 +374,8 @@ class AuthController {
     }
   }
 
-  sendVerificationEmail(req: Request, user: User, token: string) {
-    const link = `http://${req.headers.host}/api/auth/verify/${token}`;
+  sendVerificationEmail(req: Request, user: User, token: Token) {
+    const link = `http://${req.headers.host}/api/auth/verify/${token.token}?userId=${user.userId}`;
     const emailOptions = {
       subject: "Account Verification Request",
       to: user.email,
@@ -345,25 +388,8 @@ class AuthController {
     return this.smtpClient_.sendEmail(emailOptions);
   }
 
-  async sendPasswordResetEmail(req: Request, user: User) {
-    let resetPasswordToken: string | undefined;
-
-    while(resetPasswordToken === undefined) {
-      const shortToken = this.tokenHandler_.generateShortToken();
-
-      try {
-        await this.dbClient_.objects.Token.create(user.userId, shortToken, SessionTokenType.Password);
-        resetPasswordToken = shortToken;
-      } catch(e: any) {
-        if (e.code === 23505) {
-          continue;
-        }
-
-        throw new Error(`Error creating a verification token. PG error code ${e.code}`);
-      }
-    }
-
-    const link = `http://${req.headers.host}/api/auth/recovery/verify/${resetPasswordToken}`;
+  async sendPasswordResetEmail(req: Request, user: User, token: Token) {
+    const link = `http://${req.headers.host}/api/auth/recovery/verify/${token.token}?userId=${user.userId}`;
     const emailOptions = {
       subject: "Password Recovery Request",
       to: user.email,

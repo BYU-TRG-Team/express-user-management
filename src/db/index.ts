@@ -1,19 +1,10 @@
 import pg, { PoolConfig, PoolClient } from "pg";
-import Token from "@db/token";
-
-type DBObjects = {
-  Token: Token;
-}
 
 class DBClient {
   public connectionPool: pg.Pool;
-  public objects: DBObjects;
 
   constructor(dbClientConfig: PoolConfig) { 
     this.connectionPool = new pg.Pool(dbClientConfig);
-    this.objects = {
-      Token: new Token(this.connectionPool),
-    };
   }
 
   /**

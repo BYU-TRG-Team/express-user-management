@@ -1,7 +1,7 @@
 import { Role } from "@typings/auth";
 import { UUID } from "@typings";
 
-export type UserSchema = {
+export interface UserSchema {
   user_id: UUID;
   username: string;
   verified: boolean;
@@ -9,4 +9,11 @@ export type UserSchema = {
   email: string;
   name: string;
   role_id: Role;
+}
+
+export interface TokenSchema {
+  token: string;
+  user_id: UUID;
+  type: string;
+  created_at: Date;
 }
