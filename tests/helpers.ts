@@ -3,7 +3,8 @@ import { TEST_DB_CONNECTION_URL } from "@tests/constants";
 import { faker } from "@faker-js/faker";
 import pg from "pg";
 import Token from "@db/models/token";
-import { OneTimeTokenType } from "@";
+import { HTTPCookieJWTPayload, OneTimeTokenType, Role } from "@typings/auth";
+import { v4 as uuid } from "uuid";
 
 /**
  * Constructs a pg client and starts a connection with the database dictated by TEST_DB_CONNECTION_URL
@@ -104,4 +105,18 @@ export const generateTestToken = async (
   }
 
   return token;
+};
+
+/**
+ * Generates a payload for the HTTP Cookie JWT using fake data
+ */
+export const generateHTTPCookieJWTPayload = () => {
+  const payload: HTTPCookieJWTPayload = {
+    id: uuid(),
+    role: Role.Admin,
+    verified: true,
+    username: faker.internet.userName()
+  };
+
+  return payload;
 };

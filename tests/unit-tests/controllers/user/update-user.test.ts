@@ -14,7 +14,7 @@ describe("tests updateUser method", () => {
   });
 
   test("should update the user profile once with username, email, name, and password", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         username: "TEST",
@@ -66,7 +66,7 @@ describe("tests updateUser method", () => {
   });
 
   test("should update the user profile once with username, email, name, password, and roleId", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const req = getMockReq({
       body: {
         username: "TEST",

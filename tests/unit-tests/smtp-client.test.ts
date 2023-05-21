@@ -8,7 +8,7 @@ describe("tests SMTPClient", () => {
   });
 
   test("should invoke a the sendMail nodemailer transporter method with the supplied options plus the SMTPClient's sender address", async () => {
-    const bottle = constructBottle(mockConstants.MOCK_INIT_OPTIONS);
+    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
     const mailOptions = {
       subject: "TEST",
       to: "FOO",
@@ -21,7 +21,7 @@ describe("tests SMTPClient", () => {
     expect(Mail.prototype.sendMail).toHaveBeenCalledTimes(1);
     expect(Mail.prototype.sendMail).toHaveBeenCalledWith({
       ...mailOptions,
-      from: mockConstants.MOCK_INIT_OPTIONS.smtpConfig.email
+      from: mockConstants.TEST_INIT_OPTIONS.smtpConfig.email
     });
   });
 });
