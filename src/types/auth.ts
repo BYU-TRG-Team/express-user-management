@@ -23,7 +23,3 @@ export interface OneTimeTokenJWTPayload {
   type: OneTimeTokenType,
   userId: UUID
 }
-
-export interface AuthConfig {
-  httpCookieSecret: string;
-}

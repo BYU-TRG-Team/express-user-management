@@ -6,7 +6,6 @@ import DBClient from "@db";
 import { OneTimeTokenType } from "@typings/auth";
 import User from "@db/models/user";
 import { LOGIN_AUTHENTICATION_ERROR, GENERIC_ERROR } from "@constants/errors";
-import { HTTP_COOKIE_NAME } from "@constants/auth";
 import { constructHTTPCookieConfig, createHTTPCookie } from "@helpers/auth";
 import { PoolClient } from "pg";
 import { isError } from "@helpers/types";
@@ -133,7 +132,7 @@ class AuthController {
         this.authConfig_
       );
       res.cookie(
-        HTTP_COOKIE_NAME, 
+        this.authConfig_.httpCookieName, 
         jwt, 
         constructHTTPCookieConfig()
       );
@@ -153,7 +152,7 @@ class AuthController {
 
   logout(_req: Request, res: Response) {
     try {
-      res.clearCookie(HTTP_COOKIE_NAME, { path: "/" }).send();
+      res.clearCookie(this.authConfig_.httpCookieName, { path: "/" }).send();
       return;
     } catch (err: any) {
       this.logger_.log({
@@ -360,7 +359,7 @@ class AuthController {
         this.authConfig_
       );
       res.cookie(
-        HTTP_COOKIE_NAME, 
+        this.authConfig_.httpCookieName, 
         jwt, 
         constructHTTPCookieConfig()
       );

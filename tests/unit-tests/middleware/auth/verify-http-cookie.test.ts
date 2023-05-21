@@ -1,22 +1,21 @@
 import jwt from "jsonwebtoken";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 import { verifyHTTPCookie } from "@middleware/auth";
-import { TEST_AUTH_SECRET } from "@tests/constants";
-import { HTTP_COOKIE_NAME } from "@constants/auth";
 import { generateHTTPCookieJWTPayload } from "@tests/helpers";
+import { TEST_AUTH_CONFIG } from "@tests/constants";
 
 describe("tests verifyHTTPCookie middleware", () => {  
   test("should verify a valid JWT", () => {
     const payload = generateHTTPCookieJWTPayload();
-    const token = jwt.sign(payload, TEST_AUTH_SECRET);
+    const token = jwt.sign(payload, TEST_AUTH_CONFIG.httpCookieSecret);
     const req = getMockReq({
       cookies: {
-        [HTTP_COOKIE_NAME]: token
+        [TEST_AUTH_CONFIG.httpCookieName]: token
       },
     });
     const { res, next } = getMockRes();
     
-    verifyHTTPCookie(TEST_AUTH_SECRET)(req, res, next);
+    verifyHTTPCookie(TEST_AUTH_CONFIG)(req, res, next);
 
     expect(next).toHaveBeenCalledTimes(1);
     expect(req.userId).toStrictEqual(payload.id);
@@ -26,15 +25,15 @@ describe("tests verifyHTTPCookie middleware", () => {
 
   test("should reject an invalid JWT", () => {
     const payload = generateHTTPCookieJWTPayload();
-    const token = jwt.sign(payload, `${TEST_AUTH_SECRET}_FOO`);
+    const token = jwt.sign(payload, `${TEST_AUTH_CONFIG.httpCookieSecret}_FOO`);
     const req = getMockReq({
       cookies: {
-        [HTTP_COOKIE_NAME]: token
+        [TEST_AUTH_CONFIG.httpCookieName]: token
       },
     });
     const { res, next } = getMockRes();
     
-    verifyHTTPCookie(TEST_AUTH_SECRET)(req, res, next);
+    verifyHTTPCookie(TEST_AUTH_CONFIG)(req, res, next);
 
     expect(next).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledTimes(1);

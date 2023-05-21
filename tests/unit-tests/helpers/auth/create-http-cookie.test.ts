@@ -1,12 +1,10 @@
 import { HTTPCookieJWTPayload } from "@";
-import AuthConfig from "@configs/auth";
 import User from "@db/models/user";
 import { createHTTPCookie } from "@helpers/auth";
-import { TEST_AUTH_SECRET } from "@tests/constants";
 import { generateTestUser } from "@tests/helpers";
 import jwt from "jsonwebtoken";
+import { TEST_AUTH_CONFIG } from "@tests/constants";
 
-const authConfig = new AuthConfig(TEST_AUTH_SECRET);
 let user: User;
 
 describe("tests createHTTPCookie method", () => {
@@ -24,9 +22,9 @@ describe("tests createHTTPCookie method", () => {
       username: user.username,
     };
 
-    const token = createHTTPCookie(user, authConfig);
+    const token = createHTTPCookie(user, TEST_AUTH_CONFIG);
     
-    const payload = jwt.verify(token, authConfig.httpCookieSecret);
+    const payload = jwt.verify(token, TEST_AUTH_CONFIG.httpCookieSecret);
     expect(payload).toMatchObject(expectedPayload);
   });
 });
