@@ -1,11 +1,14 @@
 __mocks__/
 tests/
+test-runners/
 coverage/
 .github/
 .husky/
 src/
 .eslintrc
 .gitignore
+.npmignore
+Dockerfile
 jest.config.json
 tsconfig.commonjs.json
 tsconfig.json
