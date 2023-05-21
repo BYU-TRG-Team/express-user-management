@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import { Logger } from "winston";
 import { Request, Response } from "express";
-import DB from "@db";
+import DB from "@db-client";
 import { Role } from "@typings/auth";
 import { RESOURCE_NOT_FOUND_ERROR, GENERIC_ERROR, AUTHORIZATION_ERROR } from "@constants/errors";
 import { constructHTTPCookieConfig, createHTTPCookie } from "@helpers/auth";

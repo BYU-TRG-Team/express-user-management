@@ -1,5 +1,5 @@
 import { InitOptions } from "@typings/library";
-import Database from "@db";
+import DBClient from "@db-client";
 import AuthController from "@controllers/auth";
 import UserController from "@controllers/user";
 import Bottle from "bottlejs";
@@ -17,7 +17,7 @@ export default function constructBottle(initOptions: InitOptions): Bottle {
   bottle.factory("Logger", () => logger);
   bottle.factory("AuthConfig", () => authConfig);
   bottle.factory("SMTPClient", () => new SMTPClient(smtpConfig));
-  bottle.factory("DBClient", () => new Database(dbConfig));
+  bottle.factory("DBClient", () => new DBClient(dbConfig));
   bottle.service(
     "AuthController", 
     AuthController, 

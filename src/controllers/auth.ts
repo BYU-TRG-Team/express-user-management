@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { Logger } from "winston";
 import { Response, Request } from "express";
 import SMTPClient from "@smtp-client";
-import DBClient from "@db";
+import DBClient from "@db-client";
 import { OneTimeTokenType } from "@typings/auth";
 import User from "@db/models/user";
 import { LOGIN_AUTHENTICATION_ERROR, GENERIC_ERROR } from "@constants/errors";
