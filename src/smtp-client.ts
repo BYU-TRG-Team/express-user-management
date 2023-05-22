@@ -1,20 +1,24 @@
-import { SMTPClientConfig } from "@typings/smtp";
+import Email from "@emails/email";
+import SMTPConfig from "@configs/smtp";
 import nodemailer from "nodemailer";
 
 class SMTPClient {
   private transporter_: nodemailer.Transporter;
   private senderAddress_: string;
 
-  constructor(smtpClientConfig: SMTPClientConfig) {
-    this.transporter_ = nodemailer.createTransport(
-      smtpClientConfig.transporterConfig
-    );
-    this.senderAddress_ = smtpClientConfig.email;
+  constructor(smtpConfig: SMTPConfig) {
+    const {
+      transporterConfig,
+      senderAddress
+    } = smtpConfig;
+
+    this.transporter_ = nodemailer.createTransport(transporterConfig);
+    this.senderAddress_ = senderAddress;
   }
 
-  async sendEmail(options: nodemailer.SendMailOptions): Promise<void> {
+  async sendEmail(email: Email): Promise<void> {
     return await this.transporter_.sendMail({
-      ...options,
+      ...email.mailOptions,
       from: this.senderAddress_,
     });
   }

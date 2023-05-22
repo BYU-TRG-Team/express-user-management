@@ -27,6 +27,7 @@
     "^@constants/(.*)$": "<rootDir>/src/constants/$1",
     "^@controllers/(.*)$": "<rootDir>/src/controllers/$1",
     "^@db/(.*)$": "<rootDir>/src/db/$1",
+    "^@emails/(.*)$": "<rootDir>/src/emails/$1",
     "^@bottle$": "<rootDir>/src/bottle",
     "^@helpers/(.*)$": "<rootDir>/src/helpers/$1",
     "^@routes/(.*)$": "<rootDir>/src/routes/$1"

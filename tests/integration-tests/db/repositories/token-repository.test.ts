@@ -1,5 +1,5 @@
-import { createTestDbClient, generateTestToken } from "@tests/helpers";
-import { resetTestDb } from "@tests/helpers";
+import { generateTestToken } from "@tests/helpers/token";
+import { resetTestDb, createTestDbClient } from "@tests/helpers/db";
 import { Client } from "pg";
 import TokenRepository from "@db/repositories/token";
 import { generateOneTimeToken } from "@helpers/auth";

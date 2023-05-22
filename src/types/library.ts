@@ -1,10 +1,10 @@
 import { PoolConfig } from "pg";
 import { Logger } from "winston";
-import { SMTPClientConfig } from "@typings/smtp";
 import AuthConfig from "@configs/auth";
+import SMTPConfig from "@configs/smtp";
 
 export type InitOptions = {
-  smtpConfig: SMTPClientConfig;
+  smtpConfig: SMTPConfig;
   authConfig: AuthConfig;
   dbConfig: PoolConfig;
   logger: Logger;

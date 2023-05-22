@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 import { verifyHTTPCookie } from "@middleware/auth";
-import { generateHTTPCookieJWTPayload } from "@tests/helpers";
+import { generateHTTPCookieJWTPayload } from "@tests/helpers/auth";
 import { TEST_AUTH_CONFIG } from "@tests/constants";
 
 describe("tests verifyHTTPCookie middleware", () => {  

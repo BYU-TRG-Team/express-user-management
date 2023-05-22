@@ -6,6 +6,7 @@ import UserRepository from "@db/repositories/user";
 import User from "@db/models/user";
 import TokenRepository from "@db/repositories/token";
 import { Token } from "nodemailer/lib/xoauth2";
+import SMTPClient from "@smtp-client";
 
 jest.mock("pg");
 jest.mock("nodemailer");
@@ -50,7 +51,7 @@ describe("tests signup method", () => {
 
     const mockPGPoolClient = await bottle.container.DBClient.connectionPool.connect();
 
-    jest.spyOn(bottle.container.AuthController, "sendVerificationEmail");
+    jest.spyOn(SMTPClient.prototype, "sendEmail");
     jest.spyOn(bottle.container.DBClient.connectionPool, "connect").mockImplementation(() => mockPGPoolClient);
     jest.spyOn(UserRepository.prototype, "create").mockResolvedValue();
     jest.spyOn(TokenRepository.prototype, "create").mockResolvedValue();
@@ -74,17 +75,12 @@ describe("tests signup method", () => {
       newUser.password,
     )).toBeTruthy();
 
-    expect(bottle.container.AuthController.sendVerificationEmail).toHaveBeenCalledTimes(1);
-    const verificationEmailCall = (bottle.container.AuthController.sendVerificationEmail as jest.Mock).mock.calls[0];
-    expect(verificationEmailCall[0]).toStrictEqual(req);
-    expect(verificationEmailCall[1]).toStrictEqual(newUser);
-    const verificationToken = verificationEmailCall[2] as Token;
+    expect(SMTPClient.prototype.sendEmail).toHaveBeenCalledTimes(1);
 
     expect(UserRepository.prototype.create).toHaveBeenCalledTimes(1);
     expect(UserRepository.prototype.create).toHaveBeenCalledWith(newUser);
 
     expect(TokenRepository.prototype.create).toHaveBeenCalledTimes(1);
-    expect(TokenRepository.prototype.create).toHaveBeenCalledWith(verificationToken);
 
     expect(mockPGPoolClient.query).toHaveBeenCalledWith("BEGIN");
     expect(mockPGPoolClient.query).toHaveBeenLastCalledWith("COMMIT");

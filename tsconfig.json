@@ -49,6 +49,9 @@
       "@db/*": [
         "./src/db/*"
       ],
+      "@emails/*": [
+        "./src/emails/*"
+      ],
       "@bottle": [
         "./src/bottle"
       ],
