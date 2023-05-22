@@ -3,7 +3,7 @@ import { getMockReq, getMockRes } from "@jest-mock/express";
 import { Role } from "@typings/auth";
 import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
-import UserRepository from "@db/repositories/user-repository";
+import UserRepository from "@db/repositories/user";
 import User from "@db/models/user";
 
 jest.mock("pg");

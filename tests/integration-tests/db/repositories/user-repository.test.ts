@@ -1,5 +1,5 @@
 import { createTestDbClient } from "@tests/helpers";
-import UserRepository from "@db/repositories/user-repository";
+import UserRepository from "@db/repositories/user";
 import { resetTestDb, generateTestUser } from "@tests/helpers";
 import { Client } from "pg";
 

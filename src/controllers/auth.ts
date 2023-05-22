@@ -9,8 +9,8 @@ import { LOGIN_AUTHENTICATION_ERROR, GENERIC_ERROR } from "@constants/errors";
 import { constructHTTPCookieConfig, createHTTPCookie } from "@helpers/auth";
 import { PoolClient } from "pg";
 import { isError } from "@helpers/types";
-import UserRepository from "@db/repositories/user-repository";
-import TokenRepository from "@db/repositories/token-repository";
+import UserRepository from "@db/repositories/user";
+import TokenRepository from "@db/repositories/token";
 import Token from "@db/models/token";
 import AuthConfig from "@configs/auth";
 

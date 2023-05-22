@@ -2,7 +2,7 @@ import { getMockReq, getMockRes } from "@jest-mock/express";
 import { OneTimeTokenType } from "@typings/auth";
 import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
-import TokenRepository from "@db/repositories/token-repository";
+import TokenRepository from "@db/repositories/token";
 import Token from "@db/models/token";
 
 jest.mock("pg");

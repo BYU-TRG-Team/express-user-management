@@ -2,9 +2,9 @@ import { getMockReq, getMockRes } from "@jest-mock/express";
 import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
 import { Role } from "@typings/auth";
-import UserRepository from "@db/repositories/user-repository";
+import UserRepository from "@db/repositories/user";
 import User from "@db/models/user";
-import TokenRepository from "@db/repositories/token-repository";
+import TokenRepository from "@db/repositories/token";
 
 jest.mock("pg");
 jest.mock("nodemailer");
