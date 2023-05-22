@@ -1,27 +1,30 @@
-import constructBottle from "@bottle";
-import * as mockConstants from "@tests/constants";
+import Email from "@emails/email";
+import SMTPClient from "@smtp-client";
+import { TEST_SMTP_CONFIG } from "@tests/constants";
+import { generateTestEmail } from "@tests/helpers/smtp";
 import Mail from "nodemailer/lib/mailer";
 
+let testEmail: Email;
+
 describe("tests SMTPClient", () => {
+  beforeAll(async () => {
+    testEmail = await generateTestEmail();
+  });
+
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   test("should invoke a the sendMail nodemailer transporter method with the supplied options plus the SMTPClient's sender address", async () => {
-    const bottle = constructBottle(mockConstants.TEST_INIT_OPTIONS);
-    const mailOptions = {
-      subject: "TEST",
-      to: "FOO",
-      html: "<p>BAR</p>",
-    };
-
+    const smtpClient = new SMTPClient(TEST_SMTP_CONFIG);
     jest.spyOn(Mail.prototype, "sendMail");
-    await bottle.container.SMTPClient.sendEmail(mailOptions);
+
+    smtpClient.sendEmail(testEmail);
 
     expect(Mail.prototype.sendMail).toHaveBeenCalledTimes(1);
     expect(Mail.prototype.sendMail).toHaveBeenCalledWith({
-      ...mailOptions,
-      from: mockConstants.TEST_INIT_OPTIONS.smtpConfig.email
+      ...testEmail.mailOptions,
+      from: TEST_SMTP_CONFIG.senderAddress
     });
   });
 });

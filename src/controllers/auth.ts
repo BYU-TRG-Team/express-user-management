@@ -13,6 +13,8 @@ import UserRepository from "@db/repositories/user";
 import TokenRepository from "@db/repositories/token";
 import Token from "@db/models/token";
 import AuthConfig from "@configs/auth";
+import VerificationEmail from "@emails/verification";
+import PasswordResetEmail from "@emails/password-reset";
 
 class AuthController {
   private smtpClient_: SMTPClient;
@@ -77,7 +79,13 @@ class AuthController {
       
       await userRepo.create(newUser);
       await tokenRepo.create(verificationToken);
-      await this.sendVerificationEmail(req, newUser, verificationToken);
+
+      const verificationEmail = new VerificationEmail({
+        req,
+        user: newUser,
+        token: verificationToken
+      });
+      await this.smtpClient_.sendEmail(verificationEmail);
       await this.dbClient_.commitTransaction(dbTXNClient);
       res.status(204).send();
     } catch (err: any) {
@@ -256,7 +264,13 @@ class AuthController {
         type: OneTimeTokenType.Password
       });
       await tokenRepo.create(recoveryToken);
-      await this.sendPasswordResetEmail(req, user, recoveryToken);
+
+      const passwordResetEmail = new PasswordResetEmail({
+        req,
+        user,
+        token: recoveryToken
+      });
+      await this.smtpClient_.sendEmail(passwordResetEmail);
       await this.dbClient_.commitTransaction(dbTXNClient);
       res.redirect("/recover/sent");
     } catch (err: any) {
@@ -371,34 +385,6 @@ class AuthController {
       });
       res.status(500).send({ message: GENERIC_ERROR });
     }
-  }
-
-  sendVerificationEmail(req: Request, user: User, token: Token) {
-    const link = `http://${req.headers.host}/api/auth/verify/${token.token}?userId=${user.userId}`;
-    const emailOptions = {
-      subject: "Account Verification Request",
-      to: user.email,
-      html: `
-      <p>Hi ${user.username},</p>
-      <p>Please visit this <a href="${link}">link</a> to verify your account.</p> 
-      <p>If you did not request this, please ignore this email.</p>`,
-    };
-
-    return this.smtpClient_.sendEmail(emailOptions);
-  }
-
-  async sendPasswordResetEmail(req: Request, user: User, token: Token) {
-    const link = `http://${req.headers.host}/api/auth/recovery/verify/${token.token}?userId=${user.userId}`;
-    const emailOptions = {
-      subject: "Password Recovery Request",
-      to: user.email,
-      html: `
-      <p>Hi ${user.username},</p>
-      <p>Please visit this <a href="${link}">link</a> to reset your password.</p> 
-      <p>If you did not request this, please ignore this email.</p>`,
-    };
-
-    return this.smtpClient_.sendEmail(emailOptions);
   }
 }
 

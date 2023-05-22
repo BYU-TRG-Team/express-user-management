@@ -1,7 +1,7 @@
 import { HTTPCookieJWTPayload } from "@";
 import User from "@db/models/user";
 import { createHTTPCookie } from "@helpers/auth";
-import { generateTestUser } from "@tests/helpers";
+import { generateTestUser } from "@tests/helpers/user";
 import jwt from "jsonwebtoken";
 import { TEST_AUTH_CONFIG } from "@tests/constants";
 

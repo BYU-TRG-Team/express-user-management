@@ -5,6 +5,7 @@ import { Role } from "@typings/auth";
 import UserRepository from "@db/repositories/user";
 import User from "@db/models/user";
 import TokenRepository from "@db/repositories/token";
+import SMTPClient from "@smtp-client";
 
 jest.mock("pg");
 jest.mock("nodemailer");
@@ -41,14 +42,14 @@ describe("tests recovery method", () => {
     const { res } = getMockRes();
 
     jest.spyOn(UserRepository.prototype, "getByEmail").mockResolvedValue(null);
-    jest.spyOn(bottle.container.AuthController, "sendPasswordResetEmail");
+    jest.spyOn(SMTPClient.prototype, "sendEmail");
 
     await bottle.container.AuthController.recovery(req, res);
 
     expect(UserRepository.prototype.getByEmail).toHaveBeenCalledTimes(1);
     expect(UserRepository.prototype.getByEmail).toHaveBeenCalledWith(req.body.email);
 
-    expect(bottle.container.AuthController.sendPasswordResetEmail).toHaveBeenCalledTimes(0);
+    expect(SMTPClient.prototype.sendEmail).toHaveBeenCalledTimes(0);
 
     expect(res.redirect).toHaveBeenCalledTimes(1);
     expect(res.redirect).toHaveBeenCalledWith("/recover/sent");
@@ -73,7 +74,7 @@ describe("tests recovery method", () => {
     });
 
     jest.spyOn(UserRepository.prototype, "getByEmail").mockResolvedValue(mockUser);
-    jest.spyOn(bottle.container.AuthController, "sendPasswordResetEmail");
+    jest.spyOn(SMTPClient.prototype, "sendEmail");
     jest.spyOn(TokenRepository.prototype, "getByUserIdAndType").mockResolvedValue(null);
     jest.spyOn(UserRepository.prototype, "create").mockResolvedValue();
 
@@ -82,7 +83,7 @@ describe("tests recovery method", () => {
     expect(UserRepository.prototype.getByEmail).toHaveBeenCalledTimes(1);
     expect(UserRepository.prototype.getByEmail).toHaveBeenCalledWith(req.body.email);
 
-    expect(bottle.container.AuthController.sendPasswordResetEmail).toHaveBeenCalledTimes(1);
+    expect(SMTPClient.prototype.sendEmail).toHaveBeenCalledTimes(1);
     expect(res.redirect).toHaveBeenCalledTimes(1);
     expect(res.redirect).toHaveBeenCalledWith("/recover/sent");
   });

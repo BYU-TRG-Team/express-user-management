@@ -1,6 +1,6 @@
-import { createTestDbClient } from "@tests/helpers";
+import { createTestDbClient, resetTestDb } from "@tests/helpers/db";
 import UserRepository from "@db/repositories/user";
-import { resetTestDb, generateTestUser } from "@tests/helpers";
+import { generateTestUser } from "@tests/helpers/user";
 import { Client } from "pg";
 
 jest.unmock("pg");
