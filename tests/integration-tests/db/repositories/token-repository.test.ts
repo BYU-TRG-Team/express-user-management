@@ -1,7 +1,7 @@
 import { createTestDbClient, generateTestToken } from "@tests/helpers";
 import { resetTestDb } from "@tests/helpers";
 import { Client } from "pg";
-import TokenRepository from "@db/repositories/token-repository";
+import TokenRepository from "@db/repositories/token";
 import { generateOneTimeToken } from "@helpers/auth";
 
 jest.unmock("pg");

@@ -5,7 +5,7 @@ import { Role } from "@typings/auth";
 import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
 import { constructHTTPCookieConfig } from "@helpers/auth";
-import UserRepository from "@db/repositories/user-repository";
+import UserRepository from "@db/repositories/user";
 import User from "@db/models/user";
 
 jest.mock("pg");

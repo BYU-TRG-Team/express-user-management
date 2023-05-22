@@ -2,9 +2,9 @@ import bcrypt from "bcrypt";
 import { getMockReq, getMockRes } from "@jest-mock/express";
 import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
-import UserRepository from "@db/repositories/user-repository";
+import UserRepository from "@db/repositories/user";
 import User from "@db/models/user";
-import TokenRepository from "@db/repositories/token-repository";
+import TokenRepository from "@db/repositories/token";
 import { Token } from "nodemailer/lib/xoauth2";
 
 jest.mock("pg");

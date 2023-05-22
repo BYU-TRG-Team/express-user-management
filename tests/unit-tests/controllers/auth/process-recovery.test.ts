@@ -5,9 +5,9 @@ import constructBottle from "@bottle";
 import * as mockConstants from "@tests/constants";
 import { GENERIC_ERROR } from "@constants/errors";
 import { constructHTTPCookieConfig } from "@helpers/auth";
-import UserRepository from "@db/repositories/user-repository";
+import UserRepository from "@db/repositories/user";
 import User from "@db/models/user";
-import TokenRepository from "@db/repositories/token-repository";
+import TokenRepository from "@db/repositories/token";
 import Token from "@db/models/token";
 
 jest.mock("pg");

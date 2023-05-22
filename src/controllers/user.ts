@@ -5,7 +5,7 @@ import DB from "@db-client";
 import { Role } from "@typings/auth";
 import { RESOURCE_NOT_FOUND_ERROR, GENERIC_ERROR, AUTHORIZATION_ERROR } from "@constants/errors";
 import { constructHTTPCookieConfig, createHTTPCookie } from "@helpers/auth";
-import UserRepository from "@db/repositories/user-repository";
+import UserRepository from "@db/repositories/user";
 import AuthConfig from "@configs/auth";
 
 class UserController {
