@@ -21,3 +21,5 @@ const init = (app: Express, initOptions: InitOptions) => {
 export default init;
 export * from "@middleware/auth";
 export * from "@typings/auth";
+export { default as AuthConfig } from "@configs/auth";
+export { default as SMTPConfig } from "@configs/smtp";

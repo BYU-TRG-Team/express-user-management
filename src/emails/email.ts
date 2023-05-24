@@ -1,7 +1,9 @@
-import { SendMailOptions } from "nodemailer";
+import { EmailTemplate, EmailTemplateLocals } from "@typings/smtp";
 
 abstract class Email {
-  abstract mailOptions(): SendMailOptions
+  abstract get template(): EmailTemplate;
+  abstract get recipient(): string;
+  abstract get locals(): EmailTemplateLocals
 }
 
 export default Email;
