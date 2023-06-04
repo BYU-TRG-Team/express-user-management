@@ -9,12 +9,15 @@ class SMTPClient {
     this.smtpConfig_ = smtpConfig;
   }
 
+  /**
+   * Renders an email using the configured template and sends the email using a nodemailer transport
+   */
   async sendEmail(email: Email): Promise<void> {
     const renderedEmail = new EmailRenderer({
       message: {
         from: this.smtpConfig_.senderAddress
       },
-      transport: this.smtpConfig_.transporterConfig,
+      transport: this.smtpConfig_.transportConfig,
     });
 
     await renderedEmail.send({
