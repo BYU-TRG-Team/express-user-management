@@ -9,7 +9,7 @@ export const TEST_AUTH_CONFIG = new AuthConfig({
   httpCookieName: "BAR"
 });
 export const TEST_SMTP_CONFIG = new SMTPConfig({
-  transporterConfig: {},
+  transportConfig: {},
   senderAddress: "foo@bar.com"
 });
 export const TEST_INIT_OPTIONS: InitOptions = {
