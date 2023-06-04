@@ -1,25 +1,28 @@
 import Email from "@emails/email";
 import SMTPConfig from "@configs/smtp";
-import nodemailer from "nodemailer";
+import EmailRenderer from "email-templates";
 
 class SMTPClient {
-  private transporter_: nodemailer.Transporter;
-  private senderAddress_: string;
+  private smtpConfig_: SMTPConfig;
 
   constructor(smtpConfig: SMTPConfig) {
-    const {
-      transporterConfig,
-      senderAddress
-    } = smtpConfig;
-
-    this.transporter_ = nodemailer.createTransport(transporterConfig);
-    this.senderAddress_ = senderAddress;
+    this.smtpConfig_ = smtpConfig;
   }
 
   async sendEmail(email: Email): Promise<void> {
-    return await this.transporter_.sendMail({
-      ...email.mailOptions,
-      from: this.senderAddress_,
+    const renderedEmail = new EmailRenderer({
+      message: {
+        from: this.smtpConfig_.senderAddress
+      },
+      transport: this.smtpConfig_.transporterConfig,
+    });
+
+    await renderedEmail.send({
+      template: this.smtpConfig_.emailTemplates[email.template],
+      message: {
+        to: email.recipient
+      },
+      locals: email.locals
     });
   }
 }

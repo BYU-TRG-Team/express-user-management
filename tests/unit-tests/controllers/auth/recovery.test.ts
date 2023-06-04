@@ -8,7 +8,6 @@ import TokenRepository from "@db/repositories/token";
 import SMTPClient from "@smtp-client";
 
 jest.mock("pg");
-jest.mock("nodemailer");
 
 describe("tests recovery method", () => {
   afterEach(() => {

@@ -1,6 +1,7 @@
 import Token from "@db/models/token";
 import User from "@db/models/user";
 import Email from "@emails/email";
+import { EmailTemplate, EmailTemplateLocals } from "@typings/smtp";
 import { Request } from "express";
 
 interface VerificationEmailInfo {
@@ -10,36 +11,35 @@ interface VerificationEmailInfo {
 }
 
 class VerificationEmail extends Email {
-  private subject_ = "Account Verification Request";
-  private user_: User;
-  private req_: Request;
-  private token_: Token;
-  
+  private template_ = EmailTemplate.Verification;
+  private recipient_: string;
+  private locals_: EmailTemplateLocals;
+
   constructor(verificationEmailInfo: VerificationEmailInfo) {
     const {
       req,
       user,
       token
     } = verificationEmailInfo;
-
+    
     super();
-    this.req_ = req;
-    this.user_ = user;
-    this.token_ = token;
+    this.recipient_ = user.email;
+    this.locals_ = {
+      name: user.name,
+      link: `http://${req.headers.host}/api/auth/verify/${token.token}?userId=${user.userId}`
+    };
   }
 
-  mailOptions() {
-    const verificationLink = (
-      `http://${this.req_.headers.host}/api/auth/verify/${this.token_.token}?userId=${this.user_.userId}`
-    );
-    return {
-      subject: this.subject_,
-      to: this.user_.email,
-      html: `
-      <p>Hello ${this.user_.name},</p>
-      <p>Please visit this <a href="${verificationLink}">link</a> to verify your account.</p> 
-      <p>If you did not request this, please ignore this email.</p>`,
-    };
+  get template() {
+    return this.template_;
+  }
+
+  get recipient() {
+    return this.recipient_;
+  }
+
+  get locals() {
+    return this.locals_;
   }
 }
 

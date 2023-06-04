@@ -1,6 +1,7 @@
 import Token from "@db/models/token";
 import User from "@db/models/user";
 import Email from "@emails/email";
+import { EmailTemplate, EmailTemplateLocals } from "@typings/smtp";
 import { Request } from "express";
 
 interface PasswordResetEmailInfo {
@@ -10,10 +11,9 @@ interface PasswordResetEmailInfo {
 }
 
 class PasswordResetEmail extends Email {
-  private subject_ = "Password Recovery Request";
-  private user_: User;
-  private req_: Request;
-  private token_: Token;
+  private template_ = EmailTemplate.Password;
+  private recipient_: string;
+  private locals_: EmailTemplateLocals;
   
   constructor(passwordResetEmailInfo: PasswordResetEmailInfo) {
     const {
@@ -23,23 +23,23 @@ class PasswordResetEmail extends Email {
     } = passwordResetEmailInfo;
     
     super();
-    this.req_ = req;
-    this.user_ = user;
-    this.token_ = token;
+    this.recipient_ = user.email;
+    this.locals_ = {
+      name: user.name,
+      link: `http://${req.headers.host}/api/auth/recovery/verify/${token.token}?userId=${user.userId}`
+    };
   }
 
-  mailOptions() {
-    const passwordResetLink = (
-      `http://${this.req_.headers.host}/api/auth/recovery/verify/${this.token_.token}?userId=${this.user_.userId}`
-    );
-    return {
-      subject: this.subject_,
-      to: this.user_.email,
-      html: `
-      <p>Hello ${this.user_.name},</p>
-      <p>Please visit this <a href="${passwordResetLink}">link</a> to reset your password.</p> 
-      <p>If you did not request this, please ignore this email.</p>`,
-    };
+  get template() {
+    return this.template_;
+  }
+
+  get recipient() {
+    return this.recipient_;
+  }
+
+  get locals() {
+    return this.locals_;
   }
 }
 

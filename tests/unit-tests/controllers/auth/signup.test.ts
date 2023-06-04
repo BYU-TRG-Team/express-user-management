@@ -5,11 +5,9 @@ import * as mockConstants from "@tests/constants";
 import UserRepository from "@db/repositories/user";
 import User from "@db/models/user";
 import TokenRepository from "@db/repositories/token";
-import { Token } from "nodemailer/lib/xoauth2";
 import SMTPClient from "@smtp-client";
 
 jest.mock("pg");
-jest.mock("nodemailer");
 
 describe("tests signup method", () => {
   afterEach(() => {
