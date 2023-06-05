@@ -5,6 +5,7 @@ import User from "@db/models/user";
 import AuthConfig from "@configs/auth";
 import jwt from "jsonwebtoken";
 import { HTTPCookieJWTPayload } from "@typings/auth";
+import bcrypt from "bcrypt";
 
 /**
  * Constructs an HTTP cookie configuration utilizing HTTP_COOKIE_OPTIONS and HTTP_COOKIE_LIFETIME
@@ -41,4 +42,13 @@ export const createHTTPCookie = (
   const token = jwt.sign(payload, authConfig.httpCookieSecret);
 
   return token;
+};
+
+/**
+ * Hashes a password using bcrypt with a cost factor of 10
+ */
+export const hashPassword = async (password: string) => {
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  return hashedPassword;
 };

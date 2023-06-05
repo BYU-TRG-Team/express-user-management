@@ -2,7 +2,7 @@ import Bottle from "bottlejs";
 import { Express } from "express";
 
 const constructAuthRoutes = (app: Express, bottle: Bottle) => {
-  app.post("/api/auth/signup", bottle.container.AuthController.signup.bind(bottle.container.AuthController));
+  app.post("/api/auth/sign-up", bottle.container.SignUpController.handle.bind(bottle.container.SignUpController));
 
   app.post("/api/auth/signin", bottle.container.AuthController.signin.bind(bottle.container.AuthController));
 

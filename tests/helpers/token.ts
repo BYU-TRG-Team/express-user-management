@@ -1,25 +1,18 @@
 import Token from "@db/models/token";
-import { generateTestUser } from "@tests/helpers/user";
-import { createTestDbClient } from "@tests/helpers/db";
+import User from "@db/models/user";
 import { OneTimeTokenType } from "@typings/auth";
+import { DBClient } from "@typings/db";
+
 
 /**
  * Generates a token and an associated user using fake data. 
  */
-export const generateTestToken = async (
-  options: {
-    saveToDb?: boolean,
-  } = {}
-): Promise<Token> => {
-  const { saveToDb = true } = options;
-  const user = await generateTestUser();
+export const generateTestToken = (user: User): [Token, (testDbClient: DBClient) => Promise<void>] => {
   const token = new Token({
     userId: user.userId,
     type: OneTimeTokenType.Verification
   });
-
-  if (saveToDb) {
-    const testDbClient = await createTestDbClient();
+  const saveToDb = async (testDbClient: DBClient) => {
     await testDbClient.query(
       `
         INSERT INTO identity.token (user_id, token, type, created_at) 
@@ -33,8 +26,10 @@ export const generateTestToken = async (
         token.createdAt
       ]
     );
-    await testDbClient.end();
-  }
+  };
 
-  return token;
+  return [
+    token,
+    saveToDb
+  ];
 };

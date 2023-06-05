@@ -1,14 +1,13 @@
 import Repository from "@db/repositories/repository";
 import Token from "@db/models/token";
-import { TokenSchema } from "@typings/db";
-import { PoolClient, Pool, Client } from "pg";
+import { DBClient, TokenSchema } from "@typings/db";
 import { OneTimeTokenType } from "@typings/auth";
 import { UUID } from "@typings";
 
 class TokenRepository extends Repository<Token>{
-  private dbClient_: PoolClient | Pool | Client;
+  private dbClient_: DBClient;
   
-  constructor(dbClient: PoolClient | Pool | Client) {
+  constructor(dbClient: DBClient) {
     super();
     this.dbClient_ = dbClient;
   }

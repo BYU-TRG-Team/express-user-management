@@ -3,22 +3,24 @@ import { checkUserVerification } from "@middleware/auth";
 
 describe("tests checkUserVerification middleware", () => {  
   test("should accept a verified user", () => {
+    const { res, next } = getMockRes();
     const req = getMockReq({
       verified: true,
     });
-    const { res, next } = getMockRes();
     
+    // Invoke middleware
     checkUserVerification(req, res, next);
 
     expect(next).toHaveBeenCalledTimes(1);
   });
 
   test("should reject an unverified user", () => {
+    const { res, next } = getMockRes();
     const req = getMockReq({
       verified: false,
     });
-    const { res, next } = getMockRes();
     
+    // Invoke middleware
     checkUserVerification(req, res, next);
 
     expect(next).not.toHaveBeenCalled();

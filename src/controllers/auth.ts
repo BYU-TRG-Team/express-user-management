@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { Logger } from "winston";
 import { Response, Request } from "express";
 import SMTPClient from "@smtp-client";
-import DBClient from "@db-client";
+import DBClientPool from "@db-client-pool";
 import { OneTimeTokenType } from "@typings/auth";
 import User from "@db/models/user";
 import { LOGIN_AUTHENTICATION_ERROR, GENERIC_ERROR } from "@constants/errors";
@@ -18,13 +18,13 @@ import PasswordResetEmail from "@emails/password-reset";
 
 class AuthController {
   private smtpClient_: SMTPClient;
-  private dbClient_: DBClient;
+  private dbClientPool_: DBClientPool;
   private logger_: Logger;
   private authConfig_: AuthConfig;
 
-  constructor(smtpClient: SMTPClient, dbClient: DBClient, logger: Logger, authConfig: AuthConfig) {
+  constructor(smtpClient: SMTPClient, dbClientPool: DBClientPool, logger: Logger, authConfig: AuthConfig) {
     this.smtpClient_ = smtpClient;
-    this.dbClient_ = dbClient;
+    this.dbClientPool_ = dbClientPool;
     this.logger_ = logger;
     this.authConfig_ = authConfig;
   }
@@ -50,7 +50,7 @@ class AuthController {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
-      dbTXNClient = await this.dbClient_.beginTransaction();
+      dbTXNClient = await this.dbClientPool_.beginTransaction();
     } catch (err) {
       if (isError(err)) {
         this.logger_.log({
@@ -86,7 +86,7 @@ class AuthController {
         token: verificationToken
       });
       await this.smtpClient_.sendEmail(verificationEmail);
-      await this.dbClient_.commitTransaction(dbTXNClient);
+      await this.dbClientPool_.commitTransaction(dbTXNClient);
       res.status(204).send();
     } catch (err: any) {
       if (isError(err)) {
@@ -96,7 +96,7 @@ class AuthController {
         });
       }
       
-      await this.dbClient_.rollbackTransaction(dbTXNClient);
+      await this.dbClientPool_.rollbackTransaction(dbTXNClient);
       res.status(500).send({ message: GENERIC_ERROR });
     } 
   }
@@ -107,7 +107,7 @@ class AuthController {
   * @password
   */
   async signin(req: Request, res: Response) {
-    const userRepo = new UserRepository(this.dbClient_.connectionPool);
+    const userRepo = new UserRepository(this.dbClientPool_.connectionPool);
 
     try {
       const { username, password } = req.body;
@@ -175,8 +175,8 @@ class AuthController {
   * GET api/auth/verify/:token
   */
   async verify(req: Request, res: Response) {
-    const userRepo = new UserRepository(this.dbClient_.connectionPool);
-    const tokenRepo = new TokenRepository(this.dbClient_.connectionPool);
+    const userRepo = new UserRepository(this.dbClientPool_.connectionPool);
+    const tokenRepo = new TokenRepository(this.dbClientPool_.connectionPool);
 
     /*
     * TODO: Remove use of userId query param. Replace with path param.
@@ -219,7 +219,7 @@ class AuthController {
     let dbTXNClient: PoolClient;
 
     try {
-      dbTXNClient = await this.dbClient_.beginTransaction();
+      dbTXNClient = await this.dbClientPool_.beginTransaction();
     } catch (err) {
       if (isError(err)) {
         this.logger_.log({
@@ -271,7 +271,7 @@ class AuthController {
         token: recoveryToken
       });
       await this.smtpClient_.sendEmail(passwordResetEmail);
-      await this.dbClient_.commitTransaction(dbTXNClient);
+      await this.dbClientPool_.commitTransaction(dbTXNClient);
       res.redirect("/recover/sent");
     } catch (err: any) {
       this.logger_.log({
@@ -279,7 +279,7 @@ class AuthController {
         message: err,
       });
 
-      await this.dbClient_.rollbackTransaction(dbTXNClient);
+      await this.dbClientPool_.rollbackTransaction(dbTXNClient);
       res.status(500).send({ message: GENERIC_ERROR });
     }
   }
@@ -288,7 +288,7 @@ class AuthController {
   * GET api/auth/recovery/verify/:token
   */
   async verifyRecovery(req: Request, res: Response) {
-    const tokenRepo = new TokenRepository(this.dbClient_.connectionPool);
+    const tokenRepo = new TokenRepository(this.dbClientPool_.connectionPool);
     /*
     * TODO: Remove use of userId query param. Replace with path param.
     */
@@ -325,8 +325,8 @@ class AuthController {
   * @password
   */
   async processRecovery(req: Request, res: Response) {
-    const userRepo = new UserRepository(this.dbClient_.connectionPool);
-    const tokenRepo = new TokenRepository(this.dbClient_.connectionPool);
+    const userRepo = new UserRepository(this.dbClientPool_.connectionPool);
+    const tokenRepo = new TokenRepository(this.dbClientPool_.connectionPool);
     const { password } = req.body;
 
     if (password === undefined) {

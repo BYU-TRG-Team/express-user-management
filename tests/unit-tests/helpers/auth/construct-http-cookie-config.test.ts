@@ -8,6 +8,8 @@ describe("tests constructHTTPCookieConfig method", () => {
   });
 
   test("should generate a cookie configuration utilizing HTTP_COOKIE_OPTIONS and an expiration date based on HTTP_COOKIE_LIFETIME", async () => {
+    jest.spyOn(Date, "now").mockImplementation(() => currentDate.valueOf());
+    
     const currentDate = new Date();
     const expectedCookieConfig: CookieOptions = {
       ...HTTP_COOKIE_OPTIONS,
@@ -15,10 +17,10 @@ describe("tests constructHTTPCookieConfig method", () => {
         currentDate.valueOf() + HTTP_COOKIE_LIFETIME
       )
     };
-    jest.spyOn(Date, "now").mockImplementation(() => currentDate.valueOf());
 
+    // Invoke helper
     const cookieConfig = constructHTTPCookieConfig();
-    
+  
     expect(cookieConfig).toStrictEqual(expectedCookieConfig);
   });
 });

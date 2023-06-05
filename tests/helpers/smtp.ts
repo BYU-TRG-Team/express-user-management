@@ -7,12 +7,8 @@ import { generateTestToken } from "./token";
  * Generates an email using fake data
  */
 export const generateTestEmail = async () => {
-  const user = await generateTestUser({
-    saveToDb: false
-  });
-  const token = await generateTestToken({
-    saveToDb: false
-  });
+  const [ user ] = await generateTestUser();
+  const [ token ] = await generateTestToken(user);
   const req = getMockReq();
   const email = new VerificationEmail({
     req,

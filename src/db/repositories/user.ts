@@ -1,13 +1,12 @@
 import Repository from "@db/repositories/repository";
 import User from "@db/models/user";
-import { UserSchema } from "@typings/db";
-import { PoolClient, Pool, Client } from "pg";
+import { DBClient, UserSchema } from "@typings/db";
 import { UUID } from "@typings";
 
 class UserRepository extends Repository<User>{
-  private dbClient_: PoolClient | Pool | Client;
+  private dbClient_: DBClient;
   
-  constructor(dbClient: PoolClient | Pool | Client) {
+  constructor(dbClient: DBClient) {
     super();
     this.dbClient_ = dbClient;
   }

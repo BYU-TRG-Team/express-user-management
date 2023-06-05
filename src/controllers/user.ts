@@ -1,21 +1,21 @@
 import bcrypt from "bcrypt";
 import { Logger } from "winston";
 import { Request, Response } from "express";
-import DB from "@db-client";
 import { Role } from "@typings/auth";
 import { RESOURCE_NOT_FOUND_ERROR, GENERIC_ERROR, AUTHORIZATION_ERROR } from "@constants/errors";
 import { constructHTTPCookieConfig, createHTTPCookie } from "@helpers/auth";
 import UserRepository from "@db/repositories/user";
 import AuthConfig from "@configs/auth";
+import DBClientPool from "@db-client-pool";
 
 class UserController {
   private logger_: Logger;
-  private dbClient_: DB;
+  private dbClientPool_: DBClientPool;
   private authConfig_: AuthConfig;
 
-  constructor(logger: Logger, db: DB, authConfig:  AuthConfig) {
+  constructor(logger: Logger, dbClientPool: DBClientPool, authConfig:  AuthConfig) {
     this.logger_ = logger;
-    this.dbClient_ = db;
+    this.dbClientPool_ = dbClientPool;
     this.authConfig_ = authConfig;
   }
 
@@ -28,7 +28,7 @@ class UserController {
   * @roleId (optional)
   */
   async updateUser(req: Request, res: Response) {
-    const userRepo = new UserRepository(this.dbClient_.connectionPool);
+    const userRepo = new UserRepository(this.dbClientPool_.connectionPool);
     
     if (
       req.role !== Role.Admin &&
@@ -100,7 +100,7 @@ class UserController {
   * GET /api/user/:id
   */
   async getUser(req: Request, res: Response) {
-    const userRepo = new UserRepository(this.dbClient_.connectionPool);
+    const userRepo = new UserRepository(this.dbClientPool_.connectionPool);
 
     try {
       if (
@@ -142,7 +142,7 @@ class UserController {
   * GET /api/users
   */
   async getUsers(_req: Request, res: Response) {
-    const userRepo = new UserRepository(this.dbClient_.connectionPool);
+    const userRepo = new UserRepository(this.dbClientPool_.connectionPool);
 
     try {
       const users = await userRepo.getAll();
@@ -160,7 +160,7 @@ class UserController {
   * DELETE /api/user/:id
   */
   async deleteUser(req: Request, res: Response) {
-    const userRepo = new UserRepository(this.dbClient_.connectionPool);
+    const userRepo = new UserRepository(this.dbClientPool_.connectionPool);
 
     try {
       const user = await userRepo.getByUUID(req.params.id);

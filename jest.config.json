@@ -19,7 +19,7 @@
     "^@$": "<rootDir>/src",
     "^@config-manager$": "<rootDir>/src/config-manager",
     "^@smtp-client$": "<rootDir>/src/smtp-client",
-    "^@db-client$": "<rootDir>/src/db-client",
+    "^@db-client-pool$": "<rootDir>/src/db-client-pool",
     "^@typings$": "<rootDir>/src/types",
     "^@typings/(.*)$": "<rootDir>/src/types/$1",
     "^@middleware/(.*)$": "<rootDir>/src/middleware/$1",

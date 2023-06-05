@@ -8,13 +8,14 @@ describe("tests verifyHTTPCookie middleware", () => {
   test("should verify a valid JWT", () => {
     const payload = generateHTTPCookieJWTPayload();
     const token = jwt.sign(payload, TEST_AUTH_CONFIG.httpCookieSecret);
+    const { res, next } = getMockRes();
     const req = getMockReq({
       cookies: {
         [TEST_AUTH_CONFIG.httpCookieName]: token
       },
     });
-    const { res, next } = getMockRes();
     
+    // Invoke middleware
     verifyHTTPCookie(TEST_AUTH_CONFIG)(req, res, next);
 
     expect(next).toHaveBeenCalledTimes(1);
@@ -26,13 +27,14 @@ describe("tests verifyHTTPCookie middleware", () => {
   test("should reject an invalid JWT", () => {
     const payload = generateHTTPCookieJWTPayload();
     const token = jwt.sign(payload, `${TEST_AUTH_CONFIG.httpCookieSecret}_FOO`);
+    const { res, next } = getMockRes();
     const req = getMockReq({
       cookies: {
         [TEST_AUTH_CONFIG.httpCookieName]: token
       },
     });
-    const { res, next } = getMockRes();
     
+    // Invoke middleware
     verifyHTTPCookie(TEST_AUTH_CONFIG)(req, res, next);
 
     expect(next).not.toHaveBeenCalled();

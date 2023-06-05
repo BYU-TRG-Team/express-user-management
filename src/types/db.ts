@@ -1,5 +1,8 @@
 import { Role } from "@typings/auth";
 import { UUID } from "@typings";
+import { Pool, PoolClient } from "pg";
+
+export type DBClient = Pool | PoolClient
 
 export interface UserSchema {
   user_id: UUID;

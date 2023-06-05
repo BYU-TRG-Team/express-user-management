@@ -25,8 +25,8 @@
       "@smtp-client": [
         "./src/smtp-client"
       ],
-      "@db-client": [
-        "./src/db-client"
+      "@db-client-pool": [
+        "./src/db-client-pool"
       ],
       "@typings": [
         "./src/types"

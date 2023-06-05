@@ -4,22 +4,24 @@ import { Role } from "@typings/auth";
 
 describe("tests checkUserRole middleware", () => {  
   test("should accept an authorized user", () => {
+    const { res, next } = getMockRes();
     const req = getMockReq({
       role: Role.Admin
     });
-    const { res, next } = getMockRes();
     
+    // Invoke middleware
     checkUserRole([Role.Admin])(req, res, next);
 
     expect(next).toHaveBeenCalledTimes(1);
   });
 
   test("should reject an unauthorized user", () => {
+    const { res, next } = getMockRes();
     const req = getMockReq({
       role: Role.Admin
     });
-    const { res, next } = getMockRes();
     
+    // Invoke middleware
     checkUserRole([
       Role.User,
       Role.Staff

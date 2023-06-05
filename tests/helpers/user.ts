@@ -1,16 +1,11 @@
 import { faker } from "@faker-js/faker";
 import User from "@db/models/user";
-import { createTestDbClient } from "@tests/helpers/db";
+import { DBClient } from "@typings/db";
 
 /**
  * Generates a user using fake data
  */
-export const generateTestUser = async (
-  options: {
-    saveToDb?: boolean
-  } = {}
-): Promise<User> => {
-  const { saveToDb = true } = options;
+export const generateTestUser = (): [User, (testDbClient: DBClient) => Promise<void>] => {
   const user = new User({
     username: faker.internet.userName(),
     email: faker.internet.email(),
@@ -18,10 +13,7 @@ export const generateTestUser = async (
     verified: true,
     name: faker.internet.displayName(),
   });
-
-
-  if (saveToDb) {
-    const testDbClient = await createTestDbClient();
+  const saveToDb = async (testDbClient: DBClient) => {
     await testDbClient.query(
       `
         INSERT INTO identity.user (user_id, username, verified, password, email, name, role_id) 
@@ -38,8 +30,10 @@ export const generateTestUser = async (
         user.roleId
       ]
     );
-    await testDbClient.end();
-  }
+  };
 
-  return user;
+  return [
+    user, 
+    saveToDb
+  ];
 };

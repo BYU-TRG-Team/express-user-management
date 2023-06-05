@@ -10,7 +10,7 @@ class AuthConfig {
   constructor(authInfo: AuthInfo) {
     const {
       httpCookieSecret,
-      httpCookieName
+      httpCookieName,
     } = authInfo;
 
     this.httpCookieSecret_ = httpCookieSecret;

@@ -1,5 +1,6 @@
 import { InitOptions } from "@typings/library";
-import DBClient from "@db-client";
+import DBClientPool from "src/db-client-pool";
+import SignUpController from "@controllers/auth/sign-up";
 import AuthController from "@controllers/auth";
 import UserController from "@controllers/user";
 import Bottle from "bottlejs";
@@ -9,20 +10,27 @@ export default function constructBottle(initOptions: InitOptions): Bottle {
   const {
     smtpConfig,
     logger,
-    dbConfig,
+    dbClientPool,
     authConfig
   } = initOptions;
   const bottle = new Bottle();
   
   bottle.factory("Logger", () => logger);
   bottle.factory("AuthConfig", () => authConfig);
+  bottle.factory("DBClientPool", () => dbClientPool);
   bottle.factory("SMTPClient", () => new SMTPClient(smtpConfig));
-  bottle.factory("DBClient", () => new DBClient(dbConfig));
+  bottle.service(
+    "SignUpController", 
+    SignUpController,
+    "SMTPClient", 
+    "DBClientPool", 
+    "Logger",
+  );
   bottle.service(
     "AuthController", 
     AuthController, 
     "SMTPClient", 
-    "DBClient", 
+    "DBClientPool", 
     "Logger",
     "AuthConfig",
   )
@@ -31,7 +39,7 @@ export default function constructBottle(initOptions: InitOptions): Bottle {
     "UserController", 
     UserController, 
     "Logger", 
-    "DBClient",
+    "DBClientPool",
     "AuthConfig",
   );
 

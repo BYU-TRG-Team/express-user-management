@@ -1,10 +1,10 @@
-import pg, { PoolConfig, PoolClient } from "pg";
+import pg, { PoolClient } from "pg";
 
-class DBClient {
+class DBClientPool {
   public connectionPool: pg.Pool;
 
-  constructor(dbClientConfig: PoolConfig) { 
-    this.connectionPool = new pg.Pool(dbClientConfig);
+  constructor(pgPool: pg.Pool) { 
+    this.connectionPool = pgPool;
   }
 
   /**
@@ -33,4 +33,4 @@ class DBClient {
   }
 }
 
-export default DBClient;
+export default DBClientPool;
