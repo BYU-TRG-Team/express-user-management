@@ -19,8 +19,8 @@ git reset --hard "v${TARGET_RELEASE_VERSION}"
 # Build library
 npm ci
 npm run build
-rm .gitignore
 cat .npmignore | xargs rm -rf
+rm -rf .gitignore node_modules
 
 # Commit changes
 git add .
