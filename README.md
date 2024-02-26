@@ -6,6 +6,32 @@ Library to extend an Express.js HTTP REST API with user management functionality
 - Authorization middleware
 - Endpoints for authentication and user management
 
+**NOTE: This library is now deprecated and is no longer published as an NPM package**
+
+A version can be published to a branch in this repo on an as needed basis using the following instructions:
+
+```
+# Checkout new local branch
+TARGET_RELEASE_VERSION=<release version>
+git checkout -b "release/v${TARGET_RELEASE_VERSION}"
+git reset --hard "v${TARGET_RELEASE_VERSION}"
+
+# Build library
+npm ci
+npm run build
+rm .gitignore
+cat .npmignore | xargs rm -rf
+
+# Commit changes
+git add .
+git commit -m "Release ${TARGET_RELEASE_VERSION} (published)" --no-verify
+
+# Push branch to remote and add tag
+git push origin "release/v${TARGET_RELEASE_VERSION}"
+git tag "release-${TARGET_RELEASE_VERSION}"
+git push origin "release-${TARGET_RELEASE_VERSION}"
+```
+
 ## Authorization Structure
 
 There are four roles available that can be assigned to a user:
